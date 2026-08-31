@@ -75,7 +75,15 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .score-card { padding:27px 30px; color:white; background:radial-gradient(circle at 50% 37%,rgba(61,215,208,.18),transparent 38%),linear-gradient(155deg,#0c4753,#071f29); text-align:center; }
 .score-head { display:flex; align-items:center; justify-content:space-between; color:#b9d0d1; font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
 .score-head b { margin-inline-start:auto; margin-inline-end:8px; padding:4px 6px; border-radius:5px; color:var(--cyan); background:rgba(61,215,208,.1); font-size:8px; }
-.score-ring { --score:270deg; width:145px; height:145px; margin:24px auto 17px; padding:10px; border-radius:50%; background:conic-gradient(var(--cyan) var(--score),rgba(255,255,255,.1) 0); position:relative; }
+.activity-mascot { width:108px; height:108px; margin:11px auto -13px; background-image:url("/assets/activity-mascots.png"); background-repeat:no-repeat; background-size:300% 300%; filter:drop-shadow(0 10px 12px rgba(0,0,0,.24)); transition:background-position .25s ease,transform .25s ease; }
+.activity-mascot:hover { transform:translateY(-2px) rotate(-2deg); }
+.mascot-fishing { background-position-x:0%; }
+.mascot-surfing { background-position-x:50%; }
+.mascot-kayaking { background-position-x:100%; }
+.mascot-happy { background-position-y:0%; }
+.mascot-neutral { background-position-y:50%; }
+.mascot-sad { background-position-y:100%; }
+.score-ring { --score:270deg; width:145px; height:145px; margin:0 auto 17px; padding:10px; border-radius:50%; background:conic-gradient(var(--cyan) var(--score),rgba(255,255,255,.1) 0); position:relative; }
 .score-ring::before { content:""; position:absolute; inset:4px; border-radius:50%; background:var(--deep); }
 .score-ring>div { position:relative; height:100%; display:flex; align-items:baseline; justify-content:center; padding-top:37px; border:1px solid rgba(255,255,255,.08); border-radius:50%; }
 .score-ring strong { font-family:Georgia,serif; font-size:48px; font-weight:400; letter-spacing:-.06em; }
