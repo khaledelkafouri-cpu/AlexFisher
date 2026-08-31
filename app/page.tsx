@@ -47,7 +47,7 @@ const copy = {
     hourly: "Plan your day", drag: "Drag the time marker — every chart moves with you", selected: "Selected time", community: "The sea is better together.",
     communitySub: "Local reports, honest answers and people who love the water as much as you do.",
     members: "members", postsToday: "posts today", ask: "Ask the community...",
-    launch: "Community accounts and posting are the next build stage.",
+    launch: "Open the full community to ask questions, publish reports and comment.",
     today: "Today", tomorrow: "Tomorrow", dayThree: "Day 3", chooseDay: "3-day forecast", bestAt: "Best at",
     safety: "Forecast guidance only. Always check local conditions and official safety advice before entering the water.",
   },
@@ -61,7 +61,7 @@ const copy = {
     metrics: ["الرياح", "الأمواج", "السويل", "المد والجزر", "حرارة البحر", "التيار"], rising: "مد صاعد", falling: "جزر",
     hourly: "خطط ليومك", drag: "حرّك مؤشر الوقت — كل الرسوم تتحرك معك", selected: "الوقت المختار", community: "البحر أحلى مع بعض.",
     communitySub: "تقارير محلية، إجابات حقيقية، وناس بتحب البحر زيك.", members: "عضو", postsToday: "منشور اليوم",
-    ask: "اسأل المجتمع...", launch: "الحسابات والنشر في المجتمع هي المرحلة التالية من التطوير.",
+    ask: "اسأل المجتمع...", launch: "افتح المجتمع الكامل لطرح الأسئلة ونشر التقارير والتعليق.",
     today: "اليوم", tomorrow: "غداً", dayThree: "اليوم الثالث", chooseDay: "توقعات ٣ أيام", bestAt: "الأفضل الساعة",
     safety: "التوقعات للإرشاد فقط. تحقق دائماً من الظروف المحلية وتعليمات السلامة الرسمية قبل النزول إلى المياه.",
   },
@@ -259,9 +259,7 @@ export default function Home() {
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
-        <nav aria-label="Main navigation">{t.nav.map((item, index) => index === 2
-          ? <button key={item} onClick={() => document.getElementById("community")?.scrollIntoView({ behavior: "smooth" })}>{item}</button>
-          : <a key={item} href={index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
+        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions"><button className="icon-button" aria-label="Notifications"><Bell size={18} /></button><button className="language-button" onClick={() => setLanguage(language === "en" ? "ar" : "en")}><Languages size={17} /> {language === "en" ? "العربية" : "EN"}</button></div>
       </header>
 
@@ -342,7 +340,7 @@ export default function Home() {
                 : (rtl ? "الرياح هتزيد بعد ١١ صباحاً. أنصح المبتدئين يبدأوا بدري ويرجعوا قبلها." : "Wind builds after 11 AM. Beginners should launch early and be back before it strengthens.")}</p>
             <div className="forecast-chip"><Wind size={15} /> 10 km/h <Waves size={15} /> 0.6 m <span>78/100</span></div>
             <div className="post-actions"><button><Heart size={17} /> 128</button><button><MessageCircle size={17} /> 24</button><button><Send size={17} /></button></div>
-            <div className="ask-bar"><div className="avatar small">YOU</div><input aria-label={t.ask} placeholder={t.ask} disabled /><button disabled><Send size={16} /></button></div><p className="launch-note">{t.launch}</p>
+            <a className="community-open" href="/community"><MessageCircle size={17}/>{t.ask}<ChevronRight size={16}/></a><p className="launch-note">{t.launch}</p>
           </article>
         </div>
       </section>
