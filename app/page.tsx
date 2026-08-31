@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Anchor, ArrowDown, ArrowUpRight, Bell, ChevronRight, Compass, Fish, Gauge,
-  Heart, Languages, MapPin, Menu, MessageCircle, Navigation, RefreshCw, Search, Send, ShipWheel,
-  Sparkles, Sunrise, Thermometer, Users, Waves, Wind,
+  ArrowDown, ArrowUpRight, Bell, ChevronRight, Compass, Fish, Gauge,
+  Languages, MapPin, Menu, Navigation, RefreshCw, Search, ShipWheel,
+  Sparkles, Sunrise, Thermometer, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -169,7 +169,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [dataStatus, setDataStatus] = useState<"live" | "sample">("sample");
   const [selectedHour, setSelectedHour] = useState(9);
-  const [communityGroup, setCommunityGroup] = useState<Activity>("fishing");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [refreshRequest, setRefreshRequest] = useState(0);
   const t = copy[language];
@@ -279,7 +278,7 @@ export default function Home() {
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
-        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
+        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions">
           <Sheet>
             <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><Menu size={19} /><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
@@ -290,7 +289,7 @@ export default function Home() {
                 <SheetDescription>{rtl ? "اختر القسم الذي تريد الذهاب إليه." : "Choose where you want to go."}</SheetDescription>
               </SheetHeader>
               <nav className="mobile-nav-links" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"}>
-                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
+                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "/shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
               </nav>
             </SheetContent>
           </Sheet>
@@ -360,29 +359,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="community" className="community-section">
-        <div className="community-heading"><p className="eyebrow"><span /> ALEX FISHER COMMUNITY</p><h2>{t.community}</h2><p>{t.communitySub}</p></div>
-        <div className="community-layout">
-          <div className="group-list">{[
-            { id: "fishing" as Activity, icon: Fish, name: t.activities.fishing, members: "12.4K", posts: 84, color: "cyan" },
-            { id: "surfing" as Activity, icon: Waves, name: t.activities.surfing, members: "4.8K", posts: 31, color: "coral" },
-            { id: "kayaking" as Activity, icon: ShipWheel, name: t.activities.kayaking, members: "3.1K", posts: 22, color: "mint" },
-          ].map((group) => <button type="button" onClick={() => setCommunityGroup(group.id)} className={`group-card ${communityGroup === group.id ? "selected" : ""}`} key={group.name}><div className={`group-icon ${group.color}`}><group.icon size={25} /></div><div><h3>{group.name}</h3><p><Users size={14} /> {group.members} {t.members} · {group.posts} {t.postsToday}</p></div><ChevronRight size={20} className={rtl ? "flip" : ""} /></button>)}</div>
-          <article className="conversation-card">
-            <div className="post-author"><div className="avatar">AF</div><div><strong>AlexFisher</strong><span><MapPin size={12} /> Alexandria · 18 min</span></div><span className="verified">✓</span></div>
-            <p>{communityGroup === "fishing"
-              ? (rtl ? "الجو في المكس دلوقتي هادي والرياح أخف من التوقعات. حد نازل يجرب الصيد قبل الغروب؟" : "The water at El Max is calmer than forecast right now. Anyone heading out for a sunset fishing session?")
-              : communityGroup === "surfing"
-                ? (rtl ? "السويل بيتحسن بعد الظهر. مين جرّب الظروف النهارده في الساحل؟" : "The swell improves this afternoon. Has anyone checked the North Coast conditions today?")
-                : (rtl ? "الرياح هتزيد بعد ١١ صباحاً. أنصح المبتدئين يبدأوا بدري ويرجعوا قبلها." : "Wind builds after 11 AM. Beginners should launch early and be back before it strengthens.")}</p>
-            <div className="forecast-chip"><Wind size={15} /> 10 km/h <Waves size={15} /> 0.6 m <span>78/100</span></div>
-            <div className="post-actions"><button><Heart size={17} /> 128</button><button><MessageCircle size={17} /> 24</button><button><Send size={17} /></button></div>
-            <a className="community-open" href="/community"><MessageCircle size={17}/>{t.ask}<ChevronRight size={16}/></a><p className="launch-note">{t.launch}</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="shop" className="shop-strip"><div><Anchor size={26} /><span><small>ALEX FISHER GEAR</small><strong>{rtl ? "المتجر قريباً" : "Built for days on the water. Coming soon."}</strong></span></div><button disabled>{rtl ? "قريباً" : "SHOP COMING SOON"}</button></section>
       <footer><div className="brand"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong></span></div><p>{t.safety}</p><span>© 2026 AlexFisher</span></footer>
     </main>
   );

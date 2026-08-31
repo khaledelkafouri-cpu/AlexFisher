@@ -321,6 +321,36 @@ footer>span { color:#7e9297; font-size:9px; }
 .species-grid dl>div { display:grid; grid-template-columns:68px 1fr; gap:8px; }
 .species-grid dt { color:#82979b; font-size:8px; font-weight:800; text-transform:uppercase; }
 .species-grid dd { margin:0; color:#29464d; font-size:9px; line-height:1.45; }
+.shop-page { min-height:100vh; padding-bottom:90px; background:radial-gradient(circle at 85% 5%,rgba(255,124,97,.1),transparent 24%),#f7faf8; }
+.shop-hero { max-width:1128px; margin:0 auto; padding:65px 0 42px; display:flex; align-items:end; justify-content:space-between; gap:45px; }
+.shop-hero>div:first-child { max-width:750px; }
+.shop-hero p,.shop-section-heading p { margin:0; color:var(--coral); font-size:9px; font-weight:850; letter-spacing:.2em; }
+.shop-hero h1 { margin:14px 0 15px; font-family:Georgia,serif; font-size:clamp(46px,6vw,72px); line-height:.96; letter-spacing:-.05em; font-weight:400; }
+.shop-hero>div:first-child>span { max-width:650px; display:block; color:#627b81; font-size:14px; line-height:1.7; }
+.shop-status { min-width:175px; padding:22px; border-radius:20px; color:white; background:var(--deep); box-shadow:0 20px 50px rgba(7,29,37,.14); text-align:center; }
+.shop-status svg { color:var(--cyan); }
+.shop-status strong,.shop-status span { display:block; }
+.shop-status strong { margin-top:10px; font-family:Georgia,serif; font-size:22px; font-weight:400; }
+.shop-status span { margin-top:4px; color:#9fb7ba; font-size:8px; text-transform:uppercase; letter-spacing:.1em; }
+.shop-categories { max-width:1128px; margin:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:11px; }
+.shop-categories article { min-height:205px; padding:20px; display:flex; align-items:flex-start; flex-direction:column; border:1px solid var(--line); border-radius:18px; background:white; }
+.shop-categories article>span { width:43px; height:43px; display:grid; place-items:center; border-radius:12px; color:var(--ocean); background:var(--foam); }
+.shop-categories article.coral>span { color:#c65e48; background:#fff0eb; }.shop-categories article.gold>span { color:#a8752a; background:#fbf3df; }.shop-categories article.blue>span { color:#41699a; background:#eaf0f8; }
+.shop-categories strong { margin-top:20px; font-family:Georgia,serif; font-size:21px; font-weight:400; }
+.shop-categories p { margin:8px 0; color:#758b90; font-size:10px; line-height:1.6; }
+.shop-categories article>svg { margin-top:auto; color:#8da1a5; }
+.shop-roadmap { max-width:1128px; margin:24px auto 0; padding:29px; border:1px solid var(--line); border-radius:22px; background:white; }
+.shop-section-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; }
+.shop-section-heading h2 { margin:7px 0 0; font-family:Georgia,serif; font-size:30px; font-weight:400; }
+.shop-section-heading>span { color:#809499; font-size:9px; font-weight:700; }
+.planned-products { margin-top:23px; display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.planned-products article { min-height:74px; padding:13px; display:grid; grid-template-columns:40px 1fr auto; align-items:center; gap:11px; border:1px solid var(--line); border-radius:14px; background:#f7faf9; }
+.planned-products article>span { width:40px; height:40px; display:grid; place-items:center; border-radius:11px; color:var(--ocean); background:var(--foam); }
+.planned-products small,.planned-products strong { display:block; }.planned-products small { margin-bottom:3px; color:#8ba0a5; font-size:7px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; }.planned-products strong { font-size:11px; }
+.planned-products em { padding:5px 7px; border-radius:6px; color:#957042; background:var(--sand); font-size:7px; font-style:normal; font-weight:800; letter-spacing:.08em; }
+.shop-community-note { margin-top:20px; padding:18px; display:flex; align-items:center; justify-content:space-between; gap:20px; border-radius:15px; color:white; background:var(--deep); }
+.shop-community-note>div { display:flex; align-items:center; gap:12px; }.shop-community-note>div>svg { color:var(--cyan); }.shop-community-note strong,.shop-community-note small { display:block; }.shop-community-note strong { font-family:Georgia,serif; font-size:17px; font-weight:400; }.shop-community-note small { margin-top:3px; color:#9fb7ba; font-size:9px; }
+.shop-community-note>a { padding:10px 13px; display:flex; align-items:center; gap:6px; border-radius:10px; color:var(--deep); background:var(--cyan); text-decoration:none; font-size:9px; font-weight:800; white-space:nowrap; }
 .quick-guide { margin-top:22px; padding:17px; border-radius:14px; background:#f1f7f5; }
 .quick-guide>div { margin-top:9px; display:flex; align-items:flex-start; gap:8px; color:#526c72; font-size:9px; line-height:1.5; }
 .quick-guide svg { flex:0 0 auto; margin-top:1px; color:var(--ocean); }
@@ -336,6 +366,8 @@ footer>span { color:#7e9297; font-size:9px; }
   .community-channels { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
   .community-channels>p { grid-column:1/-1; } .community-channels button { align-items:flex-start; }
   .learning-hero,.learning-categories,.learning-detail { margin-inline:28px; }
+  .shop-hero,.shop-categories,.shop-roadmap { margin-inline:28px; }
+  .shop-categories { grid-template-columns:repeat(2,1fr); }
   .learning-categories { grid-template-columns:repeat(3,1fr); }
   .learning-detail { grid-template-columns:280px 1fr; }
 }
@@ -377,4 +409,10 @@ footer>span { color:#7e9297; font-size:9px; }
   .lessons-panel { padding:20px 15px; } .lesson-list article { grid-template-columns:30px 1fr; }
   .lesson-list em { grid-column:2; margin-bottom:9px; width:fit-content; }
   .species-panel { padding:18px 13px; } .species-grid { grid-template-columns:1fr; }
+  .shop-page { padding-bottom:60px; } .shop-hero { margin-inline:20px; padding:52px 0 30px; align-items:flex-start; flex-direction:column; }
+  .shop-hero h1 { font-size:48px; } .shop-status { width:100%; text-align:start; }
+  .shop-categories { margin-inline:14px; grid-template-columns:1fr 1fr; } .shop-categories article { min-height:190px; padding:16px; }
+  .shop-roadmap { margin:18px 14px 0; padding:20px 14px; } .shop-section-heading { align-items:flex-start; flex-direction:column; }
+  .planned-products { grid-template-columns:1fr; } .planned-products article { grid-template-columns:38px 1fr; }
+  .planned-products em { grid-column:2; width:fit-content; } .shop-community-note { align-items:flex-start; flex-direction:column; }
 }
