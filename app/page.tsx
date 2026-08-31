@@ -36,7 +36,7 @@ const spots: Spot[] = [
 
 const copy = {
   en: {
-    nav: ["Conditions", "Explore", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
+    nav: ["Conditions", "Learning", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
     titleA: "Know the sea.", titleB: "Own the day.",
     subtitle: "One clear forecast for fishing, surfing and kayaking — interpreted for the way you move on the water.",
     where: "Where are you heading?", live: "LIVE MODEL FORECAST", updated: "Updated",
@@ -52,7 +52,7 @@ const copy = {
     safety: "Forecast guidance only. Always check local conditions and official safety advice before entering the water.",
   },
   ar: {
-    nav: ["حالة البحر", "استكشف", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
+    nav: ["حالة البحر", "تعلم", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
     titleA: "اعرف البحر.", titleB: "واختار يومك.",
     subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟",
     live: "توقع مباشر", updated: "آخر تحديث", activities: { fishing: "صيد", surfing: "سيرف", kayaking: "كاياك" },
@@ -259,7 +259,7 @@ export default function Home() {
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
-        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
+        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions"><button className="icon-button" aria-label="Notifications"><Bell size={18} /></button><button className="language-button" onClick={() => setLanguage(language === "en" ? "ar" : "en")}><Languages size={17} /> {language === "en" ? "العربية" : "EN"}</button></div>
       </header>
 
