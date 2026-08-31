@@ -261,7 +261,7 @@ footer>span { color:#7e9297; font-size:9px; }
 .learning-stat { min-width:150px; padding:21px; border-radius:20px; color:white; background:var(--deep); text-align:center; box-shadow:0 20px 50px rgba(7,29,37,.14); }
 .learning-stat strong { display:block; color:var(--cyan); font-family:Georgia,serif; font-size:45px; font-weight:400; }
 .learning-stat span { color:#9fb7ba; font-size:9px; text-transform:uppercase; letter-spacing:.1em; }
-.learning-categories { max-width:1128px; margin:auto; display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.learning-categories { max-width:1128px; margin:auto; display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
 .learning-categories button { min-height:190px; padding:17px; display:flex; align-items:flex-start; flex-direction:column; border:1px solid var(--line); border-radius:17px; color:var(--ink); background:white; text-align:start; cursor:pointer; transition:.22s ease; }
 .learning-categories button>span { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; color:var(--ocean); background:var(--foam); }
 .learning-categories button strong { margin-top:17px; font-family:Georgia,serif; font-size:18px; font-weight:400; }
@@ -275,6 +275,7 @@ footer>span { color:#7e9297; font-size:9px; }
 .learning-categories .mint>span { color:#3b8963; background:#eaf7ef; }
 .learning-categories .gold>span { color:#a8752a; background:#fbf3df; }
 .learning-categories .blue>span { color:#41699a; background:#eaf0f8; }
+.learning-categories .species>span { color:#0d6874; background:#e1f5f2; }
 .learning-detail { max-width:1128px; margin:22px auto 0; display:grid; grid-template-columns:330px 1fr; gap:18px; }
 .course-summary { min-height:470px; padding:29px; border-radius:21px; color:white; background:radial-gradient(circle at 80% 10%,rgba(61,215,208,.17),transparent 30%),var(--deep); }
 .course-icon { width:58px; height:58px; display:grid; place-items:center; border-radius:17px; color:var(--cyan); background:rgba(61,215,208,.11); }
@@ -297,6 +298,17 @@ footer>span { color:#7e9297; font-size:9px; }
 .lesson-list strong { font-size:11px; }
 .lesson-list small { margin-top:3px; color:#91a2a6; font-size:8px; }
 .lesson-list em { padding:5px 7px; border-radius:6px; color:#957042; background:var(--sand); font-size:7px; font-style:normal; font-weight:800; letter-spacing:.08em; }
+.species-panel { padding:24px; }
+.species-grid { margin-top:21px; display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.species-grid>article { padding:16px; border:1px solid var(--line); border-radius:15px; background:#f8fbfa; }
+.species-card-head { display:flex; align-items:center; gap:10px; }
+.species-card-head>span { width:34px; height:34px; flex:0 0 34px; display:grid; place-items:center; border-radius:10px; color:var(--cyan); background:var(--deep); }
+.species-card-head small { color:#84999d; font-size:7px; font-weight:850; letter-spacing:.12em; }
+.species-card-head h3 { margin:3px 0 0; font-family:Georgia,serif; font-size:16px; font-weight:500; }
+.species-grid dl { margin:14px 0 0; display:grid; gap:8px; }
+.species-grid dl>div { display:grid; grid-template-columns:68px 1fr; gap:8px; }
+.species-grid dt { color:#82979b; font-size:8px; font-weight:800; text-transform:uppercase; }
+.species-grid dd { margin:0; color:#29464d; font-size:9px; line-height:1.45; }
 .quick-guide { margin-top:22px; padding:17px; border-radius:14px; background:#f1f7f5; }
 .quick-guide>div { margin-top:9px; display:flex; align-items:flex-start; gap:8px; color:#526c72; font-size:9px; line-height:1.5; }
 .quick-guide svg { flex:0 0 auto; margin-top:1px; color:var(--ocean); }
@@ -316,7 +328,8 @@ footer>span { color:#7e9297; font-size:9px; }
   .learning-detail { grid-template-columns:280px 1fr; }
 }
 @media (max-width:680px) {
-  .topbar { height:70px; padding:0 18px; } .brand small,.icon-button { display:none; }
+  .topbar { height:124px; padding:16px 18px 52px; position:relative; } .brand small,.icon-button { display:none; }
+  .topbar .mobile-menu-button { position:absolute; inset-inline-start:18px; bottom:9px; height:35px; padding:0 13px; border-color:transparent; color:white; background:var(--deep); box-shadow:0 5px 14px rgba(7,29,37,.14); }
   .hero { padding:42px 20px 34px; } .hero h1 { font-size:55px; } .hero-subtitle { font-size:14px; }
   .dashboard-wrap { padding:0 14px 65px; } .activity-tabs [role="tablist"] { width:100%; border-radius:14px 14px 0 0; }
   .activity-tabs [role="tab"] { min-width:0; flex:1; padding:0 8px; font-size:11px; }
@@ -351,4 +364,5 @@ footer>span { color:#7e9297; font-size:9px; }
   .course-summary { min-height:330px; } .course-progress { margin-top:55px; }
   .lessons-panel { padding:20px 15px; } .lesson-list article { grid-template-columns:30px 1fr; }
   .lesson-list em { grid-column:2; margin-bottom:9px; width:fit-content; }
+  .species-panel { padding:18px 13px; } .species-grid { grid-template-columns:1fr; }
 }

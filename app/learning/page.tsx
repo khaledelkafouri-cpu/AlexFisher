@@ -3,8 +3,17 @@
 import { useState } from "react";
 import { ArrowLeft, Check, ChevronRight, CircleDot, Fish, Languages, Layers3, Ruler, Sparkles, Waves } from "lucide-react";
 
-type CategoryId = "reels" | "rods" | "hooks" | "lures" | "braid";
+type CategoryId = "reels" | "rods" | "hooks" | "lures" | "braid" | "species";
 type Language = "en" | "ar";
+
+const fishSpecies = [
+  { en: "Striped seabream (Mormora)", ar: "المرمار", enSeason: "Spring to autumn", arSeason: "من الربيع إلى الخريف", enMethod: "Light bottom fishing from shore", arMethod: "صيد قاع خفيف من الشاطئ", enBait: "Worms, shrimp or small shellfish", arBait: "دود أو جمبري أو محار صغير", enWater: "Sandy and mixed bottoms", arWater: "القاع الرملي والمختلط" },
+  { en: "European seabass", ar: "القاروص", enSeason: "Autumn and winter", arSeason: "الخريف والشتاء", enMethod: "Spinning near surf, rocks and harbour mouths", arMethod: "سبيننج قرب الأمواج والصخور ومداخل الموانئ", enBait: "Minnow lures, soft plastics or live bait", arBait: "مينو أو سيليكون أو طُعم حي", enWater: "White water and current lines", arWater: "المياه المتكسرة وخطوط التيار" },
+  { en: "Bluefish", ar: "الأنش", enSeason: "Late summer to autumn", arSeason: "أواخر الصيف والخريف", enMethod: "Fast spinning or trolling", arMethod: "سبيننج سريع أو جر", enBait: "Metal lures, minnows or oily fish", arBait: "معدن أو مينو أو سمك زيتي", enWater: "Open water around baitfish", arWater: "المياه المفتوحة حول أسراب السمك الصغير" },
+  { en: "Garfish", ar: "الإبرة", enSeason: "Autumn to early spring", arSeason: "من الخريف إلى بداية الربيع", enMethod: "Float fishing close to the surface", arMethod: "صيد بالعوامة قرب سطح المياه", enBait: "Small fish strips or shrimp", arBait: "شرائح سمك صغيرة أو جمبري", enWater: "Calm surface water and harbour edges", arWater: "سطح هادئ وحواف الموانئ" },
+  { en: "Grey mullet", ar: "البوري", enSeason: "Available most of the year", arSeason: "متوفر أغلب شهور السنة", enMethod: "Fine float rig with patient feeding", arMethod: "عدة عوامة خفيفة مع التزفير والصبر", enBait: "Bread mix, dough or algae", arBait: "عجينة خبز أو طحالب", enWater: "Harbours, rocks and sheltered coast", arWater: "الموانئ والصخور والسواحل الهادئة" },
+  { en: "Dusky grouper", ar: "الوقار", enSeason: "Spring to autumn", arSeason: "من الربيع إلى الخريف", enMethod: "Strong bottom tackle near structure", arMethod: "عدة قاع قوية قرب الصخور والحواجز", enBait: "Live bait, squid or large soft lure", arBait: "طُعم حي أو سبيط أو سيليكون كبير", enWater: "Rocky reefs and deep structure", arWater: "الشعاب الصخرية والأماكن العميقة" },
+];
 
 const categories = [
   {
@@ -47,6 +56,14 @@ const categories = [
     enGuide: ["Thin braid casts farther but needs care", "Use backing to stop spool slip", "Inspect the first metres for abrasion"],
     arGuide: ["الخيط الرفيع يرمي أبعد لكنه يحتاج عناية", "استخدم باكينج لمنع دوران الخيط", "افحص أول أمتار بحثاً عن التآكل"],
   },
+  {
+    id: "species" as const, icon: Fish, color: "species", en: "Fish Species", ar: "أنواع الأسماك",
+    enDesc: "Identify local fish, their seasons and the best way to catch them.", arDesc: "تعرف على الأسماك المحلية ومواسمها وأفضل طرق صيدها.",
+    enLessons: ["Identify common Mediterranean species", "Understand seasonal movement", "Match method and tackle to each fish", "Choose bait and productive habitat"],
+    arLessons: ["التعرف على أشهر أسماك البحر المتوسط", "فهم حركة الأسماك حسب الموسم", "اختيار الطريقة والعدة لكل نوع", "اختيار الطُعم والمكان المناسب"],
+    enGuide: ["Seasons are a local guide, not a guarantee", "Minimum sizes and closed seasons can change", "Release undersized fish carefully"],
+    arGuide: ["المواسم دليل محلي وليست ضماناً", "المقاسات القانونية ومواسم المنع قد تتغير", "أعد الأسماك الصغيرة للمياه بحرص"],
+  },
 ];
 
 export default function LearningPage() {
@@ -67,7 +84,7 @@ export default function LearningPage() {
 
     <section className="learning-hero">
       <div><p>{rtl ? "تعلم الصيد خطوة بخطوة" : "LEARN FISHING, STEP BY STEP"}</p><h1>{rtl ? "افهم أدواتك. اصطاد بثقة." : "Know your gear. Fish with confidence."}</h1><span>{rtl ? "دروس واضحة تساعدك على اختيار وتجهيز واستخدام معدات الصيد بشكل صحيح." : "Clear learning paths to help you choose, set up and use fishing equipment correctly."}</span></div>
-      <div className="learning-stat"><strong>5</strong><span>{rtl ? "مسارات تعليمية" : "learning paths"}</span></div>
+      <div className="learning-stat"><strong>6</strong><span>{rtl ? "مسارات تعليمية" : "learning paths"}</span></div>
     </section>
 
     <section className="learning-categories">
@@ -76,9 +93,12 @@ export default function LearningPage() {
 
     <section className="learning-detail">
       <div className={`course-summary ${category.color}`}><div className="course-icon"><Icon size={32}/></div><p>{rtl ? "مسار تعليمي" : "LEARNING PATH"}</p><h2>{rtl ? category.ar : category.en}</h2><span>{rtl ? category.arDesc : category.enDesc}</span><div className="course-progress"><div><i style={{ width: "0%" }}/></div><small>{rtl ? "جاهز لإضافة فيديوهات AlexFisher" : "Ready for AlexFisher videos"}</small></div></div>
-      <div className="lessons-panel">
-        <div className="lessons-heading"><div><p>{rtl ? "محتوى المسار" : "COURSE CONTENT"}</p><h2>{rtl ? "ابدأ من الأساسيات" : "Start with the essentials"}</h2></div><span>{lessons.length} {rtl ? "دروس" : "lessons"}</span></div>
-        <div className="lesson-list">{lessons.map((lesson, index) => <article key={lesson}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{lesson}</strong><small>{rtl ? "درس أساسي" : "Essential lesson"}</small></div><em>{rtl ? "قريباً" : "COMING SOON"}</em></article>)}</div>
+      <div className={`lessons-panel ${selected === "species" ? "species-panel" : ""}`}>
+        <div className="lessons-heading"><div><p>{selected === "species" ? (rtl ? "دليل الأسماك" : "FISH GUIDE") : (rtl ? "محتوى المسار" : "COURSE CONTENT")}</p><h2>{selected === "species" ? (rtl ? "اعرف السمكة قبل ما تصطادها" : "Know your target fish") : (rtl ? "ابدأ من الأساسيات" : "Start with the essentials")}</h2></div><span>{selected === "species" ? fishSpecies.length : lessons.length} {selected === "species" ? (rtl ? "أنواع" : "species") : (rtl ? "دروس" : "lessons")}</span></div>
+        {selected === "species" ? <div className="species-grid">{fishSpecies.map((fish) => <article key={fish.en}>
+          <div className="species-card-head"><span><Fish size={17}/></span><div><small>{rtl ? "سمك البحر المتوسط" : "MEDITERRANEAN FISH"}</small><h3>{rtl ? fish.ar : fish.en}</h3></div></div>
+          <dl><div><dt>{rtl ? "الموسم" : "Season"}</dt><dd>{rtl ? fish.arSeason : fish.enSeason}</dd></div><div><dt>{rtl ? "طريقة الصيد" : "Method"}</dt><dd>{rtl ? fish.arMethod : fish.enMethod}</dd></div><div><dt>{rtl ? "الطُعم" : "Bait"}</dt><dd>{rtl ? fish.arBait : fish.enBait}</dd></div><div><dt>{rtl ? "المكان" : "Habitat"}</dt><dd>{rtl ? fish.arWater : fish.enWater}</dd></div></dl>
+        </article>)}</div> : <div className="lesson-list">{lessons.map((lesson, index) => <article key={lesson}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{lesson}</strong><small>{rtl ? "درس أساسي" : "Essential lesson"}</small></div><em>{rtl ? "قريباً" : "COMING SOON"}</em></article>)}</div>}
         <div className="quick-guide"><p>{rtl ? "دليل سريع" : "QUICK GUIDE"}</p>{guide.map((tip) => <div key={tip}><Check size={15}/><span>{tip}</span></div>)}</div>
       </div>
     </section>
