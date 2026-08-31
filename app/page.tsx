@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDown, ArrowUpRight, Bell, ChevronRight, Compass, Fish, Gauge,
+  ArrowDown, ArrowUpRight, Bell, ChevronRight, CloudRain, Compass, Fish, Gauge,
   Languages, MapPin, Menu, Navigation, RefreshCw, Search, ShipWheel,
   Sparkles, Sunrise, Thermometer, Waves, Wind,
 } from "lucide-react";
@@ -12,14 +12,16 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 type Activity = "fishing" | "surfing" | "kayaking";
 type Language = "en" | "ar";
 type Spot = { id: string; en: string; ar: string; lat: number; lon: number };
+type TideEvent = { time: string; height: number };
 type Conditions = {
   air: number; wind: number; gust: number; windDirection: number; wave: number;
   waveDirection: number; wavePeriod: number; swell: number; swellDirection: number;
   swellPeriod: number; sea: number; current: number; currentDirection: number;
   tide: number; tideState: "rising" | "falling"; highTide: string; lowTide: string;
+  highTides: TideEvent[]; lowTides: TideEvent[];
   sunrise: string; sunset: string;
   hourly: Array<{
-    time: string; wind: number; gust: number; windDirection: number; wave: number;
+    time: string; air: number; wind: number; gust: number; windDirection: number; wave: number;
     wavePeriod: number; swell: number; swellPeriod: number; tide: number; sea: number;
     current: number; currentDirection: number; rain: number; visibility: number;
   }>;
@@ -49,7 +51,7 @@ const copy = {
     communitySub: "Local reports, honest answers and people who love the water as much as you do.",
     members: "members", postsToday: "posts today", ask: "Ask the community...",
     launch: "Open the full community to ask questions, publish reports and comment.",
-    today: "Today", tomorrow: "Tomorrow", dayThree: "Day 3", chooseDay: "3-day forecast", bestAt: "Best at",
+    today: "Today", tomorrow: "Tomorrow", dayThree: "Day 3", chooseDay: "7-day forecast", bestAt: "Best at",
     safety: "Forecast guidance only. Always check local conditions and official safety advice before entering the water.",
   },
   ar: {
@@ -63,7 +65,7 @@ const copy = {
     hourly: "خطط ليومك", drag: "حرّك مؤشر الوقت — كل الرسوم تتحرك معك", selected: "الوقت المختار", community: "البحر أحلى مع بعض.",
     communitySub: "تقارير محلية، إجابات حقيقية، وناس بتحب البحر زيك.", members: "عضو", postsToday: "منشور اليوم",
     ask: "اسأل المجتمع...", launch: "افتح المجتمع الكامل لطرح الأسئلة ونشر التقارير والتعليق.",
-    today: "اليوم", tomorrow: "غداً", dayThree: "اليوم الثالث", chooseDay: "توقعات 3 أيام", bestAt: "الأفضل الساعة",
+    today: "اليوم", tomorrow: "غداً", dayThree: "اليوم الثالث", chooseDay: "توقعات 7 أيام", bestAt: "الأفضل الساعة",
     safety: "التوقعات للإرشاد فقط. تحقق دائماً من الظروف المحلية وتعليمات السلامة الرسمية قبل النزول إلى المياه.",
   },
 };
@@ -71,9 +73,11 @@ const copy = {
 const fallback: Conditions = {
   air: 27, wind: 12, gust: 18, windDirection: 320, wave: .8, waveDirection: 340, wavePeriod: 6.4,
   swell: .6, swellDirection: 330, swellPeriod: 8.2, sea: 26, current: .4, currentDirection: 70,
-  tide: .18, tideState: "rising", highTide: "18:42", lowTide: "11:16", sunrise: "06:31", sunset: "19:28",
+  tide: .18, tideState: "rising", highTide: "01:20", lowTide: "07:18",
+  highTides: [{ time: "01:20", height: 1.31 }, { time: "13:48", height: 1.42 }],
+  lowTides: [{ time: "07:18", height: .26 }, { time: "19:42", height: .22 }], sunrise: "06:31", sunset: "19:28",
   hourly: Array.from({ length: 24 }, (_, index) => ({
-    time: `${String(index).padStart(2, "0")}:00`,
+    time: `${String(index).padStart(2, "0")}:00`, air: 24 + Math.sin((index - 7) / 8) * 5,
     wind: 9 + Math.max(0, Math.sin((index - 7) / 5) * 8), gust: 15 + Math.max(0, Math.sin((index - 7) / 5) * 9), windDirection: 320,
     wave: .55 + Math.max(0, Math.sin((index - 8) / 5) * .55), wavePeriod: 6.4,
     swell: .42 + Math.max(0, Math.sin((index - 8) / 5) * .35), swellPeriod: 8.2,
@@ -82,7 +86,7 @@ const fallback: Conditions = {
   })),
 };
 
-const fallbackDays = Array.from({ length: 3 }, (_, day) => ({
+const fallbackDays = Array.from({ length: 7 }, (_, day) => ({
   ...fallback,
   air: fallback.air + day,
   hourly: fallback.hourly.map((hour, index) => ({
@@ -97,6 +101,21 @@ const compass = (degrees: number, rtl = false) => (rtl
   : ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])[Math.round(degrees / 45) % 8];
 const shortTime = (value?: string) => value ? new Date(value).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }) : "—";
 const arabicLatinLocale = "ar-EG-u-nu-latn";
+function tideExtremes(hours: Conditions["hourly"], kind: "high" | "low"): TideEvent[] {
+  const isBetter = kind === "high" ? (a: number, b: number) => a > b : (a: number, b: number) => a < b;
+  const local = hours.flatMap((hour, index) => {
+    const previous = hours[(index + hours.length - 1) % hours.length].tide;
+    const next = hours[(index + 1) % hours.length].tide;
+    return isBetter(hour.tide, previous) && isBetter(hour.tide, next) ? [index] : [];
+  });
+  const ranked = hours.map((_, index) => index).sort((a, b) => kind === "high" ? hours[b].tide - hours[a].tide : hours[a].tide - hours[b].tide);
+  const chosen = [...local];
+  for (const index of ranked) {
+    if (chosen.length >= 2) break;
+    if (chosen.every((existing) => Math.min(Math.abs(existing - index), 24 - Math.abs(existing - index)) >= 5)) chosen.push(index);
+  }
+  return chosen.slice(0, 2).sort((a, b) => a - b).map((index) => ({ time: hours[index].time, height: hours[index].tide }));
+}
 function calculateScore(c: Conditions, activity: Activity) {
   if (activity === "fishing") return Math.round(Math.max(18, Math.min(100, 100 - c.wind * 1.5 - c.wave * 18 + (c.tideState === "rising" ? 9 : 3))));
   if (activity === "surfing") return Math.round(Math.max(20, Math.min(96, 42 + c.swell * 22 + c.swellPeriod * 2.2 - Math.max(0, c.wind - 14) * 1.4)));
@@ -138,15 +157,16 @@ function chartPath(values: number[], width = 1000, height = 220, padding = 24) {
 }
 
 function ForecastChart({
-  title, unit, values, secondary, secondaryLabel, selectedHour, onSelect, accent = "cyan", direction, directionFrom = false, rtl = false, decimals = 1, children,
+  title, unit, values, secondary, secondaryLabel, selectedHour, onSelect, accent = "cyan", direction, directionFrom = false, nowHour, nowTime, rtl = false, decimals = 1, children,
 }: {
   title: string; unit: string; values: number[]; secondary?: number[]; secondaryLabel?: string;
   selectedHour: number; onSelect: (hour: number) => void; accent?: "cyan" | "coral" | "blue";
-  direction?: number; directionFrom?: boolean; rtl?: boolean; decimals?: number; children?: React.ReactNode;
+  direction?: number; directionFrom?: boolean; nowHour?: number; nowTime?: string; rtl?: boolean; decimals?: number; children?: React.ReactNode;
 }) {
   const value = values[selectedHour] ?? 0;
   const secondaryValue = secondary?.[selectedHour] ?? 0;
   const marker = 2.4 + (selectedHour / 23) * 95.2;
+  const nowMarker = nowHour === undefined ? 0 : 2.4 + (Math.max(0, Math.min(24, nowHour)) / 24) * 95.2;
   const selectedTime = `${String(selectedHour).padStart(2, "0")}:00`;
   // Weather services report the bearing the wind comes from. The arrow shows
   // where that air is travelling, so wind arrows rotate by half a turn.
@@ -165,6 +185,7 @@ function ForecastChart({
           <path className="primary-line" d={chartPath(values)} />
           {secondary && <path className="secondary-line" d={chartPath(secondary)} />}
         </svg>
+        {nowHour !== undefined && <div className="now-cursor" style={{ left: `${nowMarker}%` }}><span>{rtl ? "الآن" : "NOW"}<b>{nowTime}</b></span></div>}
         <div className={`time-cursor ${direction !== undefined ? "has-direction" : ""}`} style={{ left: `${marker}%` }}><span><b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small>{direction !== undefined && <em><u style={{ transform: `rotate(${arrowDirection}deg)` }}>↑</u>{compass(direction, rtl)}</em>}</span><i /></div>
         <input dir="ltr" aria-label={`Select hour for ${title}`} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
       </div>
@@ -179,13 +200,15 @@ export default function Home() {
   const [activity, setActivity] = useState<Activity>("fishing");
   const [spotId, setSpotId] = useState("alex");
   const [forecastDays, setForecastDays] = useState<Conditions[]>(fallbackDays);
-  const [forecastDates, setForecastDates] = useState<string[]>(Array.from({ length: 3 }, (_, day) => new Date(Date.now() + day * 86400000).toISOString().slice(0, 10)));
+  const [forecastDates, setForecastDates] = useState<string[]>(Array.from({ length: 7 }, (_, day) => new Date(Date.now() + day * 86400000).toISOString().slice(0, 10)));
   const [selectedDay, setSelectedDay] = useState(0);
   const [loading, setLoading] = useState(true);
   const [dataStatus, setDataStatus] = useState<"live" | "sample">("sample");
   const [selectedHour, setSelectedHour] = useState(9);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [refreshRequest, setRefreshRequest] = useState(0);
+  const [clockNow, setClockNow] = useState(() => Date.now());
+  const [utcOffsetSeconds, setUtcOffsetSeconds] = useState(3 * 60 * 60);
   const t = copy[language];
   const rtl = language === "ar";
   const spot = spots.find((item) => item.id === spotId) ?? spots[0];
@@ -196,19 +219,20 @@ export default function Home() {
     async function loadConditions() {
       setLoading(true);
       try {
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation_probability,visibility&daily=sunrise,sunset&timezone=auto&forecast_days=3`;
-        const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${spot.lat}&longitude=${spot.lon}&current=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,sea_surface_temperature,ocean_current_velocity,ocean_current_direction,sea_level_height_msl&hourly=wave_height,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature,ocean_current_velocity,ocean_current_direction,sea_level_height_msl&timezone=auto&forecast_days=3`;
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation_probability,visibility&daily=sunrise,sunset&timezone=auto&forecast_days=7`;
+        const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${spot.lat}&longitude=${spot.lon}&current=wave_height,wave_direction,wave_period,swell_wave_height,swell_wave_direction,swell_wave_period,sea_surface_temperature,ocean_current_velocity,ocean_current_direction,sea_level_height_msl&hourly=wave_height,wave_period,swell_wave_height,swell_wave_period,sea_surface_temperature,ocean_current_velocity,ocean_current_direction,sea_level_height_msl&timezone=auto&forecast_days=7`;
         const [weatherRes, marineRes] = await Promise.all([fetch(weatherUrl, { signal: controller.signal }), fetch(marineUrl, { signal: controller.signal })]);
         if (!weatherRes.ok || !marineRes.ok) throw new Error("Forecast unavailable");
         const weather = await weatherRes.json();
         const marine = await marineRes.json();
-        const dates: string[] = weather.daily.time.slice(0, 3);
+        const dates: string[] = weather.daily.time.slice(0, 7);
+        setUtcOffsetSeconds(weather.utc_offset_seconds ?? 3 * 60 * 60);
         const days = dates.map((date, day) => {
           const start = weather.hourly.time.findIndex((value: string) => value.slice(0, 10) === date);
           const hours = Array.from({ length: 24 }, (_, offset) => {
             const index = Math.max(0, start) + offset;
             return {
-              time: shortTime(weather.hourly.time[index]), wind: weather.hourly.wind_speed_10m[index] ?? 0,
+              time: shortTime(weather.hourly.time[index]), air: weather.hourly.temperature_2m[index] ?? 0, wind: weather.hourly.wind_speed_10m[index] ?? 0,
               gust: weather.hourly.wind_gusts_10m[index] ?? 0, windDirection: weather.hourly.wind_direction_10m[index] ?? 0,
               wave: marine.hourly.wave_height[index] ?? 0, wavePeriod: marine.hourly.wave_period[index] ?? 0,
               swell: marine.hourly.swell_wave_height[index] ?? 0, swellPeriod: marine.hourly.swell_wave_period[index] ?? 0,
@@ -217,9 +241,8 @@ export default function Home() {
               rain: weather.hourly.precipitation_probability[index] ?? 0, visibility: (weather.hourly.visibility[index] ?? 0) / 1000,
             };
           });
-          const tideValues = hours.map((hour) => hour.tide);
-          const highIndex = tideValues.indexOf(Math.max(...tideValues));
-          const lowIndex = tideValues.indexOf(Math.min(...tideValues));
+          const highTides = tideExtremes(hours, "high");
+          const lowTides = tideExtremes(hours, "low");
           const first = hours[0];
           return {
             air: weather.hourly.temperature_2m[Math.max(0, start) + 12] ?? weather.current.temperature_2m ?? 0,
@@ -228,7 +251,7 @@ export default function Home() {
             swell: first.swell, swellDirection: marine.current.swell_wave_direction ?? 0, swellPeriod: first.swellPeriod,
             sea: first.sea, current: first.current, currentDirection: first.currentDirection, tide: first.tide,
             tideState: (hours[1].tide >= first.tide ? "rising" : "falling") as "rising" | "falling",
-            highTide: hours[highIndex].time, lowTide: hours[lowIndex].time,
+            highTide: highTides[0]?.time ?? "—", lowTide: lowTides[0]?.time ?? "—", highTides, lowTides,
             sunrise: shortTime(weather.daily.sunrise?.[day]), sunset: shortTime(weather.daily.sunset?.[day]), hourly: hours,
           };
         });
@@ -245,9 +268,14 @@ export default function Home() {
     return () => { window.clearInterval(refreshInterval); controller.abort(); };
   }, [spot.lat, spot.lon, refreshRequest]);
 
+  useEffect(() => {
+    const clock = window.setInterval(() => setClockNow(Date.now()), 60 * 1000);
+    return () => window.clearInterval(clock);
+  }, []);
+
   const selected = conditions.hourly[selectedHour] ?? conditions.hourly[0];
   const selectedConditions = useMemo(() => ({
-    ...conditions, wind: selected.wind, gust: selected.gust, windDirection: selected.windDirection,
+    ...conditions, air: selected.air, wind: selected.wind, gust: selected.gust, windDirection: selected.windDirection,
     wave: selected.wave, wavePeriod: selected.wavePeriod, swell: selected.swell, swellPeriod: selected.swellPeriod,
     tide: selected.tide, sea: selected.sea, current: selected.current, currentDirection: selected.currentDirection,
     tideState: ((conditions.hourly[Math.min(23, selectedHour + 1)]?.tide ?? selected.tide) >= selected.tide ? "rising" : "falling") as "rising" | "falling",
@@ -266,6 +294,15 @@ export default function Home() {
     return hourScore > best.score ? { index, score: hourScore } : best;
   }, { index: 0, score: -1 });
   const fishingActivityByHour = conditions.hourly.map((hour, index) => calculateScore({ ...conditions, ...hour, tideState: (conditions.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, "fishing"));
+  const localNow = new Date(clockNow + utcOffsetSeconds * 1000);
+  const localToday = localNow.toISOString().slice(0, 10);
+  const currentDecimalHour = localNow.getUTCHours() + localNow.getUTCMinutes() / 60;
+  const currentTime = `${String(localNow.getUTCHours()).padStart(2, "0")}:${String(localNow.getUTCMinutes()).padStart(2, "0")}`;
+  const environmentMetrics = [
+    { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${selected.time}` : `At ${selected.time}`, icon: Thermometer },
+    { label: rtl ? "احتمال المطر" : "Rain chance", value: `${selected.rain.toFixed(0)}%`, sub: rtl ? "خلال الساعة المختارة" : "During the selected hour", icon: CloudRain },
+    { label: rtl ? "اتجاه التيار" : "Current direction", value: compass(selected.currentDirection, rtl), sub: `${selected.current.toFixed(1)} km/h`, icon: Navigation },
+  ];
   const activityMetrics = activity === "fishing" ? [
     { label: rtl ? "نشاط السمك" : "Fish activity", value: `${score}/100`, sub: rating, icon: Fish },
     { label: rtl ? "حركة المد" : "Tide movement", value: selectedConditions.tideState === "rising" ? t.rising : t.falling, sub: `H ${conditions.highTide} · L ${conditions.lowTide}`, icon: ArrowDown },
@@ -273,6 +310,7 @@ export default function Home() {
     { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s period`, icon: Waves },
     { label: rtl ? "حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "مؤشر نشاط الأسماك" : "Fish comfort indicator", icon: Thermometer },
     { label: rtl ? "أفضل فرصة" : "Best bite window", value: conditions.hourly[bestHour.index]?.time ?? "—", sub: `${t.bestAt} ${conditions.hourly[bestHour.index]?.time ?? "—"}`, icon: Gauge },
+    ...environmentMetrics,
   ] : activity === "surfing" ? [
     { label: rtl ? "جودة السيرف" : "Surf quality", value: `${score}/100`, sub: rating, icon: Waves },
     { label: rtl ? "ارتفاع السويل" : "Swell height", value: `${selected.swell.toFixed(1)} m`, sub: `${selected.swellPeriod.toFixed(1)}s period`, icon: Waves },
@@ -280,6 +318,7 @@ export default function Home() {
     { label: rtl ? "رياح السيرف" : "Surf wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Wind },
     { label: rtl ? "مرحلة المد" : "Tide stage", value: selectedConditions.tideState === "rising" ? t.rising : t.falling, sub: `${selected.tide.toFixed(2)} m`, icon: ArrowDown },
     { label: rtl ? "المستوى المقترح" : "Suggested level", value: score > 78 ? (rtl ? "متوسط+" : "Intermediate+") : (rtl ? "مبتدئ" : "Beginner"), sub: rtl ? "حسب الظروف المختارة" : "For selected conditions", icon: Gauge },
+    ...environmentMetrics,
   ] : [
     { label: rtl ? "أمان الكاياك" : "Kayak safety", value: `${score}/100`, sub: rating, icon: ShipWheel },
     { label: rtl ? "الرياح والهبات" : "Wind & gusts", value: `${selected.wind.toFixed(0)} km/h`, sub: `${selected.gust.toFixed(0)} km/h gusts`, icon: Wind },
@@ -287,6 +326,7 @@ export default function Home() {
     { label: rtl ? "سرعة التيار" : "Current speed", value: `${selected.current.toFixed(1)} km/h`, sub: rtl ? `الاتجاه: ${compass(selected.currentDirection, true)}` : `${compass(selected.currentDirection)} direction`, icon: Navigation },
     { label: rtl ? "مدى الرؤية" : "Visibility", value: `${selected.visibility.toFixed(0)} km`, sub: `${selected.rain.toFixed(0)}% ${rtl ? "احتمال مطر" : "rain chance"}`, icon: Gauge },
     { label: rtl ? "درجة الصعوبة" : "Difficulty", value: score > 76 ? (rtl ? "سهل" : "Easy") : score > 50 ? (rtl ? "متوسط" : "Moderate") : (rtl ? "صعب" : "Difficult"), sub: rtl ? "حسب خبرة المستخدم" : "Experience still matters", icon: ShipWheel },
+    ...environmentMetrics,
   ];
   const activityInsight = activity === "fishing"
     ? (rtl ? `أفضل نشاط متوقع الساعة ${conditions.hourly[bestHour.index]?.time}. راقب حركة المد والرياح قبل النزول.` : `Best fishing activity is expected around ${conditions.hourly[bestHour.index]?.time}. Check the tide movement and wind before you go.`)
@@ -334,12 +374,12 @@ export default function Home() {
           <div className="day-buttons">{forecastDates.map((date, index) => {
             const dayConditions = forecastDays[index] ?? fallbackDays[index];
             const dayBest = Math.max(...dayConditions.hourly.map((hour, hourIndex) => calculateScore({ ...dayConditions, ...hour, tideState: (dayConditions.hourly[Math.min(23, hourIndex + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity)));
-            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.max(0, new Date().getHours()) : 9); }}><span>{index === 0 ? t.today : index === 1 ? t.tomorrow : t.dayThree}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { day: "numeric", month: "short" })}</strong><em>{dayBest}/100</em></button>;
+            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.floor(currentDecimalHour) : 9); }}><span>{index === 0 ? t.today : index === 1 ? t.tomorrow : new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long" })}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short", day: "numeric", month: "short" })}</strong><em>{dayBest}/100</em></button>;
           })}</div>
         </div>
         <div className={`condition-board ${loading ? "is-loading" : ""}`}>
           <article className="score-card">
-            <div className="score-head"><span>{scoreTitle}</span><b>{selectedDay === 0 ? t.today : selectedDay === 1 ? t.tomorrow : t.dayThree}</b><Gauge size={20} /></div>
+            <div className="score-head"><span>{scoreTitle}</span><b>{selectedDay === 0 ? t.today : new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short" })}</b><Gauge size={20} /></div>
             <div className={`activity-mascot mascot-${activity} mascot-${mascotMood}`} role="img" aria-label={`${t.activities[activity]} — ${rating}`} />
             <div className={`score-ring ${scoreClass}`} style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><div dir="ltr"><strong>{score}</strong><span>/100</span></div></div>
             <h2>{rating}</h2><p>{t.bestAt}</p><strong className="best-time">{conditions.hourly[bestHour.index]?.time ?? selected.time}</strong>
@@ -355,8 +395,8 @@ export default function Home() {
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{selected.time}</strong></div></div>
           <div className="time-scrubber"><span>00:00</span><input dir="ltr" aria-label="Select time of day" type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>23:00</span></div>
           {activity === "fishing" && <>
-            <ForecastChart title={rtl ? "المد والجزر للصيد" : "Fishing tide"} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue">
-              <div className="chart-facts"><span>{rtl ? "أعلى مد" : "High tide"}<strong>{conditions.highTide}</strong></span><span>{rtl ? "أقل جزر" : "Low tide"}<strong>{conditions.lowTide}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
+            <ForecastChart title={rtl ? "المد والجزر للصيد" : "Fishing tide"} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" nowHour={forecastDates[selectedDay] === localToday ? currentDecimalHour : undefined} nowTime={currentTime} rtl={rtl}>
+              <div className="chart-facts tide-facts"><span>{rtl ? "مرتا المد العالي" : "Two high tides"}<strong className="tide-event-list">{conditions.highTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {event.time}</small>)}</strong></span><span>{rtl ? "مرتا الجزر" : "Two low tides"}<strong className="tide-event-list">{conditions.lowTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {event.time}</small>)}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
               <ForecastChart title={rtl ? "الرياح وتأثيرها على الصيد" : "Fishing wind"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral" direction={selected.windDirection} directionFrom rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "اتجاه الرياح" : "Wind direction"}<strong>{compass(selected.windDirection, rtl)}</strong></span><span>{rtl ? "أفضل نشاط" : "Best activity"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
