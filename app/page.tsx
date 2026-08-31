@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Anchor, ArrowDown, ArrowUpRight, Bell, ChevronRight, Compass, Fish, Gauge,
-  Heart, Languages, MapPin, MessageCircle, Navigation, Search, Send, ShipWheel,
+  Heart, Languages, MapPin, Menu, MessageCircle, Navigation, Search, Send, ShipWheel,
   Sparkles, Sunrise, Thermometer, Users, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Activity = "fishing" | "surfing" | "kayaking";
 type Language = "en" | "ar";
@@ -135,7 +136,7 @@ function ForecastChart({
           {secondary && <path className="secondary-line" d={chartPath(secondary)} />}
         </svg>
         <div className="time-cursor" style={{ left: `${marker}%` }}><span>{value.toFixed(1)} {unit}</span><i /></div>
-        <input aria-label={`Select hour for ${title}`} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
+        <input dir="ltr" aria-label={`Select hour for ${title}`} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
       </div>
       <div className="chart-hours"><span>00</span><span>04</span><span>08</span><span>12</span><span>16</span><span>20</span><span>23</span></div>
       {children}
@@ -260,7 +261,23 @@ export default function Home() {
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
         <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}>{item}</a>)}</nav>
-        <div className="header-actions"><button className="icon-button" aria-label="Notifications"><Bell size={18} /></button><button className="language-button" onClick={() => setLanguage(language === "en" ? "ar" : "en")}><Languages size={17} /> {language === "en" ? "العربية" : "EN"}</button></div>
+        <div className="header-actions">
+          <Sheet>
+            <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><Menu size={19} /><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
+            <SheetContent side={rtl ? "right" : "left"} dir={rtl ? "rtl" : "ltr"} className="mobile-nav-sheet">
+              <SheetHeader className="mobile-nav-header">
+                <span className="brand-mark"><Waves size={22} /></span>
+                <SheetTitle>{rtl ? "استكشف AlexFisher" : "Explore AlexFisher"}</SheetTitle>
+                <SheetDescription>{rtl ? "اختر القسم الذي تريد الذهاب إليه." : "Choose where you want to go."}</SheetDescription>
+              </SheetHeader>
+              <nav className="mobile-nav-links" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"}>
+                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "#shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
+              </nav>
+            </SheetContent>
+          </Sheet>
+          <button className="icon-button" aria-label="Notifications"><Bell size={18} /></button>
+          <button className="language-button" onClick={() => setLanguage(language === "en" ? "ar" : "en")}><Languages size={17} /> {language === "en" ? "العربية" : "EN"}</button>
+        </div>
       </header>
 
       <section id="top" className="hero">
@@ -296,7 +313,7 @@ export default function Home() {
         </div>
         <div className="forecast-explorer">
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(language === "ar" ? "ar-EG" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{selected.time}</strong></div></div>
-          <div className="time-scrubber"><span>00:00</span><input aria-label="Select time of day" type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>23:00</span></div>
+          <div className="time-scrubber"><span>00:00</span><input dir="ltr" aria-label="Select time of day" type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>23:00</span></div>
           {activity === "fishing" && <>
             <ForecastChart title={rtl ? "المد والجزر للصيد" : "Fishing tide"} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue">
               <div className="chart-facts"><span>{rtl ? "أعلى مد" : "High tide"}<strong>{conditions.highTide}</strong></span><span>{rtl ? "أقل جزر" : "Low tide"}<strong>{conditions.lowTide}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
