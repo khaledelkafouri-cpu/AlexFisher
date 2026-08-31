@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Anchor, ArrowDown, ArrowUpRight, Bell, ChevronRight, Compass, Fish, Gauge,
-  Heart, Languages, MapPin, Menu, MessageCircle, Navigation, Search, Send, ShipWheel,
+  Heart, Languages, MapPin, Menu, MessageCircle, Navigation, RefreshCw, Search, Send, ShipWheel,
   Sparkles, Sunrise, Thermometer, Users, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -171,6 +171,7 @@ export default function Home() {
   const [selectedHour, setSelectedHour] = useState(9);
   const [communityGroup, setCommunityGroup] = useState<Activity>("fishing");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [refreshRequest, setRefreshRequest] = useState(0);
   const t = copy[language];
   const rtl = language === "ar";
   const spot = spots.find((item) => item.id === spotId) ?? spots[0];
@@ -226,8 +227,9 @@ export default function Home() {
       } finally { setLoading(false); }
     }
     loadConditions();
-    return () => controller.abort();
-  }, [spot.lat, spot.lon]);
+    const refreshInterval = window.setInterval(loadConditions, 15 * 60 * 1000);
+    return () => { window.clearInterval(refreshInterval); controller.abort(); };
+  }, [spot.lat, spot.lon, refreshRequest]);
 
   const selected = conditions.hourly[selectedHour] ?? conditions.hourly[0];
   const selectedConditions = useMemo(() => ({
@@ -302,7 +304,7 @@ export default function Home() {
         <div className="location-panel">
           <label htmlFor="location"><MapPin size={18} /> {t.where}</label>
           <div className="location-select-wrap"><Search size={19} /><select id="location" value={spotId} onChange={(event) => setSpotId(event.target.value)}>{spots.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div>
-          <p><span className={dataStatus === "live" ? "live-dot" : "sample-dot"} /> {dataStatus === "live" ? `${t.live} · ${t.updated} ${lastUpdated?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) ?? "now"}` : "Preview data"}</p>
+          <div className="live-status-row"><p><span className={dataStatus === "live" ? "live-dot" : "sample-dot"} /> {dataStatus === "live" ? `${t.live} · ${t.updated} ${lastUpdated?.toLocaleTimeString(language === "ar" ? "ar-EG" : "en-GB", { hour: "2-digit", minute: "2-digit" }) ?? (rtl ? "الآن" : "now")}` : (rtl ? "بيانات تجريبية" : "Preview data")}</p><button type="button" className="refresh-button" disabled={loading} onClick={() => setRefreshRequest((value) => value + 1)} aria-label={rtl ? "تحديث التوقعات الآن" : "Refresh forecast now"} title={rtl ? "تحديث الآن" : "Refresh now"}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/><span>{rtl ? "تحديث" : "Refresh"}</span></button></div>
         </div>
       </section>
 
