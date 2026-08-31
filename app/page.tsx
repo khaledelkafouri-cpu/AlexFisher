@@ -306,7 +306,7 @@ export default function Home() {
   const currentDecimalHour = localNow.getUTCHours() + localNow.getUTCMinutes() / 60;
   const currentTime = formatTime12(`${String(localNow.getUTCHours()).padStart(2, "0")}:${String(localNow.getUTCMinutes()).padStart(2, "0")}`);
   const liveNowHour = forecastDates[selectedDay] === localToday ? currentDecimalHour : undefined;
-  const currentDirectionMetric = { label: rtl ? "اتجاه التيار" : "Current direction", value: compass(selected.currentDirection, rtl), sub: `${selected.current.toFixed(1)} km/h`, icon: Navigation };
+  const currentDirectionMetric = { label: rtl ? "اتجاه التيار" : "Current direction", value: `${selected.current.toFixed(1)} km/h`, sub: `${compass(selected.currentDirection, rtl)} · ${rtl ? "اتجاه التيار" : "current direction"}`, icon: Navigation };
   const waterTemperatureMetric = { label: rtl ? "درجة حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "حرارة سطح البحر" : "Sea-surface temperature", icon: Thermometer };
   const airTemperatureMetric = { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${formatTime12(selected.time)}` : `At ${formatTime12(selected.time)}`, icon: Thermometer };
   const rainMetric = { label: rtl ? "احتمال المطر" : "Rain chance", value: `${selected.rain.toFixed(0)}%`, sub: rtl ? "خلال الساعة المختارة" : "During the selected hour", icon: CloudRain };
@@ -387,7 +387,7 @@ export default function Home() {
           <div className="day-buttons">{forecastDates.map((date, index) => {
             const dayConditions = forecastDays[index] ?? fallbackDays[index];
             const dayBest = Math.max(...dayConditions.hourly.map((hour, hourIndex) => calculateScore({ ...dayConditions, ...hour, tideState: (dayConditions.hourly[Math.min(23, hourIndex + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity)));
-            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.floor(currentDecimalHour) : 9); }}><span>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long" })}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { day: "numeric", month: "long" })}</strong><em>{dayBest}/100</em></button>;
+            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.floor(currentDecimalHour) : 9); }}><span>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long" })}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { day: "numeric", month: "short" })}</strong><em>{dayBest}/100</em></button>;
           })}</div>
         </div>
         <div className={`condition-board ${loading ? "is-loading" : ""}`}>
