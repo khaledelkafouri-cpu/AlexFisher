@@ -160,9 +160,11 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .time-cursor>span b { font-size:9px; font-weight:850; }
 .time-cursor>span small { padding-inline-start:7px; border-inline-start:1px solid rgba(255,255,255,.35); font-size:9px; font-weight:800; }
 .time-cursor>span em { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:5px; padding-top:3px; border-top:1px solid rgba(255,255,255,.18); font-size:7px; font-style:normal; font-weight:750; }
+.time-cursor>span em strong { min-width:38px; color:rgba(255,255,255,.76); font-size:6px; text-transform:uppercase; letter-spacing:.06em; text-align:start; }
 .time-cursor>span u { display:inline-block; color:white; font-size:11px; line-height:1; text-decoration:none; transform-origin:center; }
 .time-cursor i { position:absolute; top:38px; left:50%; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid var(--coral); transform:translateX(-50%); }
 .time-cursor.has-direction i { top:57px; }
+.time-cursor.has-current i { top:76px; }
 .chart-canvas input { position:absolute; inset:0; z-index:3; width:100%; height:100%; margin:0; direction:ltr; opacity:0; cursor:ew-resize; }
 .chart-hours { padding:6px 1px 0; display:flex; justify-content:space-between; color:#8aa0a4; font-size:8px; font-weight:700; }
 .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
