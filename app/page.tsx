@@ -63,7 +63,7 @@ const copy = {
     hourly: "خطط ليومك", drag: "حرّك مؤشر الوقت — كل الرسوم تتحرك معك", selected: "الوقت المختار", community: "البحر أحلى مع بعض.",
     communitySub: "تقارير محلية، إجابات حقيقية، وناس بتحب البحر زيك.", members: "عضو", postsToday: "منشور اليوم",
     ask: "اسأل المجتمع...", launch: "افتح المجتمع الكامل لطرح الأسئلة ونشر التقارير والتعليق.",
-    today: "اليوم", tomorrow: "غداً", dayThree: "اليوم الثالث", chooseDay: "توقعات ٣ أيام", bestAt: "الأفضل الساعة",
+    today: "اليوم", tomorrow: "غداً", dayThree: "اليوم الثالث", chooseDay: "توقعات 3 أيام", bestAt: "الأفضل الساعة",
     safety: "التوقعات للإرشاد فقط. تحقق دائماً من الظروف المحلية وتعليمات السلامة الرسمية قبل النزول إلى المياه.",
   },
 };
@@ -92,12 +92,22 @@ const fallbackDays = Array.from({ length: 3 }, (_, day) => ({
   })),
 }));
 
-const compass = (degrees: number) => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(degrees / 45) % 8];
-const shortTime = (value?: string) => value ? new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }) : "—";
+const compass = (degrees: number, rtl = false) => (rtl
+  ? ["شمال", "شمال شرقي", "شرق", "جنوب شرقي", "جنوب", "جنوب غربي", "غرب", "شمال غربي"]
+  : ["N", "NE", "E", "SE", "S", "SW", "W", "NW"])[Math.round(degrees / 45) % 8];
+const shortTime = (value?: string) => value ? new Date(value).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }) : "—";
+const arabicLatinLocale = "ar-EG-u-nu-latn";
 function calculateScore(c: Conditions, activity: Activity) {
   if (activity === "fishing") return Math.round(Math.max(18, Math.min(100, 100 - c.wind * 1.5 - c.wave * 18 + (c.tideState === "rising" ? 9 : 3))));
   if (activity === "surfing") return Math.round(Math.max(20, Math.min(96, 42 + c.swell * 22 + c.swellPeriod * 2.2 - Math.max(0, c.wind - 14) * 1.4)));
   return Math.round(Math.max(10, Math.min(100, 100 - c.wind * 2.2 - c.gust * .7 - c.wave * 27 - c.current * 12)));
+}
+
+function fishingActivityLabel(score: number, rtl: boolean) {
+  if (score >= 82) return rtl ? "نشاط صيد ممتاز" : "Excellent fishing activity";
+  if (score >= 65) return rtl ? "نشاط صيد جيد" : "Good fishing activity";
+  if (score >= 42) return rtl ? "نشاط صيد متوسط" : "Moderate fishing activity";
+  return rtl ? "نشاط صيد منخفض" : "Low fishing activity";
 }
 
 function moonCondition(dateValue: string, rtl: boolean) {
@@ -128,18 +138,20 @@ function chartPath(values: number[], width = 1000, height = 220, padding = 24) {
 }
 
 function ForecastChart({
-  title, unit, values, secondary, secondaryLabel, selectedHour, onSelect, accent = "cyan", children,
+  title, unit, values, secondary, secondaryLabel, selectedHour, onSelect, accent = "cyan", direction, rtl = false, decimals = 1, children,
 }: {
   title: string; unit: string; values: number[]; secondary?: number[]; secondaryLabel?: string;
-  selectedHour: number; onSelect: (hour: number) => void; accent?: "cyan" | "coral" | "blue"; children?: React.ReactNode;
+  selectedHour: number; onSelect: (hour: number) => void; accent?: "cyan" | "coral" | "blue";
+  direction?: number; rtl?: boolean; decimals?: number; children?: React.ReactNode;
 }) {
   const value = values[selectedHour] ?? 0;
   const secondaryValue = secondary?.[selectedHour] ?? 0;
   const marker = 2.4 + (selectedHour / 23) * 95.2;
+  const selectedTime = `${String(selectedHour).padStart(2, "0")}:00`;
   return (
     <article className={`forecast-chart chart-${accent}`}>
       <div className="chart-heading">
-        <div><p>{title}</p><strong>{value.toFixed(1)} <small>{unit}</small></strong></div>
+        <div><p>{title}</p><strong>{value.toFixed(decimals)} <small>{unit}</small></strong></div>
         {secondary && <div className="legend"><span /><b>{secondaryLabel}</b><strong>{secondaryValue.toFixed(1)} {unit}</strong></div>}
       </div>
       <div className="chart-canvas">
@@ -150,7 +162,7 @@ function ForecastChart({
           <path className="primary-line" d={chartPath(values)} />
           {secondary && <path className="secondary-line" d={chartPath(secondary)} />}
         </svg>
-        <div className="time-cursor" style={{ left: `${marker}%` }}><span>{value.toFixed(1)} {unit}</span><i /></div>
+        <div className={`time-cursor ${direction !== undefined ? "has-direction" : ""}`} style={{ left: `${marker}%` }}><span><b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small>{direction !== undefined && <em><u style={{ transform: `rotate(${direction}deg)` }}>↑</u>{compass(direction, rtl)}</em>}</span><i /></div>
         <input dir="ltr" aria-label={`Select hour for ${title}`} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
       </div>
       <div className="chart-hours"><span>00</span><span>04</span><span>08</span><span>12</span><span>16</span><span>20</span><span>23</span></div>
@@ -238,7 +250,7 @@ export default function Home() {
     tideState: ((conditions.hourly[Math.min(23, selectedHour + 1)]?.tide ?? selected.tide) >= selected.tide ? "rising" : "falling") as "rising" | "falling",
   }), [conditions, selected, selectedHour]);
   const score = useMemo(() => calculateScore(selectedConditions, activity), [selectedConditions, activity]);
-  const fishingRating = score >= 82 ? (rtl ? "نشاط صيد ممتاز" : "Excellent fishing activity") : score >= 65 ? (rtl ? "نشاط صيد جيد" : "Good fishing activity") : score >= 42 ? (rtl ? "نشاط صيد متوسط" : "Moderate fishing activity") : (rtl ? "نشاط صيد منخفض" : "Low fishing activity");
+  const fishingRating = fishingActivityLabel(score, rtl);
   const rating = activity === "fishing" ? fishingRating : score >= 72 ? t.good : score >= 48 ? t.caution : t.difficult;
   const scoreClass = activity === "fishing" ? (score >= 65 ? "score-good" : score >= 42 ? "score-caution" : "score-poor") : score >= 72 ? "score-good" : score >= 48 ? "score-caution" : "score-poor";
   const moon = moonCondition(forecastDates[selectedDay], rtl);
@@ -246,10 +258,11 @@ export default function Home() {
     const hourScore = calculateScore({ ...conditions, ...hour, tideState: (conditions.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity);
     return hourScore > best.score ? { index, score: hourScore } : best;
   }, { index: 0, score: -1 });
+  const fishingActivityByHour = conditions.hourly.map((hour, index) => calculateScore({ ...conditions, ...hour, tideState: (conditions.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, "fishing"));
   const activityMetrics = activity === "fishing" ? [
     { label: rtl ? "نشاط السمك" : "Fish activity", value: `${score}/100`, sub: rating, icon: Fish },
     { label: rtl ? "حركة المد" : "Tide movement", value: selectedConditions.tideState === "rising" ? t.rising : t.falling, sub: `H ${conditions.highTide} · L ${conditions.lowTide}`, icon: ArrowDown },
-    { label: rtl ? "الرياح للصيد" : "Fishing wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection)} · ${selected.gust.toFixed(0)} gust`, icon: Wind },
+    { label: rtl ? "الرياح للصيد" : "Fishing wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Wind },
     { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s period`, icon: Waves },
     { label: rtl ? "حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "مؤشر نشاط الأسماك" : "Fish comfort indicator", icon: Thermometer },
     { label: rtl ? "أفضل فرصة" : "Best bite window", value: conditions.hourly[bestHour.index]?.time ?? "—", sub: `${t.bestAt} ${conditions.hourly[bestHour.index]?.time ?? "—"}`, icon: Gauge },
@@ -257,14 +270,14 @@ export default function Home() {
     { label: rtl ? "جودة السيرف" : "Surf quality", value: `${score}/100`, sub: rating, icon: Waves },
     { label: rtl ? "ارتفاع السويل" : "Swell height", value: `${selected.swell.toFixed(1)} m`, sub: `${selected.swellPeriod.toFixed(1)}s period`, icon: Waves },
     { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s period`, icon: Gauge },
-    { label: rtl ? "رياح السيرف" : "Surf wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection)} · ${selected.gust.toFixed(0)} gust`, icon: Wind },
+    { label: rtl ? "رياح السيرف" : "Surf wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Wind },
     { label: rtl ? "مرحلة المد" : "Tide stage", value: selectedConditions.tideState === "rising" ? t.rising : t.falling, sub: `${selected.tide.toFixed(2)} m`, icon: ArrowDown },
     { label: rtl ? "المستوى المقترح" : "Suggested level", value: score > 78 ? (rtl ? "متوسط+" : "Intermediate+") : (rtl ? "مبتدئ" : "Beginner"), sub: rtl ? "حسب الظروف المختارة" : "For selected conditions", icon: Gauge },
   ] : [
     { label: rtl ? "أمان الكاياك" : "Kayak safety", value: `${score}/100`, sub: rating, icon: ShipWheel },
     { label: rtl ? "الرياح والهبات" : "Wind & gusts", value: `${selected.wind.toFixed(0)} km/h`, sub: `${selected.gust.toFixed(0)} km/h gusts`, icon: Wind },
     { label: rtl ? "حالة سطح البحر" : "Surface state", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s period`, icon: Waves },
-    { label: rtl ? "سرعة التيار" : "Current speed", value: `${selected.current.toFixed(1)} km/h`, sub: `${compass(selected.currentDirection)} direction`, icon: Navigation },
+    { label: rtl ? "سرعة التيار" : "Current speed", value: `${selected.current.toFixed(1)} km/h`, sub: rtl ? `الاتجاه: ${compass(selected.currentDirection, true)}` : `${compass(selected.currentDirection)} direction`, icon: Navigation },
     { label: rtl ? "مدى الرؤية" : "Visibility", value: `${selected.visibility.toFixed(0)} km`, sub: `${selected.rain.toFixed(0)}% ${rtl ? "احتمال مطر" : "rain chance"}`, icon: Gauge },
     { label: rtl ? "درجة الصعوبة" : "Difficulty", value: score > 76 ? (rtl ? "سهل" : "Easy") : score > 50 ? (rtl ? "متوسط" : "Moderate") : (rtl ? "صعب" : "Difficult"), sub: rtl ? "حسب خبرة المستخدم" : "Experience still matters", icon: ShipWheel },
   ];
@@ -303,18 +316,18 @@ export default function Home() {
         <div className="location-panel">
           <label htmlFor="location"><MapPin size={18} /> {t.where}</label>
           <div className="location-select-wrap"><Search size={19} /><select id="location" value={spotId} onChange={(event) => setSpotId(event.target.value)}>{spots.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div>
-          <div className="live-status-row"><p><span className={dataStatus === "live" ? "live-dot" : "sample-dot"} /> {dataStatus === "live" ? `${t.live} · ${t.updated} ${lastUpdated?.toLocaleTimeString(language === "ar" ? "ar-EG" : "en-GB", { hour: "2-digit", minute: "2-digit" }) ?? (rtl ? "الآن" : "now")}` : (rtl ? "بيانات تجريبية" : "Preview data")}</p><button type="button" className="refresh-button" disabled={loading} onClick={() => setRefreshRequest((value) => value + 1)} aria-label={rtl ? "تحديث التوقعات الآن" : "Refresh forecast now"} title={rtl ? "تحديث الآن" : "Refresh now"}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/><span>{rtl ? "تحديث" : "Refresh"}</span></button></div>
+          <div className="live-status-row"><p><span className={dataStatus === "live" ? "live-dot" : "sample-dot"} /> {dataStatus === "live" ? `${t.live} · ${t.updated} ${lastUpdated?.toLocaleTimeString(rtl ? arabicLatinLocale : "en-GB", { hour: "2-digit", minute: "2-digit" }) ?? (rtl ? "الآن" : "now")}` : (rtl ? "بيانات تجريبية" : "Preview data")}</p><button type="button" className="refresh-button" disabled={loading} onClick={() => setRefreshRequest((value) => value + 1)} aria-label={rtl ? "تحديث التوقعات الآن" : "Refresh forecast now"} title={rtl ? "تحديث الآن" : "Refresh now"}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/><span>{rtl ? "تحديث" : "Refresh"}</span></button></div>
         </div>
       </section>
 
       <section id="conditions" className="dashboard-wrap">
         <Tabs value={activity} onValueChange={(value) => setActivity(value as Activity)} className="activity-tabs"><TabsList><TabsTrigger value="fishing"><Fish size={19} /> {t.activities.fishing}</TabsTrigger><TabsTrigger value="surfing"><Waves size={19} /> {t.activities.surfing}</TabsTrigger><TabsTrigger value="kayaking"><ShipWheel size={19} /> {t.activities.kayaking}</TabsTrigger></TabsList></Tabs>
         <div className="day-selector">
-          <div><small>{t.chooseDay}</small><strong>{new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(language === "ar" ? "ar-EG" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</strong></div>
+          <div><small>{t.chooseDay}</small><strong>{new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</strong></div>
           <div className="day-buttons">{forecastDates.map((date, index) => {
             const dayConditions = forecastDays[index] ?? fallbackDays[index];
             const dayBest = Math.max(...dayConditions.hourly.map((hour, hourIndex) => calculateScore({ ...dayConditions, ...hour, tideState: (dayConditions.hourly[Math.min(23, hourIndex + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity)));
-            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.max(0, new Date().getHours()) : 9); }}><span>{index === 0 ? t.today : index === 1 ? t.tomorrow : t.dayThree}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(language === "ar" ? "ar-EG" : "en-GB", { day: "numeric", month: "short" })}</strong><em>{dayBest}/100</em></button>;
+            return <button key={date} type="button" className={selectedDay === index ? "active" : ""} onClick={() => { setSelectedDay(index); setSelectedHour(index === 0 ? Math.max(0, new Date().getHours()) : 9); }}><span>{index === 0 ? t.today : index === 1 ? t.tomorrow : t.dayThree}</span><strong>{new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { day: "numeric", month: "short" })}</strong><em>{dayBest}/100</em></button>;
           })}</div>
         </div>
         <div className={`condition-board ${loading ? "is-loading" : ""}`}>
@@ -331,29 +344,29 @@ export default function Home() {
           </div>
         </div>
         <div className="forecast-explorer">
-          <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(language === "ar" ? "ar-EG" : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{selected.time}</strong></div></div>
+          <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{selected.time}</strong></div></div>
           <div className="time-scrubber"><span>00:00</span><input dir="ltr" aria-label="Select time of day" type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>23:00</span></div>
           {activity === "fishing" && <>
             <ForecastChart title={rtl ? "المد والجزر للصيد" : "Fishing tide"} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue">
               <div className="chart-facts"><span>{rtl ? "أعلى مد" : "High tide"}<strong>{conditions.highTide}</strong></span><span>{rtl ? "أقل جزر" : "Low tide"}<strong>{conditions.lowTide}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
-              <ForecastChart title={rtl ? "الرياح وتأثيرها على الصيد" : "Fishing wind"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral"><div className="chart-facts compact"><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(selected.windDirection)}</strong></span><span>{rtl ? "أفضل نشاط" : "Best activity"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
-              <ForecastChart title={rtl ? "حالة البحر للصيد" : "Fishing sea state"} unit="m" values={conditions.hourly.map((hour) => hour.wave)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="cyan"><div className="chart-facts compact"><span>{rtl ? "حرارة المياه" : "Water temp"}<strong>{selected.sea.toFixed(1)}°C</strong></span><span>{rtl ? "فترة الموج" : "Wave period"}<strong>{selected.wavePeriod.toFixed(1)}s</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "الرياح وتأثيرها على الصيد" : "Fishing wind"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral" direction={selected.windDirection} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "اتجاه الرياح" : "Wind direction"}<strong>{compass(selected.windDirection, rtl)}</strong></span><span>{rtl ? "أفضل نشاط" : "Best activity"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "نشاط الصيد خلال اليوم" : "Fishing activity through the day"} unit="/100" values={fishingActivityByHour} selectedHour={selectedHour} onSelect={setSelectedHour} accent="cyan" decimals={0} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "النشاط الآن" : "Current activity"}<strong>{fishingActivityLabel(fishingActivityByHour[selectedHour] ?? 0, rtl)}</strong></span><span>{rtl ? "أفضل وقت" : "Best time"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
             </div>
           </>}
           {activity === "surfing" && <>
             <ForecastChart title={rtl ? "الأمواج والسويل للسيرف" : "Surf waves & swell"} unit="m" values={conditions.hourly.map((hour) => hour.wave)} secondary={conditions.hourly.map((hour) => hour.swell)} secondaryLabel={rtl ? "السويل" : "Swell"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="cyan"><div className="chart-facts"><span>{rtl ? "فترة السويل" : "Swell period"}<strong>{selected.swellPeriod.toFixed(1)}s</strong></span><span>{rtl ? "مرحلة المد" : "Tide stage"}<strong>{selectedConditions.tideState === "rising" ? t.rising : t.falling}</strong></span><span>{rtl ? "أفضل سيرف" : "Best surf"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
             <div className="chart-grid">
-              <ForecastChart title={rtl ? "فترة السويل" : "Swell period"} unit="s" values={conditions.hourly.map((hour) => hour.swellPeriod)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue"><div className="chart-facts compact"><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(conditions.swellDirection)}</strong></span><span>{rtl ? "حرارة البحر" : "Sea temp"}<strong>{selected.sea.toFixed(1)}°C</strong></span></div></ForecastChart>
-              <ForecastChart title={rtl ? "رياح السيرف" : "Surf wind"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral"><div className="chart-facts compact"><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(selected.windDirection)}</strong></span><span>{rtl ? "السرعة" : "Speed"}<strong>{selected.wind.toFixed(0)} km/h</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "فترة السويل" : "Swell period"} unit="s" values={conditions.hourly.map((hour) => hour.swellPeriod)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue"><div className="chart-facts compact"><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(conditions.swellDirection, rtl)}</strong></span><span>{rtl ? "حرارة البحر" : "Sea temp"}<strong>{selected.sea.toFixed(1)}°C</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "رياح السيرف" : "Surf wind"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral" direction={selected.windDirection} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "اتجاه الرياح" : "Wind direction"}<strong>{compass(selected.windDirection, rtl)}</strong></span><span>{rtl ? "السرعة" : "Speed"}<strong>{selected.wind.toFixed(0)} km/h</strong></span></div></ForecastChart>
             </div>
           </>}
           {activity === "kayaking" && <>
-            <ForecastChart title={rtl ? "الرياح والهبات للكاياك" : "Kayak wind & gusts"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral"><div className="chart-facts"><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(selected.windDirection)}</strong></span><span>{rtl ? "احتمال المطر" : "Rain chance"}<strong>{selected.rain.toFixed(0)}%</strong></span><span>{rtl ? "أفضل وقت آمن" : "Safest window"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
+            <ForecastChart title={rtl ? "الرياح والهبات للكاياك" : "Kayak wind & gusts"} unit="km/h" values={conditions.hourly.map((hour) => hour.wind)} secondary={conditions.hourly.map((hour) => hour.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedHour} onSelect={setSelectedHour} accent="coral" direction={selected.windDirection} rtl={rtl}><div className="chart-facts"><span>{rtl ? "اتجاه الرياح" : "Wind direction"}<strong>{compass(selected.windDirection, rtl)}</strong></span><span>{rtl ? "احتمال المطر" : "Rain chance"}<strong>{selected.rain.toFixed(0)}%</strong></span><span>{rtl ? "أفضل وقت آمن" : "Safest window"}<strong>{conditions.hourly[bestHour.index]?.time}</strong></span></div></ForecastChart>
             <div className="chart-grid">
               <ForecastChart title={rtl ? "ارتفاع الموج للكاياك" : "Kayak wave height"} unit="m" values={conditions.hourly.map((hour) => hour.wave)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="cyan"><div className="chart-facts compact"><span>{rtl ? "فترة الموج" : "Wave period"}<strong>{selected.wavePeriod.toFixed(1)}s</strong></span><span>{rtl ? "الرؤية" : "Visibility"}<strong>{selected.visibility.toFixed(0)} km</strong></span></div></ForecastChart>
-              <ForecastChart title={rtl ? "سرعة التيار" : "Current speed"} unit="km/h" values={conditions.hourly.map((hour) => hour.current)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue"><div className="chart-facts compact"><span>{rtl ? "اتجاه التيار" : "Current direction"}<strong>{compass(selected.currentDirection)}</strong></span><span>{rtl ? "درجة الصعوبة" : "Difficulty"}<strong>{score > 76 ? (rtl ? "سهل" : "Easy") : score > 50 ? (rtl ? "متوسط" : "Moderate") : (rtl ? "صعب" : "Difficult")}</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "سرعة التيار" : "Current speed"} unit="km/h" values={conditions.hourly.map((hour) => hour.current)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" direction={selected.currentDirection} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "اتجاه التيار" : "Current direction"}<strong>{compass(selected.currentDirection, rtl)}</strong></span><span>{rtl ? "درجة الصعوبة" : "Difficulty"}<strong>{score > 76 ? (rtl ? "سهل" : "Easy") : score > 50 ? (rtl ? "متوسط" : "Moderate") : (rtl ? "صعب" : "Difficult")}</strong></span></div></ForecastChart>
             </div>
           </>}
         </div>
