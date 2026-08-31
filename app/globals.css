@@ -63,9 +63,9 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .day-selector>div:first-child small { margin-bottom:4px; color:#6d858a; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; }
 .day-selector>div:first-child strong { font-family:Georgia,serif; font-size:18px; font-weight:400; }
 .day-buttons { min-width:0; display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; scrollbar-width:thin; }
-.day-buttons button { min-width:118px; padding:8px 11px; display:grid; grid-template-columns:1fr auto; gap:2px 8px; border:1px solid rgba(8,40,51,.1); border-radius:12px; color:#637b80; background:white; text-align:start; cursor:pointer; }
+.day-buttons button { min-width:140px; padding:8px 11px; display:grid; grid-template-columns:1fr auto; gap:4px 8px; border:1px solid rgba(8,40,51,.1); border-radius:12px; color:#637b80; background:white; text-align:start; cursor:pointer; }
 .day-buttons button span { grid-column:1/-1; font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.09em; }
-.day-buttons button strong { color:var(--ink); font-size:12px; }
+.day-buttons button strong { color:var(--ink); font-size:12px; white-space:nowrap; }
 .day-buttons button em { padding:2px 5px; border-radius:5px; color:var(--ocean); background:var(--foam); font-size:9px; font-style:normal; font-weight:800; }
 .day-buttons button.active { border-color:var(--ocean); color:white; background:var(--ocean); box-shadow:0 6px 16px rgba(13,89,101,.18); }
 .day-buttons button.active strong,.day-buttons button.active em { color:white; }
