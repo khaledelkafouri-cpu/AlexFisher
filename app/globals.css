@@ -79,6 +79,12 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .score-card h2 { margin:0 0 6px; font-family:Georgia,serif; font-size:22px; font-weight:400; }
 .score-card>p { margin:0; color:#8fa9ad; font-size:10px; text-transform:uppercase; letter-spacing:.1em; }
 .best-time { display:block; margin-top:5px; color:var(--cyan); font-size:14px; }
+.moon-condition { margin:18px auto 0; padding:10px 12px; display:flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,.1); border-radius:12px; background:rgba(255,255,255,.045); text-align:start; }
+.moon-icon { font-size:28px; line-height:1; filter:drop-shadow(0 4px 8px rgba(0,0,0,.22)); }
+.moon-condition div { min-width:0; display:grid; grid-template-columns:1fr auto; align-items:center; gap:2px 8px; }
+.moon-condition small { grid-column:1/-1; color:#7fa0a5; font-size:7px; font-weight:800; text-transform:uppercase; letter-spacing:.13em; }
+.moon-condition strong { color:#e7f5f3; font-size:11px; }
+.moon-condition em { color:#9eb7ba; font-size:8px; font-style:normal; white-space:nowrap; }
 .sun-times { display:flex; justify-content:space-between; margin-top:21px; padding-top:15px; border-top:1px solid rgba(255,255,255,.1); color:#a9c0c3; font-size:11px; }
 .sun-times span { display:flex; align-items:center; gap:5px; }
 .metrics-grid { padding:24px; display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }

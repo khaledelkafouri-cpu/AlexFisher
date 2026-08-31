@@ -95,9 +95,24 @@ const fallbackDays = Array.from({ length: 3 }, (_, day) => ({
 const compass = (degrees: number) => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(degrees / 45) % 8];
 const shortTime = (value?: string) => value ? new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }) : "—";
 function calculateScore(c: Conditions, activity: Activity) {
-  if (activity === "fishing") return Math.round(Math.max(18, 100 - c.wind * 1.5 - c.wave * 18 + (c.tideState === "rising" ? 9 : 3)));
+  if (activity === "fishing") return Math.round(Math.max(18, Math.min(100, 100 - c.wind * 1.5 - c.wave * 18 + (c.tideState === "rising" ? 9 : 3))));
   if (activity === "surfing") return Math.round(Math.max(20, Math.min(96, 42 + c.swell * 22 + c.swellPeriod * 2.2 - Math.max(0, c.wind - 14) * 1.4)));
-  return Math.round(Math.max(10, 100 - c.wind * 2.2 - c.gust * .7 - c.wave * 27 - c.current * 12));
+  return Math.round(Math.max(10, Math.min(100, 100 - c.wind * 2.2 - c.gust * .7 - c.wave * 27 - c.current * 12)));
+}
+
+function moonCondition(dateValue: string, rtl: boolean) {
+  const lunarCycle = 29.53058867;
+  const date = new Date(`${dateValue}T12:00:00Z`);
+  const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+  const elapsedDays = (date.getTime() - knownNewMoon) / 86400000;
+  const age = ((elapsedDays % lunarCycle) + lunarCycle) % lunarCycle;
+  const fraction = age / lunarCycle;
+  const phaseIndex = Math.round(fraction * 8) % 8;
+  const illumination = Math.round((1 - Math.cos(2 * Math.PI * fraction)) * 50);
+  const phases = rtl
+    ? ["محاق", "هلال متزايد", "التربيع الأول", "أحدب متزايد", "بدر", "أحدب متناقص", "التربيع الأخير", "هلال متناقص"]
+    : ["New moon", "Waxing crescent", "First quarter", "Waxing gibbous", "Full moon", "Waning gibbous", "Last quarter", "Waning crescent"];
+  return { emoji: ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"][phaseIndex], name: phases[phaseIndex], illumination };
 }
 
 function chartPath(values: number[], width = 1000, height = 220, padding = 24) {
@@ -222,8 +237,10 @@ export default function Home() {
     tideState: ((conditions.hourly[Math.min(23, selectedHour + 1)]?.tide ?? selected.tide) >= selected.tide ? "rising" : "falling") as "rising" | "falling",
   }), [conditions, selected, selectedHour]);
   const score = useMemo(() => calculateScore(selectedConditions, activity), [selectedConditions, activity]);
-  const rating = score >= 72 ? t.good : score >= 48 ? t.caution : t.difficult;
-  const scoreClass = score >= 72 ? "score-good" : score >= 48 ? "score-caution" : "score-poor";
+  const fishingRating = score >= 82 ? (rtl ? "نشاط صيد ممتاز" : "Excellent fishing activity") : score >= 65 ? (rtl ? "نشاط صيد جيد" : "Good fishing activity") : score >= 42 ? (rtl ? "نشاط صيد متوسط" : "Moderate fishing activity") : (rtl ? "نشاط صيد منخفض" : "Low fishing activity");
+  const rating = activity === "fishing" ? fishingRating : score >= 72 ? t.good : score >= 48 ? t.caution : t.difficult;
+  const scoreClass = activity === "fishing" ? (score >= 65 ? "score-good" : score >= 42 ? "score-caution" : "score-poor") : score >= 72 ? "score-good" : score >= 48 ? "score-caution" : "score-poor";
+  const moon = moonCondition(forecastDates[selectedDay], rtl);
   const bestHour = conditions.hourly.reduce((best, hour, index) => {
     const hourScore = calculateScore({ ...conditions, ...hour, tideState: (conditions.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity);
     return hourScore > best.score ? { index, score: hourScore } : best;
@@ -304,6 +321,7 @@ export default function Home() {
             <div className="score-head"><span>{t.activities[activity]} {t.score}</span><b>{selectedDay === 0 ? t.today : selectedDay === 1 ? t.tomorrow : t.dayThree}</b><Gauge size={20} /></div>
             <div className={`score-ring ${scoreClass}`} style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><div><strong>{score}</strong><span>/100</span></div></div>
             <h2>{rating}</h2><p>{t.bestAt}</p><strong className="best-time">{conditions.hourly[bestHour.index]?.time ?? selected.time}</strong>
+            <div className="moon-condition"><span className="moon-icon" aria-hidden="true">{moon.emoji}</span><div><small>{rtl ? "حالة القمر" : "Moon condition"}</small><strong>{moon.name}</strong><em>{moon.illumination}% {rtl ? "إضاءة" : "illuminated"}</em></div></div>
             <div className="sun-times"><span><Sunrise size={16} /> {conditions.sunrise}</span><span>{conditions.sunset} <ArrowUpRight size={16} /></span></div>
           </article>
           <div className="metrics-grid">
