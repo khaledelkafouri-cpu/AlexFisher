@@ -417,6 +417,21 @@ footer>span { color:#7e9297; font-size:9px; }
 .quick-guide svg { flex:0 0 auto; margin-top:1px; color:var(--ocean); }
 .flip { transform:scaleX(-1); }
 
+/* Fishing Hub */
+.fishing-hub-page { min-height:100vh; padding-bottom:80px; color:var(--ink); background:radial-gradient(circle at 82% 12%,rgba(61,215,208,.16),transparent 28%),linear-gradient(180deg,#edf7f5 0,#f8fbfa 52%,#fff 100%); }
+.fishing-hub-head { max-width:1020px; margin:auto; padding:78px 28px 34px; }
+.fishing-hub-head>p { margin:0 0 14px; display:flex; align-items:center; gap:7px; color:var(--ocean); font-size:10px; font-weight:900; letter-spacing:.17em; }
+.fishing-hub-head h1 { margin:0; font:500 clamp(52px,7vw,82px)/.95 Georgia,serif; letter-spacing:-.05em; }
+.fishing-hub-head>span { margin-top:18px; display:block; color:#60787e; font-size:16px; }
+.fishing-hub-tools { max-width:1020px; margin:auto; padding:0 28px; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.fishing-tool-card { min-height:330px; position:relative; padding:30px; display:flex; align-items:flex-start; flex-direction:column; overflow:hidden; border:1px solid var(--line); border-radius:23px; color:var(--ink); background:rgba(255,255,255,.9); text-decoration:none; box-shadow:0 18px 45px rgba(7,45,54,.07); transition:.2s ease; }
+.fishing-tool-card:hover { border-color:var(--cyan); transform:translateY(-4px); box-shadow:0 22px 50px rgba(7,72,80,.12); }
+.fishing-tool-icon { width:58px; height:58px; display:grid; place-items:center; border-radius:17px; color:var(--ocean); background:#dff5f2; }
+.fishing-tool-number { position:absolute; inset-inline-end:27px; top:28px; color:#a1b4b7; font-size:11px; font-weight:900; letter-spacing:.14em; }
+.fishing-tool-card h2 { margin:68px 0 11px; font:400 31px Georgia,serif; }
+.fishing-tool-card p { max-width:420px; margin:0; color:#647c82; font-size:14px; line-height:1.65; }
+.fishing-tool-card strong { margin-top:auto; padding-top:28px; display:flex; align-items:center; gap:7px; color:var(--ocean); font-size:12px; font-weight:850; }
+
 /* Lure & Jig Selector */
 .lure-page { min-height:100vh; padding-bottom:90px; color:var(--ink); background:radial-gradient(circle at 88% 8%,rgba(61,215,208,.14),transparent 25%),linear-gradient(180deg,#edf7f5 0,#f8fbfa 440px,#fff 100%); }
 .lure-tool-head { max-width:1120px; margin:auto; padding:62px 28px 36px; display:flex; align-items:flex-end; justify-content:space-between; gap:36px; }
@@ -496,5 +511,6 @@ footer>span { color:#7e9297; font-size:9px; }
   .shop-roadmap { margin:18px 14px 0; padding:20px 14px; } .shop-section-heading { align-items:flex-start; flex-direction:column; }
   .planned-products { grid-template-columns:1fr; } .planned-products article { grid-template-columns:38px 1fr; }
   .planned-products em { grid-column:2; width:fit-content; } .shop-community-note { align-items:flex-start; flex-direction:column; }
+  .fishing-hub-page { padding-bottom:50px; }.fishing-hub-head { padding:50px 20px 27px; }.fishing-hub-head h1 { font-size:54px; }.fishing-hub-tools { padding:0 14px; grid-template-columns:1fr; }.fishing-tool-card { min-height:270px; padding:23px; }.fishing-tool-card h2 { margin-top:45px; font-size:27px; }
   .lure-page { padding-bottom:55px; }.lure-tool-head { padding:43px 18px 27px; }.lure-tool-head h1 { font-size:46px; }.mode-switch { width:100%; }.mode-switch button { flex:1; justify-content:center; }.lure-shell { padding:0 11px; }.lure-live-strip { align-items:flex-start; flex-direction:column; }.lure-progress { justify-content:flex-start; padding:10px; }.lure-progress button { min-width:77px; flex-direction:column; }.lure-stage { min-height:600px; padding:25px 14px; }.lure-style-grid { grid-template-columns:1fr; }.lure-style-grid button { min-height:145px; }.lure-target-controls { grid-template-columns:1fr; }.lure-fish-grid { grid-template-columns:1fr 1fr; }.lure-option-grid { grid-template-columns:1fr 1fr; }.lure-result-title { align-items:flex-start; flex-direction:column; }.lure-result-title>div:last-child { width:100%; }.best-lure-card { grid-template-columns:1fr; padding:14px; gap:15px; }.lure-visual,.lure-visual img { min-height:220px; height:220px; }.lure-color-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }.lure-color-gallery img { height:64px; }.lure-color-gallery span { font-size:8px; }.best-lure-card h3 { font-size:22px; }.best-lure-card dl { grid-template-columns:1fr; }.lure-result-grid { grid-template-columns:1fr; }.no-bites { grid-template-columns:1fr; }.no-bites ol { grid-template-columns:1fr; }.tool-connection { align-items:flex-start; flex-direction:column; }.tool-connection a { width:100%; justify-content:center; }
 }
