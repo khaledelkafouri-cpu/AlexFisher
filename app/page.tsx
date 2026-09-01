@@ -12,6 +12,7 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTi
 type Activity = "fishing" | "surfing" | "kayaking";
 type Language = "en" | "ar";
 type Spot = { id: string; en: string; ar: string; lat: number; lon: number };
+type CoastalCity = { id: string; en: string; ar: string; spots: Spot[] };
 type TideEvent = { time: string; height: number };
 type Conditions = {
   air: number; wind: number; gust: number; windDirection: number; wave: number;
@@ -27,22 +28,114 @@ type Conditions = {
   }>;
 };
 
-const spots: Spot[] = [
-  { id: "alex", en: "Alexandria", ar: "الإسكندرية", lat: 31.2001, lon: 29.9187 },
-  { id: "aboukir", en: "Abu Qir", ar: "أبو قير", lat: 31.319, lon: 30.06 },
-  { id: "sahel", en: "North Coast", ar: "الساحل الشمالي", lat: 30.966, lon: 28.72 },
-  { id: "portsaid", en: "Port Said", ar: "بورسعيد", lat: 31.2653, lon: 32.3019 },
-  { id: "sokhna", en: "Ain Sokhna", ar: "العين السخنة", lat: 29.592, lon: 32.338 },
-  { id: "hurghada", en: "Hurghada", ar: "الغردقة", lat: 27.2579, lon: 33.8116 },
-  { id: "dahab", en: "Dahab", ar: "دهب", lat: 28.509, lon: 34.513 },
+const coastalCities: CoastalCity[] = [
+  { id: "alexandria", en: "Alexandria", ar: "الإسكندرية", spots: [
+    { id: "alex-corniche", en: "Alexandria Corniche", ar: "كورنيش الإسكندرية", lat: 31.2156, lon: 29.9553 },
+    { id: "abu-qir", en: "Abu Qir", ar: "أبو قير", lat: 31.319, lon: 30.06 },
+    { id: "montaza", en: "Montaza", ar: "المنتزه", lat: 31.287, lon: 30.016 },
+    { id: "stanley", en: "Stanley", ar: "ستانلي", lat: 31.235, lon: 29.949 },
+    { id: "anfushi", en: "Anfushi", ar: "الأنفوشي", lat: 31.213, lon: 29.885 },
+    { id: "el-max", en: "El Max", ar: "المكس", lat: 31.154, lon: 29.824 },
+  ]},
+  { id: "north-coast", en: "North Coast", ar: "الساحل الشمالي", spots: [
+    { id: "new-alamein", en: "New Alamein", ar: "العلمين الجديدة", lat: 30.852, lon: 28.95 },
+    { id: "sidi-abdelrahman", en: "Sidi Abdel Rahman", ar: "سيدي عبد الرحمن", lat: 30.965, lon: 28.705 },
+    { id: "el-dabaa", en: "El Dabaa", ar: "الضبعة", lat: 31.03, lon: 28.44 },
+    { id: "ras-el-hekma", en: "Ras El Hekma", ar: "رأس الحكمة", lat: 31.083, lon: 28.025 },
+  ]},
+  { id: "matrouh", en: "Marsa Matrouh", ar: "مرسى مطروح", spots: [
+    { id: "matrouh-corniche", en: "Matrouh Corniche", ar: "كورنيش مطروح", lat: 31.354, lon: 27.237 },
+    { id: "cleopatra", en: "Cleopatra Bay", ar: "خليج كليوباترا", lat: 31.371, lon: 27.167 },
+    { id: "al-obayed", en: "Al Obayed", ar: "الأبيض", lat: 31.384, lon: 27.074 },
+    { id: "agiba", en: "Agiba", ar: "عجيبة", lat: 31.414, lon: 26.918 },
+  ]},
+  { id: "beheira", en: "Rosetta & Edku", ar: "رشيد وإدكو", spots: [
+    { id: "rosetta-mouth", en: "Rosetta Nile Mouth", ar: "بوغاز رشيد", lat: 31.465, lon: 30.375 },
+    { id: "edku-coast", en: "Edku Coast", ar: "ساحل إدكو", lat: 31.31, lon: 30.30 },
+  ]},
+  { id: "kafr-el-sheikh", en: "Baltim & Burullus", ar: "بلطيم والبرلس", spots: [
+    { id: "baltim", en: "Baltim Resort", ar: "مصيف بلطيم", lat: 31.57, lon: 31.09 },
+    { id: "borg-burullus", en: "Borg El Burullus", ar: "برج البرلس", lat: 31.59, lon: 30.98 },
+    { id: "burullus-mouth", en: "Burullus Inlet", ar: "بوغاز البرلس", lat: 31.594, lon: 30.94 },
+  ]},
+  { id: "damietta", en: "Damietta", ar: "دمياط", spots: [
+    { id: "ras-el-bar", en: "Ras El Bar", ar: "رأس البر", lat: 31.512, lon: 31.825 },
+    { id: "ezbet-el-borg", en: "Ezbet El Borg", ar: "عزبة البرج", lat: 31.505, lon: 31.84 },
+    { id: "new-damietta", en: "New Damietta Coast", ar: "ساحل دمياط الجديدة", lat: 31.449, lon: 31.671 },
+  ]},
+  { id: "port-said", en: "Port Said", ar: "بورسعيد", spots: [
+    { id: "port-said-corniche", en: "Port Said Corniche", ar: "كورنيش بورسعيد", lat: 31.265, lon: 32.302 },
+    { id: "port-fouad", en: "Port Fouad", ar: "بورفؤاد", lat: 31.248, lon: 32.322 },
+    { id: "el-gamil", en: "El Gamil", ar: "الجميل", lat: 31.283, lon: 32.225 },
+  ]},
+  { id: "north-sinai", en: "North Sinai", ar: "شمال سيناء", spots: [
+    { id: "el-arish", en: "El Arish", ar: "العريش", lat: 31.132, lon: 33.803 },
+    { id: "rumana", en: "Rumana Coast", ar: "ساحل رمانة", lat: 31.02, lon: 32.65 },
+  ]},
+  { id: "suez", en: "Suez", ar: "السويس", spots: [
+    { id: "suez-bay", en: "Suez Bay", ar: "خليج السويس", lat: 29.94, lon: 32.55 },
+    { id: "port-tawfik", en: "Port Tawfik", ar: "بورتوفيق", lat: 29.93, lon: 32.57 },
+    { id: "adabiya", en: "Adabiya", ar: "الأدبية", lat: 29.87, lon: 32.47 },
+  ]},
+  { id: "ain-sokhna", en: "Ain Sokhna", ar: "العين السخنة", spots: [
+    { id: "ain-sokhna-main", en: "Ain Sokhna", ar: "العين السخنة", lat: 29.592, lon: 32.338 },
+    { id: "el-galala", en: "El Galala Coast", ar: "ساحل الجلالة", lat: 29.43, lon: 32.46 },
+    { id: "zaafarana", en: "Zaafarana", ar: "الزعفرانة", lat: 29.113, lon: 32.649 },
+  ]},
+  { id: "ras-gharib", en: "Ras Gharib", ar: "رأس غارب", spots: [
+    { id: "ras-gharib-main", en: "Ras Gharib Coast", ar: "ساحل رأس غارب", lat: 28.36, lon: 33.08 },
+    { id: "gemsa-bay", en: "Gemsa Bay", ar: "خليج جمسة", lat: 28.64, lon: 33.04 },
+  ]},
+  { id: "hurghada", en: "Hurghada", ar: "الغردقة", spots: [
+    { id: "hurghada-marina", en: "Hurghada Marina", ar: "مارينا الغردقة", lat: 27.225, lon: 33.842 },
+    { id: "el-gouna", en: "El Gouna", ar: "الجونة", lat: 27.396, lon: 33.678 },
+    { id: "sahl-hasheesh", en: "Sahl Hasheesh", ar: "سهل حشيش", lat: 27.04, lon: 33.89 },
+    { id: "makadi-bay", en: "Makadi Bay", ar: "خليج مكادي", lat: 26.99, lon: 33.90 },
+  ]},
+  { id: "safaga", en: "Safaga", ar: "سفاجا", spots: [
+    { id: "safaga-port", en: "Safaga Coast", ar: "ساحل سفاجا", lat: 26.75, lon: 33.94 },
+    { id: "soma-bay", en: "Soma Bay", ar: "سوما باي", lat: 26.84, lon: 33.99 },
+  ]},
+  { id: "el-quseir", en: "El Quseir", ar: "القصير", spots: [
+    { id: "quseir-harbour", en: "El Quseir Harbour", ar: "ميناء القصير", lat: 26.105, lon: 34.28 },
+    { id: "marsa-alam-north", en: "Northern Reefs", ar: "الشعاب الشمالية", lat: 25.99, lon: 34.34 },
+  ]},
+  { id: "marsa-alam", en: "Marsa Alam", ar: "مرسى علم", spots: [
+    { id: "marsa-alam-main", en: "Marsa Alam Coast", ar: "ساحل مرسى علم", lat: 25.067, lon: 34.879 },
+    { id: "abu-dabbab", en: "Abu Dabbab", ar: "أبو دباب", lat: 25.338, lon: 34.738 },
+    { id: "port-ghalib", en: "Port Ghalib", ar: "بورت غالب", lat: 25.535, lon: 34.638 },
+    { id: "hamata", en: "Hamata", ar: "حماطة", lat: 24.62, lon: 35.10 },
+  ]},
+  { id: "sharm", en: "Sharm El Sheikh", ar: "شرم الشيخ", spots: [
+    { id: "naama-bay", en: "Naama Bay", ar: "خليج نعمة", lat: 27.91, lon: 34.32 },
+    { id: "sharks-bay", en: "Sharks Bay", ar: "خليج القرش", lat: 27.965, lon: 34.39 },
+    { id: "nabq", en: "Nabq", ar: "نبق", lat: 28.05, lon: 34.43 },
+    { id: "ras-mohammed", en: "Ras Mohammed", ar: "رأس محمد", lat: 27.73, lon: 34.25 },
+  ]},
+  { id: "dahab", en: "Dahab", ar: "دهب", spots: [
+    { id: "dahab-lighthouse", en: "Lighthouse", ar: "اللايت هاوس", lat: 28.50, lon: 34.52 },
+    { id: "dahab-laguna", en: "Dahab Lagoon", ar: "لاجونا دهب", lat: 28.48, lon: 34.50 },
+    { id: "blue-hole", en: "Blue Hole", ar: "البلو هول", lat: 28.57, lon: 34.54 },
+    { id: "abu-galum", en: "Abu Galum", ar: "أبو جالوم", lat: 28.62, lon: 34.55 },
+  ]},
+  { id: "nuweiba", en: "Nuweiba", ar: "نويبع", spots: [
+    { id: "nuweiba-port", en: "Nuweiba Coast", ar: "ساحل نويبع", lat: 29.03, lon: 34.66 },
+    { id: "tarabin", en: "Tarabin", ar: "الترابين", lat: 29.05, lon: 34.67 },
+    { id: "ras-shitan", en: "Ras Shitan", ar: "رأس شيطان", lat: 29.23, lon: 34.72 },
+  ]},
+  { id: "taba", en: "Taba", ar: "طابا", spots: [
+    { id: "taba-bay", en: "Taba Bay", ar: "خليج طابا", lat: 29.49, lon: 34.90 },
+    { id: "fjord-bay", en: "Fjord Bay", ar: "خليج فيورد", lat: 29.38, lon: 34.80 },
+    { id: "pharaoh-island", en: "Pharaoh's Island", ar: "جزيرة فرعون", lat: 29.46, lon: 34.86 },
+  ]},
 ];
 
 const copy = {
   en: {
-    nav: ["Conditions", "Learning", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
+    nav: ["Conditions", "Learning", "Tackle Matcher", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
     titleA: "Know the sea.", titleB: "Own the day.",
     subtitle: "One clear forecast for fishing, surfing and kayaking — interpreted for the way you move on the water.",
-    where: "Where are you heading?", live: "LIVE MODEL FORECAST", updated: "Updated",
+    where: "Where are you heading?", city: "City", spot: "Fishing spot", live: "LIVE MODEL FORECAST", updated: "Updated",
     activities: { fishing: "Fishing", surfing: "Surfing", kayaking: "Kayaking" }, score: "activity score",
     good: "Good conditions", caution: "Use caution", difficult: "Difficult conditions", window: "Best window",
     insight: "AlexFisher insight", insightText: "The morning offers the cleanest conditions. Wind and waves build after midday, so plan an early session.",
@@ -55,9 +148,9 @@ const copy = {
     safety: "Forecast guidance only. Always check local conditions and official safety advice before entering the water.",
   },
   ar: {
-    nav: ["حالة البحر", "تعلم", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
+    nav: ["حالة البحر", "تعلم", "مطابقة العدة", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
     titleA: "اعرف البحر.", titleB: "واختار يومك.",
-    subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟",
+    subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟", city: "المدينة", spot: "مكان الصيد",
     live: "توقع مباشر", updated: "آخر تحديث", activities: { fishing: "صيد", surfing: "سيرف", kayaking: "كاياك" },
     score: "تقييم النشاط", good: "الظروف جيدة", caution: "توخَّ الحذر", difficult: "الظروف صعبة", window: "أفضل وقت",
     insight: "نصيحة AlexFisher", insightText: "الصباح يقدم أفضل الظروف. الرياح والأمواج تزيد بعد الظهر، لذلك خطط للنزول مبكراً.",
@@ -206,7 +299,8 @@ function ForecastChart({
 export default function Home() {
   const [language, setLanguage] = useState<Language>("en");
   const [activity, setActivity] = useState<Activity>("fishing");
-  const [spotId, setSpotId] = useState("alex");
+  const [cityId, setCityId] = useState("alexandria");
+  const [spotId, setSpotId] = useState("alex-corniche");
   const [forecastDays, setForecastDays] = useState<Conditions[]>(fallbackDays);
   const [forecastDates, setForecastDates] = useState<string[]>(Array.from({ length: 7 }, (_, day) => new Date(Date.now() + day * 86400000).toISOString().slice(0, 10)));
   const [selectedDay, setSelectedDay] = useState(0);
@@ -219,7 +313,9 @@ export default function Home() {
   const [utcOffsetSeconds, setUtcOffsetSeconds] = useState(3 * 60 * 60);
   const t = copy[language];
   const rtl = language === "ar";
-  const spot = spots.find((item) => item.id === spotId) ?? spots[0];
+  const city = coastalCities.find((item) => item.id === cityId) ?? coastalCities[0];
+  const citySpots = city.spots;
+  const spot = citySpots.find((item) => item.id === spotId) ?? citySpots[0];
   const conditions = forecastDays[selectedDay] ?? fallbackDays[0];
 
   useEffect(() => {
@@ -363,7 +459,7 @@ export default function Home() {
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
-        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
+        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/community" : index === 4 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions">
           <Sheet>
             <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><Menu size={19} /><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
@@ -374,7 +470,7 @@ export default function Home() {
                 <SheetDescription>{rtl ? "اختر القسم الذي تريد الذهاب إليه." : "Choose where you want to go."}</SheetDescription>
               </SheetHeader>
               <nav className="mobile-nav-links" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"}>
-                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/community" : index === 3 ? "/shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
+                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/community" : index === 4 ? "/shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
               </nav>
             </SheetContent>
           </Sheet>
@@ -386,8 +482,11 @@ export default function Home() {
       <section id="top" className="hero">
         <div className="hero-copy"><p className="eyebrow"><span /> {t.eyebrow}</p><h1>{t.titleA}<br /><em>{t.titleB}</em></h1><p className="hero-subtitle">{t.subtitle}</p></div>
         <div className="location-panel">
-          <label htmlFor="location"><MapPin size={18} /> {t.where}</label>
-          <div className="location-select-wrap"><Search size={19} /><select id="location" value={spotId} onChange={(event) => setSpotId(event.target.value)}>{spots.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div>
+          <label htmlFor="city"><MapPin size={18} /> {t.where}</label>
+          <div className="location-pickers">
+            <div><small>{t.city}</small><div className="location-select-wrap"><Search size={19} /><select id="city" value={cityId} onChange={(event) => { const nextCity = coastalCities.find((item) => item.id === event.target.value) ?? coastalCities[0]; setCityId(nextCity.id); setSpotId(nextCity.spots[0].id); setSelectedDay(0); }}><option value="" disabled>{t.city}</option>{coastalCities.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div></div>
+            <div><small>{t.spot}</small><div className="location-select-wrap"><Navigation size={19} /><select id="spot" value={spotId} onChange={(event) => { setSpotId(event.target.value); setSelectedDay(0); }}>{citySpots.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div></div>
+          </div>
           <div className="live-status-row"><p><span className={dataStatus === "live" ? "live-dot" : "sample-dot"} /> {dataStatus === "live" ? `${t.live} · ${t.updated} ${lastUpdated?.toLocaleTimeString(rtl ? arabicLatinLocale : "en-GB", { hour: "2-digit", minute: "2-digit" }) ?? (rtl ? "الآن" : "now")}` : (rtl ? "بيانات تجريبية" : "Preview data")}</p><button type="button" className="refresh-button" disabled={loading} onClick={() => setRefreshRequest((value) => value + 1)} aria-label={rtl ? "تحديث التوقعات الآن" : "Refresh forecast now"} title={rtl ? "تحديث الآن" : "Refresh now"}><RefreshCw size={14} className={loading ? "is-spinning" : ""}/><span>{rtl ? "تحديث" : "Refresh"}</span></button></div>
         </div>
       </section>
