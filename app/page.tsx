@@ -132,7 +132,7 @@ const coastalCities: CoastalCity[] = [
 
 const copy = {
   en: {
-    nav: ["Conditions", "Learning", "Tackle Matcher", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
+    nav: ["Conditions", "Learning", "Tackle Matcher", "Lure & Jig Selector", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
     titleA: "Know the sea.", titleB: "Own the day.",
     subtitle: "One clear forecast for fishing, surfing and kayaking — interpreted for the way you move on the water.",
     where: "Where are you heading?", city: "City", spot: "Fishing spot", live: "LIVE MODEL FORECAST", updated: "Updated",
@@ -148,7 +148,7 @@ const copy = {
     safety: "Forecast guidance only. Always check local conditions and official safety advice before entering the water.",
   },
   ar: {
-    nav: ["حالة البحر", "تعلم", "مطابقة العدة", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
+    nav: ["حالة البحر", "تعلم", "مطابقة العدة", "اختيار الطُعم والجيج", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
     titleA: "اعرف البحر.", titleB: "واختار يومك.",
     subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟", city: "المدينة", spot: "مكان الصيد",
     live: "توقع مباشر", updated: "آخر تحديث", activities: { fishing: "صيد", surfing: "سيرف", kayaking: "كاياك" },
@@ -459,7 +459,7 @@ export default function Home() {
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="AlexFisher home"><span className="brand-mark"><Waves size={22} /></span><span>ALEX<strong>FISHER</strong><small>SEA CONDITIONS</small></span></a>
-        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/community" : index === 4 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
+        <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/lure-selector" : index === 4 ? "/community" : index === 5 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions">
           <Sheet>
             <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><Menu size={19} /><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
@@ -470,7 +470,7 @@ export default function Home() {
                 <SheetDescription>{rtl ? "اختر القسم الذي تريد الذهاب إليه." : "Choose where you want to go."}</SheetDescription>
               </SheetHeader>
               <nav className="mobile-nav-links" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"}>
-                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/community" : index === 4 ? "/shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
+                {t.nav.map((item, index) => <SheetClose asChild key={item}><a href={index === 1 ? "/learning" : index === 2 ? "/tackle-matcher" : index === 3 ? "/lure-selector" : index === 4 ? "/community" : index === 5 ? "/shop" : "#conditions"}><span>{String(index + 1).padStart(2, "0")}</span>{item}<ChevronRight size={18} className={rtl ? "flip" : ""} /></a></SheetClose>)}
               </nav>
             </SheetContent>
           </Sheet>
