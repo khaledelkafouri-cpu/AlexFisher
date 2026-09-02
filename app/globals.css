@@ -227,10 +227,15 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .time-cursor i { position:absolute; top:38px; left:50%; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:6px solid var(--coral); transform:translateX(-50%); }
 .time-cursor.has-direction i { top:57px; }
 .time-cursor.has-current i { top:76px; }
-.time-cursor.has-tide-details>span { min-width:148px; }
-.time-cursor.has-tide-details>span em { justify-content:flex-start; }
-.time-cursor.has-tide-details>span em strong { min-width:40px; }
-.time-cursor.has-tide-details i { top:95px; }
+.tide-chart .chart-heading p { font-size:18px; letter-spacing:.075em; }
+.tide-chart .chart-heading strong { font-size:29px; }
+.time-cursor.has-tide-details>span { min-width:210px; padding:11px 13px; gap:5px 11px; border-radius:12px; }
+.time-cursor.has-tide-details>span>b,.time-cursor.has-tide-details>span>small { font-size:12px; }
+.time-cursor.has-tide-details>span em { min-height:21px; justify-content:flex-start; gap:7px; padding-top:5px; font-size:11px; }
+.time-cursor.has-tide-details>span em strong { min-width:49px; font-size:9px; }
+.time-cursor.has-tide-details>span em .direction-speed { font-size:10px; }
+.time-cursor.has-tide-details>span u { font-size:14px; }
+.time-cursor.has-tide-details i { top:118px; }
 .chart-canvas input { position:absolute; inset:0; z-index:3; width:100%; height:100%; margin:0; direction:ltr; opacity:0; cursor:ew-resize; }
 .chart-hours { padding:6px 1px 0; display:flex; justify-content:space-between; color:#8aa0a4; font-size:8px; font-weight:700; }
 .chart-hours.week-labels span { display:grid; gap:2px; text-align:center; }
