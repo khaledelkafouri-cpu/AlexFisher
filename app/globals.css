@@ -227,7 +227,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .chart-canvas .secondary-line { stroke:var(--coral); stroke-width:2.5; stroke-dasharray:8 7; opacity:.82; }
 .daylight-band { position:absolute; left:25%; right:23%; inset-block:0; background:rgba(246,224,153,.17); }
 .time-cursor { position:absolute; top:0; bottom:0; width:2px; background:var(--coral); transform:translateX(-1px); pointer-events:none; z-index:2; }
-.drag-target { width:48px; height:48px; position:absolute; z-index:2; border:4px solid #1689e6; border-radius:50%; background:rgba(255,255,255,.48); transform:translate(-50%,-50%); box-shadow:0 4px 14px rgba(11,89,153,.22),inset 0 0 0 2px rgba(255,255,255,.6); pointer-events:none; transition:top .16s ease,left .16s ease; }
+.drag-target { width:48px; height:48px; position:absolute; z-index:2; border:4px solid #1689e6; border-radius:50%; background:rgba(255,255,255,.48); transform:translate(-50%,-50%); box-shadow:0 4px 14px rgba(11,89,153,.22),inset 0 0 0 2px rgba(255,255,255,.6); pointer-events:none; }
 .drag-target i { width:12px; height:5px; position:absolute; display:block; border-radius:3px; background:#1689e6; box-shadow:0 1px 3px rgba(11,89,153,.2); }
 .drag-target i:nth-child(1) { top:-2px; left:50%; transform:translateX(-50%) rotate(90deg); }
 .drag-target i:nth-child(2) { top:50%; right:-5px; transform:translateY(-50%); }
