@@ -291,13 +291,22 @@ function ForecastChart({
   const yTickTop = (index: number) => (24 / 220) * 100 + index * ((220 - 48) / 220) * 25;
   const axisLabel = (tick: number) => `${tick.toFixed(axisDecimals)}${unit === "/100" ? "/100" : ` ${unit}`}`;
   const activityScore = tideDetails?.fishingActivity ?? (unit === "/100" ? value : undefined);
-  const fishCount = activityScore === undefined ? 0 : Math.max(1, Math.min(5, Math.ceil(activityScore / 20)));
-  const fishSchool = fishCount > 0 && <span className="fish-school" aria-label={rtl ? `${fishCount} أسماك تمثل مستوى النشاط` : `${fishCount} fish representing the activity level`}>{Array.from({ length: fishCount }, (_, index) => <i aria-hidden="true" key={index}>{index % 2 === 0 ? "🐟" : "🐠"}</i>)}</span>;
+  const fishCount = activityScore === undefined ? 0 : activityScore >= 94 ? 5 : activityScore >= 88 ? 4 : activityScore >= 78 ? 3 : activityScore >= 65 ? 2 : 1;
+  const fishSchool = fishCount > 0 && <span className="fish-school" aria-label={rtl ? `${fishCount} أسماك تمثل مستوى النشاط` : `${fishCount} fish representing the activity level`}>{Array.from({ length: fishCount }, (_, index) => <Fish aria-hidden="true" key={index} size={16}/>)}</span>;
   return (
     <article className={`forecast-chart chart-${accent} ${tideDetails ? "tide-chart" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "chart-direction" : ""}`}>
       <div className="chart-heading">
         <div className="chart-primary-heading"><div className="chart-title-line"><span><ChartIcon size={19}/></span><p>{title}</p></div><strong>{value.toFixed(decimals)} <small>{unit}</small></strong>{unit === "/100" && <div className="chart-fish-school">{fishSchool}</div>}</div>
         {secondary && <div className="legend"><span /><b>{secondaryLabel}</b><strong>{secondaryValue.toFixed(1)} {unit}</strong></div>}
+      </div>
+      <div className={`chart-readout ${tideDetails ? "has-tide-details" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "has-direction" : ""}`}>
+        {tideDetails && <em className="activity-indicator"><strong>{rtl ? "نشاط الصيد" : "Fishing activity"}</strong><b className="activity-score">{Math.round(tideDetails.fishingActivity)}/100</b>{fishSchool}</em>}
+        <div className="readout-primary"><b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small></div>
+        {tideDetails ? <>
+          <em><strong>{rtl ? "الرياح" : "Wind"}</strong><b className="direction-speed">{tideDetails.wind.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideWindArrowDirection}deg)` }}>↑</u>{compass(tideDetails.windDirection, rtl)}</em>
+          <em><strong>{rtl ? "الموج" : "Wave"}</strong><b className="direction-speed">{tideDetails.wave.toFixed(1)} m</b></em>
+          <em><strong>{rtl ? "التيار" : "Current"}</strong><b className="direction-speed">{tideDetails.current.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideCurrentArrowDirection}deg)` }}>↑</u>{compass(tideDetails.currentDirection, rtl)}</em>
+        </> : <>{direction !== undefined && <em><strong>{rtl ? "الرياح" : "Wind"}</strong><u style={{ transform: `rotate(${arrowDirection}deg)` }}>↑</u>{compass(direction, rtl)}</em>}{currentDirection !== undefined && <em><strong>{rtl ? "التيار" : "Current"}</strong>{currentSpeed !== undefined && <b className="direction-speed">{currentSpeed.toFixed(1)} km/h</b>}<u style={{ transform: `rotate(${currentArrowDirection}deg)` }}>↑</u>{compass(currentDirection, rtl)}</em>}</>}
       </div>
       <div className="chart-canvas">
         {!xLabels && <div className="daylight-band" />}
@@ -309,11 +318,8 @@ function ForecastChart({
           {secondary && <path className="secondary-line" d={chartPath(secondary, 1000, 220, 24, axisMin, axisMax)} />}
         </svg>
         {nowHour !== undefined && <div className="now-cursor" style={{ left: `${nowMarker}%` }}><span>{rtl ? "الآن" : "NOW"}<b>{nowTime}</b></span></div>}
-        <div className={`time-cursor ${selectedHour === 0 ? "at-start" : ""} ${selectedHour === values.length - 1 ? "at-end" : ""} ${tideDetails ? "has-tide-details" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "has-direction" : ""} ${!tideDetails && direction !== undefined && currentDirection !== undefined ? "has-current" : ""}`} style={{ left: `${marker}%` }}><span>{tideDetails && <em className="activity-indicator"><strong>{rtl ? "نشاط الصيد" : "Fishing activity"}</strong><b className="activity-score">{Math.round(tideDetails.fishingActivity)}/100</b>{fishSchool}</em>}<b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small>{tideDetails ? <>
-          <em><strong>{rtl ? "الرياح" : "Wind"}</strong><b className="direction-speed">{tideDetails.wind.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideWindArrowDirection}deg)` }}>↑</u>{compass(tideDetails.windDirection, rtl)}</em>
-          <em><strong>{rtl ? "الموج" : "Wave"}</strong><b className="direction-speed">{tideDetails.wave.toFixed(1)} m</b></em>
-          <em><strong>{rtl ? "التيار" : "Current"}</strong><b className="direction-speed">{tideDetails.current.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideCurrentArrowDirection}deg)` }}>↑</u>{compass(tideDetails.currentDirection, rtl)}</em>
-        </> : <>{direction !== undefined && <em><strong>{rtl ? "الرياح" : "Wind"}</strong><u style={{ transform: `rotate(${arrowDirection}deg)` }}>↑</u>{compass(direction, rtl)}</em>}{currentDirection !== undefined && <em><strong>{rtl ? "التيار" : "Current"}</strong>{currentSpeed !== undefined && <b className="direction-speed">{currentSpeed.toFixed(1)} km/h</b>}<u style={{ transform: `rotate(${currentArrowDirection}deg)` }}>↑</u>{compass(currentDirection, rtl)}</em>}</>}</span><i /></div>
+        <div className="time-cursor" style={{ left: `${marker}%` }} />
+        <div className="drag-target" style={{ left: `clamp(30px, ${marker}%, calc(100% - 30px))` }} aria-hidden="true"><i/><i/><i/><i/></div>
         <input dir="ltr" aria-label={rangeLabel ?? `Select hour for ${title}`} type="range" min="0" max={lastIndex} step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
       </div>
       {xLabels ? <div className="chart-hours week-labels">{xLabels.map((label, index) => <span key={`${label.primary}-${index}`}><b>{label.primary}</b>{label.secondary && <small>{label.secondary}</small>}</span>)}</div> : <div className="chart-hours"><span>12 AM</span><span>4 AM</span><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span><span>11 PM</span></div>}
