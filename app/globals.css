@@ -217,7 +217,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .chart-readout .activity-indicator { color:white; background:rgba(7,60,69,.13); border:0; border-radius:7px; padding:6px 8px; }
 .chart-readout .activity-indicator strong { min-width:112px; color:white; }
 .chart-readout .activity-score { color:white; font-size:10px; }
-.chart-canvas { height:220px; margin-top:10px; position:relative; overflow:hidden; border-radius:12px; background:repeating-linear-gradient(to bottom,rgba(8,40,51,.055),rgba(8,40,51,.055) 1px,transparent 1px,transparent 44px),linear-gradient(#f6faf9,#fbfdfc); }
+.chart-canvas { height:220px; margin-top:10px; position:relative; overflow:visible; border-radius:12px; background:repeating-linear-gradient(to bottom,rgba(8,40,51,.055),rgba(8,40,51,.055) 1px,transparent 1px,transparent 44px),linear-gradient(#f6faf9,#fbfdfc); }
 .chart-canvas svg { width:100%; height:100%; color:currentColor; }
 .chart-y-axis { position:absolute; inset-block:10px; inset-inline-start:6px; width:42px; z-index:1; pointer-events:none; }
 .chart-y-axis span { position:absolute; inset-inline-start:0; padding:2px 4px; border-radius:4px; color:#607b81; background:rgba(247,251,250,.88); font-size:7px; line-height:1; font-weight:800; white-space:nowrap; transform:translateY(-50%); box-shadow:0 0 0 1px rgba(8,40,51,.035); }
@@ -227,7 +227,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .chart-canvas .secondary-line { stroke:var(--coral); stroke-width:2.5; stroke-dasharray:8 7; opacity:.82; }
 .daylight-band { position:absolute; left:25%; right:23%; inset-block:0; background:rgba(246,224,153,.17); }
 .time-cursor { position:absolute; top:0; bottom:0; width:2px; background:var(--coral); transform:translateX(-1px); pointer-events:none; z-index:2; }
-.drag-target { width:48px; height:48px; position:absolute; top:50%; z-index:2; border:4px solid #1689e6; border-radius:50%; background:rgba(255,255,255,.48); transform:translate(-50%,-50%); box-shadow:0 4px 14px rgba(11,89,153,.22),inset 0 0 0 2px rgba(255,255,255,.6); pointer-events:none; }
+.drag-target { width:48px; height:48px; position:absolute; z-index:2; border:4px solid #1689e6; border-radius:50%; background:rgba(255,255,255,.48); transform:translate(-50%,-50%); box-shadow:0 4px 14px rgba(11,89,153,.22),inset 0 0 0 2px rgba(255,255,255,.6); pointer-events:none; transition:top .16s ease,left .16s ease; }
 .drag-target i { width:12px; height:5px; position:absolute; display:block; border-radius:3px; background:#1689e6; box-shadow:0 1px 3px rgba(11,89,153,.2); }
 .drag-target i:nth-child(1) { top:-2px; left:50%; transform:translateX(-50%) rotate(90deg); }
 .drag-target i:nth-child(2) { top:50%; right:-5px; transform:translateY(-50%); }
@@ -245,13 +245,9 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .chart-fish-school { min-height:22px; display:flex; align-items:center; }
 .chart-fish-school .fish-school { gap:3px; }
 .chart-fish-school .fish-school svg { width:18px; height:18px; color:#159a9a; filter:drop-shadow(0 2px 2px rgba(5,77,85,.15)); }
-.chart-canvas input { position:absolute; inset:0; z-index:3; width:100%; height:100%; margin:0; direction:ltr; appearance:none; -webkit-appearance:none; border:0; outline:0; background:transparent; cursor:ew-resize; touch-action:pan-y; }
-.chart-canvas input::-webkit-slider-runnable-track { height:100%; background:transparent; }
-.chart-canvas input::-webkit-slider-thumb { width:64px; height:64px; appearance:none; -webkit-appearance:none; border:0; border-radius:50%; background:transparent; cursor:grab; }
-.chart-canvas input::-moz-range-track { height:100%; border:0; background:transparent; }
-.chart-canvas input::-moz-range-thumb { width:64px; height:64px; border:0; border-radius:50%; background:transparent; cursor:grab; }
-.chart-canvas input:active::-webkit-slider-thumb,.chart-canvas input:active::-moz-range-thumb { cursor:grabbing; }
-.chart-canvas input:focus-visible { box-shadow:inset 0 0 0 3px rgba(22,137,230,.42); border-radius:12px; }
+.chart-drag-surface { position:absolute; inset:0; z-index:3; direction:ltr; cursor:ew-resize; touch-action:pan-y; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.chart-drag-surface:active { cursor:grabbing; }
+.chart-drag-surface:focus-visible { outline:0; box-shadow:inset 0 0 0 3px rgba(22,137,230,.42); border-radius:12px; }
 .chart-hours { padding:6px 1px 0; display:flex; justify-content:space-between; color:#8aa0a4; font-size:8px; font-weight:700; }
 .chart-hours.week-labels span { display:grid; gap:2px; text-align:center; }
 .chart-hours.week-labels b { color:#657f84; font-size:9px; }
@@ -572,8 +568,7 @@ footer>span { color:#7e9297; font-size:9px; }
   .chart-readout .activity-indicator strong { min-width:auto; margin-inline-end:auto; }
   .drag-target { width:56px; height:56px; border-width:5px; }
   .drag-target i { width:14px; height:6px; }
-  .chart-canvas input::-webkit-slider-thumb { width:76px; height:76px; }
-  .chart-canvas input::-moz-range-thumb { width:76px; height:76px; }
+  .chart-hours { padding-top:12px; }
   .chart-facts,.chart-facts.compact { grid-template-columns:1fr; } .chart-facts.compact span:last-child:nth-child(3) { grid-column:auto; }
   .community-section { padding:66px 20px; } .community-heading h2 { font-size:42px; }
   .group-list { display:flex; } .group-card { grid-template-columns:auto 1fr auto; } .group-card>svg { display:block; }

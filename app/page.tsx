@@ -238,14 +238,14 @@ function moonCondition(dateValue: string, rtl: boolean) {
   return { emoji: ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"][phaseIndex], name: phases[phaseIndex], illumination };
 }
 
-function chartPath(values: number[], width = 1000, height = 220, padding = 24, scaleMin?: number, scaleMax?: number) {
+function chartPath(values: number[], width = 1000, height = 220, xPadding = 80, scaleMin?: number, scaleMax?: number, yPadding = 24) {
   const finite = values.map((value) => Number.isFinite(value) ? value : 0);
   const min = scaleMin ?? Math.min(...finite);
   const max = scaleMax ?? Math.max(...finite);
   const range = Math.max(.01, max - min);
   return finite.map((value, index) => {
-    const x = padding + (index / Math.max(1, finite.length - 1)) * (width - padding * 2);
-    const y = padding + (1 - (value - min) / range) * (height - padding * 2);
+    const x = xPadding + (index / Math.max(1, finite.length - 1)) * (width - xPadding * 2);
+    const y = yPadding + (1 - (value - min) / range) * (height - yPadding * 2);
     return `${index === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(" ");
 }
@@ -270,8 +270,8 @@ function ForecastChart({
   const value = values[selectedHour] ?? 0;
   const secondaryValue = secondary?.[selectedHour] ?? 0;
   const lastIndex = Math.max(1, values.length - 1);
-  const marker = 2.4 + (selectedHour / lastIndex) * 95.2;
-  const nowMarker = nowHour === undefined ? 0 : 2.4 + (Math.max(0, Math.min(24, nowHour)) / 24) * 95.2;
+  const marker = 8 + (selectedHour / lastIndex) * 84;
+  const nowMarker = nowHour === undefined ? 0 : 8 + (Math.max(0, Math.min(24, nowHour)) / 24) * 84;
   const selectedTime = selectedLabel ?? formatTime12(`${String(selectedHour).padStart(2, "0")}:00`);
   // Wind bearings name where the wind comes from. Its arrow shows where the
   // air travels, so it points 180 degrees away from the named source.
@@ -290,6 +290,28 @@ function ForecastChart({
   const yTicks = Array.from({ length: 5 }, (_, index) => axisMax - ((axisMax - axisMin) * index) / 4);
   const yTickTop = (index: number) => (24 / 220) * 100 + index * ((220 - 48) / 220) * 25;
   const axisLabel = (tick: number) => `${tick.toFixed(axisDecimals)}${unit === "/100" ? "/100" : ` ${unit}`}`;
+  const markerY = 24 + (1 - (value - axisMin) / Math.max(.01, axisMax - axisMin)) * (220 - 48);
+  const markerYPercent = (markerY / 220) * 100;
+  const selectFromClientX = (clientX: number, element: HTMLDivElement) => {
+    const bounds = element.getBoundingClientRect();
+    const plotLeft = bounds.left + bounds.width * .08;
+    const plotWidth = bounds.width * .84;
+    const ratio = Math.max(0, Math.min(1, (clientX - plotLeft) / Math.max(1, plotWidth)));
+    onSelect(Math.round(ratio * lastIndex));
+  };
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    selectFromClientX(event.clientX, event.currentTarget);
+  };
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) selectFromClientX(event.clientX, event.currentTarget);
+  };
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowDown") { event.preventDefault(); onSelect(Math.max(0, selectedHour - 1)); }
+    if (event.key === "ArrowRight" || event.key === "ArrowUp") { event.preventDefault(); onSelect(Math.min(lastIndex, selectedHour + 1)); }
+    if (event.key === "Home") { event.preventDefault(); onSelect(0); }
+    if (event.key === "End") { event.preventDefault(); onSelect(lastIndex); }
+  };
   const activityScore = tideDetails?.fishingActivity ?? (unit === "/100" ? value : undefined);
   const fishCount = activityScore === undefined ? 0 : activityScore >= 94 ? 5 : activityScore >= 88 ? 4 : activityScore >= 78 ? 3 : activityScore >= 65 ? 2 : 1;
   const fishSchool = fishCount > 0 && <span className="fish-school" aria-label={rtl ? `${fishCount} أسماك تمثل مستوى النشاط` : `${fishCount} fish representing the activity level`}>{Array.from({ length: fishCount }, (_, index) => <Fish aria-hidden="true" key={index} size={16}/>)}</span>;
@@ -313,14 +335,15 @@ function ForecastChart({
         <div className="chart-y-axis" aria-hidden="true">{yTicks.map((tick, index) => <span key={`${tick}-${index}`} style={{ top: `${yTickTop(index)}%` }}>{axisLabel(tick)}</span>)}</div>
         <svg viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
           <defs><linearGradient id={`fill-${accent}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".24"/><stop offset="1" stopColor="currentColor" stopOpacity=".01"/></linearGradient></defs>
-          <path className="area" d={`${chartPath(values, 1000, 220, 24, axisMin, axisMax)} L976,220 L24,220 Z`} fill={`url(#fill-${accent})`} />
-          <path className="primary-line" d={chartPath(values, 1000, 220, 24, axisMin, axisMax)} />
-          {secondary && <path className="secondary-line" d={chartPath(secondary, 1000, 220, 24, axisMin, axisMax)} />}
+          <path className="area" d={`${chartPath(values, 1000, 220, 80, axisMin, axisMax)} L920,220 L80,220 Z`} fill={`url(#fill-${accent})`} />
+          <path className="primary-line" d={chartPath(values, 1000, 220, 80, axisMin, axisMax)} />
+          {secondary && <path className="secondary-line" d={chartPath(secondary, 1000, 220, 80, axisMin, axisMax)} />}
         </svg>
         {nowHour !== undefined && <div className="now-cursor" style={{ left: `${nowMarker}%` }}><span>{rtl ? "الآن" : "NOW"}<b>{nowTime}</b></span></div>}
         <div className="time-cursor" style={{ left: `${marker}%` }} />
-        <div className="drag-target" style={{ left: `clamp(30px, ${marker}%, calc(100% - 30px))` }} aria-hidden="true"><i/><i/><i/><i/></div>
-        <input dir="ltr" aria-label={rangeLabel ?? `Select hour for ${title}`} type="range" min="0" max={lastIndex} step="1" value={selectedHour} onChange={(event) => onSelect(Number(event.target.value))} />
+        <div className="chart-drag-surface" role="slider" tabIndex={0} aria-label={rangeLabel ?? `Select hour for ${title}`} aria-valuemin={0} aria-valuemax={lastIndex} aria-valuenow={selectedHour} aria-valuetext={`${selectedTime}, ${value.toFixed(decimals)} ${unit}`} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={(event) => event.currentTarget.hasPointerCapture(event.pointerId) && event.currentTarget.releasePointerCapture(event.pointerId)} onPointerCancel={(event) => event.currentTarget.hasPointerCapture(event.pointerId) && event.currentTarget.releasePointerCapture(event.pointerId)} onKeyDown={handleKeyDown}>
+          <div className="drag-target" style={{ left: `${marker}%`, top: `${markerYPercent}%` }} aria-hidden="true"><i/><i/><i/><i/></div>
+        </div>
       </div>
       {xLabels ? <div className="chart-hours week-labels">{xLabels.map((label, index) => <span key={`${label.primary}-${index}`}><b>{label.primary}</b>{label.secondary && <small>{label.secondary}</small>}</span>)}</div> : <div className="chart-hours"><span>12 AM</span><span>4 AM</span><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span><span>11 PM</span></div>}
       {children}
