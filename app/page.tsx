@@ -14,7 +14,7 @@ type Language = "en" | "ar";
 type Spot = { id: string; en: string; ar: string; lat: number; lon: number };
 type CoastalCity = { id: string; en: string; ar: string; spots: Spot[] };
 type TideEvent = { time: string; height: number };
-type Metric = { label:string; value:string; sub:string; icon:React.ElementType; emphasis?:"wind"|"wave"; direction?:number; directionFrom?:boolean; iconRotation?:number };
+type Metric = { label:string; value:string; sub:string; icon:React.ElementType; emphasis?:"wind"|"wave"; direction?:number; directionFrom?:boolean; iconRotation?:number; waveLines?:number; temperatureLevel?:number };
 type Conditions = {
   air: number; wind: number; gust: number; windDirection: number; wave: number;
   waveDirection: number; wavePeriod: number; swell: number; swellDirection: number;
@@ -516,16 +516,34 @@ export default function Home() {
   const selectWeekDay = (index: number) => {
     setSelectedDay(index);
   };
+  const setHourFromPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    const track = event.currentTarget.getBoundingClientRect();
+    const position = Math.max(0, Math.min(track.height, event.clientY - track.top));
+    setSelectedHour(Math.round((position / track.height) * 23));
+  };
+  const startHourDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setHourFromPointer(event);
+  };
+  const moveHourDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) setHourFromPointer(event);
+  };
+  const handleHourKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowUp") { event.preventDefault(); setSelectedHour((hour) => Math.max(0, hour - 1)); }
+    if (event.key === "ArrowDown") { event.preventDefault(); setSelectedHour((hour) => Math.min(23, hour + 1)); }
+    if (event.key === "Home") { event.preventDefault(); setSelectedHour(0); }
+    if (event.key === "End") { event.preventDefault(); setSelectedHour(23); }
+  };
   const localNow = new Date(clockNow + utcOffsetSeconds * 1000);
   const currentDecimalHour = localNow.getUTCHours() + localNow.getUTCMinutes() / 60;
   const currentTime = formatTime12(`${String(localNow.getUTCHours()).padStart(2, "0")}:${String(localNow.getUTCMinutes()).padStart(2, "0")}`);
   const liveNowHour = currentDecimalHour;
   const currentDirectionMetric: Metric = { label: rtl ? "التيار" : "Current", value: `${selected.current.toFixed(1)} km/h`, sub: `${compass(selected.currentDirection, rtl)} · ${rtl ? "اتجاه التيار" : "current direction"}`, icon: Navigation, iconRotation:(selected.currentDirection + 135) % 360 };
-  const waterTemperatureMetric = { label: rtl ? "درجة حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "حرارة سطح البحر" : "Sea-surface temperature", icon: Thermometer };
-  const airTemperatureMetric = { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${formatTime12(selected.time)}` : `At ${formatTime12(selected.time)}`, icon: Thermometer };
+  const waterTemperatureMetric: Metric = { label: rtl ? "درجة حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "حرارة سطح البحر" : "Sea-surface temperature", icon: Thermometer, temperatureLevel:Math.max(8, Math.min(100, ((selected.sea - 10) / 25) * 100)) };
+  const airTemperatureMetric: Metric = { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${formatTime12(selected.time)}` : `At ${formatTime12(selected.time)}`, icon: Thermometer, temperatureLevel:Math.max(8, Math.min(100, (selected.air / 45) * 100)) };
   const rainMetric = { label: rtl ? "احتمال المطر" : "Rain chance", value: `${selected.rain.toFixed(0)}%`, sub: rtl ? "خلال الساعة المختارة" : "During the selected hour", icon: CloudRain };
-  const windMetric: Metric = { label: rtl ? "الرياح" : "Wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Wind, emphasis:"wind", direction:selected.windDirection, directionFrom:true };
-  const waveMetric: Metric = { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s ${rtl ? "فترة الموج" : "period"}`, icon: Waves, emphasis:"wave" };
+  const windMetric: Metric = { label: rtl ? "الرياح" : "Wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Navigation, emphasis:"wind", iconRotation:(selected.windDirection + 135) % 360 };
+  const waveMetric: Metric = { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s ${rtl ? "فترة الموج" : "period"}`, icon: Waves, emphasis:"wave", waveLines:Math.max(1, Math.min(4, Math.ceil(selected.wave / .35))) };
   const activityMetrics: Metric[] = [
     windMetric,
     waveMetric,
@@ -586,8 +604,7 @@ export default function Home() {
           </div>
           <aside className="time-axis-control" aria-label={rtl ? "التحكم في وقت اليوم" : "Time-of-day control"}>
             <small>{rtl ? "الوقت" : "Time"}</small><span>12 AM</span>
-            <div className="time-range-shell" style={{ "--time-position": `${(selectedHour / 23) * 100}%` } as React.CSSProperties}>
-              <input dir="ltr" aria-label={rtl ? "اختر ساعة اليوم" : "Select hour of the day"} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} />
+            <div className="time-range-shell" role="slider" tabIndex={0} aria-label={rtl ? "اختر ساعة اليوم" : "Select hour of the day"} aria-valuemin={0} aria-valuemax={23} aria-valuenow={selectedHour} aria-valuetext={formatTime12(selected.time)} onPointerDown={startHourDrag} onPointerMove={moveHourDrag} onKeyDown={handleHourKey} style={{ "--time-position": `${(selectedHour / 23) * 100}%` } as React.CSSProperties}>
               <output aria-hidden="true">{formatTime12(selected.time)}</output>
             </div>
             <span>11 PM</span>
@@ -602,7 +619,7 @@ export default function Home() {
             <div className="sun-times"><span><Sunrise size={16} /> {conditions.sunrise}</span><span>{conditions.sunset} <ArrowUpRight size={16} /></span></div>
           </article>
           <div className="metrics-grid">
-            {activityMetrics.map((metric) => { const Icon = metric.icon; const metricArrow = metric.direction === undefined ? 0 : (metric.direction + (metric.directionFrom ? 180 : 0)) % 360; return <article className={`metric-card ${metric.emphasis ? `metric-emphasis metric-${metric.emphasis}` : ""}`} key={metric.label}><div className="metric-icon"><Icon size={20} style={metric.iconRotation === undefined ? undefined : { transform:`rotate(${metric.iconRotation}deg)` }} /></div><div><p>{metric.label}</p><div className="metric-value"><strong>{metric.value}</strong>{metric.direction !== undefined && <u aria-hidden="true" style={{ transform:`rotate(${metricArrow}deg)` }}>↑</u>}</div><span>{metric.sub}</span></div></article>; })}
+            {activityMetrics.map((metric) => { const Icon = metric.icon; const metricArrow = metric.direction === undefined ? 0 : (metric.direction + (metric.directionFrom ? 180 : 0)) % 360; return <article className={`metric-card ${metric.emphasis ? `metric-emphasis metric-${metric.emphasis}` : ""}`} key={metric.label}><div className={`metric-icon ${metric.temperatureLevel !== undefined ? "metric-temperature" : ""}`}>{metric.waveLines ? <span className="wave-level-icon" aria-hidden="true">{Array.from({ length:metric.waveLines },(_,line) => <i key={line} />)}</span> : <Icon size={20} style={metric.iconRotation === undefined ? undefined : { transform:`rotate(${metric.iconRotation}deg)` }} />}{metric.temperatureLevel !== undefined && <i className="temperature-fill" aria-hidden="true" style={{ height:`${Math.max(3, 18 * metric.temperatureLevel / 100)}px` }} />}</div><div><p>{metric.label}</p><div className="metric-value"><strong>{metric.value}</strong>{metric.direction !== undefined && <u aria-hidden="true" style={{ transform:`rotate(${metricArrow}deg)` }}>↑</u>}</div><span>{metric.sub}</span></div></article>; })}
           </div>
           </div>
         </div>
