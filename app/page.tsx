@@ -585,7 +585,12 @@ export default function Home() {
             <div className="axis-range-row"><span>{weekLabels[0]?.primary}</span><input dir="ltr" aria-label={rtl ? "اختر يوماً من الأسبوع" : "Select day of the week"} type="range" min="0" max="6" step="1" value={selectedDay} onChange={(event) => selectWeekDay(Number(event.target.value))} /><span>{weekLabels[6]?.primary}</span></div>
           </div>
           <aside className="time-axis-control" aria-label={rtl ? "التحكم في وقت اليوم" : "Time-of-day control"}>
-            <small>{rtl ? "الوقت" : "Time"}</small><span>12 AM</span><input dir="ltr" aria-label={rtl ? "اختر ساعة اليوم" : "Select hour of the day"} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>11 PM</span><strong>{formatTime12(selected.time)}</strong>
+            <small>{rtl ? "الوقت" : "Time"}</small><span>12 AM</span>
+            <div className="time-range-shell" style={{ "--time-position": `${(selectedHour / 23) * 100}%` } as React.CSSProperties}>
+              <input dir="ltr" aria-label={rtl ? "اختر ساعة اليوم" : "Select hour of the day"} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} />
+              <output aria-hidden="true">{formatTime12(selected.time)}</output>
+            </div>
+            <span>11 PM</span>
           </aside>
           <div className={`condition-board ${loading ? "is-loading" : ""}`}>
           <article className="score-card">
