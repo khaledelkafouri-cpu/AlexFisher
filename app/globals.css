@@ -116,9 +116,6 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .time-range-shell output { width:62px; min-height:32px; padding:5px 4px; display:grid; place-items:center; position:absolute; left:50%; top:clamp(17px,var(--time-position),calc(100% - 17px)); transform:translate(-50%,-50%); z-index:3; border:2px solid var(--cyan); border-radius:999px; color:white; background:#071f29; box-shadow:0 5px 14px rgba(0,0,0,.3); font-size:9px; font-weight:900; line-height:1; white-space:nowrap; pointer-events:none; }
 .metric-icon svg { transition:transform .2s ease; }
 .metric-icon { position:relative; overflow:hidden; }
-.metric-temperature svg { position:relative; z-index:2; }
-.temperature-fill { width:4px; max-height:18px; min-height:3px; display:block; position:absolute; left:50%; bottom:8px; transform:translateX(-50%); z-index:1; border-radius:4px; background:#ee5a47; transition:height .25s ease; }
-.temperature-fill::after { content:""; width:8px; height:8px; position:absolute; left:50%; bottom:-3px; transform:translateX(-50%); border-radius:50%; background:#ee5a47; }
 .day-selector { padding:16px 18px; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; border:1px solid var(--line); border-bottom:0; background:#f0f7f5; }
 .day-selector>div:first-child small,.day-selector>div:first-child strong { display:block; }
 .day-selector>div:first-child small { margin-bottom:4px; color:#6d858a; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; }
@@ -137,7 +134,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .score-card { padding:27px 30px; color:white; background:radial-gradient(circle at 50% 37%,rgba(61,215,208,.18),transparent 38%),linear-gradient(155deg,#0c4753,#071f29); text-align:center; }
 .score-head { display:flex; align-items:center; justify-content:space-between; color:#b9d0d1; font-size:10px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
 .score-head b { margin-inline-start:auto; margin-inline-end:8px; padding:4px 6px; border-radius:5px; color:var(--cyan); background:rgba(61,215,208,.1); font-size:8px; }
-.activity-mascot { width:108px; height:108px; margin:11px auto -13px; background-image:url("/assets/activity-mascots.png"); background-repeat:no-repeat; background-size:300% 300%; filter:drop-shadow(0 10px 12px rgba(0,0,0,.24)); transition:background-position .25s ease,transform .25s ease; }
+.activity-mascot { width:108px; height:108px; margin:11px auto -13px; background-image:url("/assets/activity-mascots.png"); background-repeat:no-repeat; background-size:300% 300%; filter:drop-shadow(0 10px 12px rgba(0,0,0,.24)); transition:transform .25s ease; }
 .activity-mascot:hover { transform:translateY(-2px) rotate(-2deg); }
 .mascot-fishing { background-position-x:0%; }
 .mascot-surfing { background-position-x:50%; }

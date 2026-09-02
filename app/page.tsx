@@ -14,7 +14,7 @@ type Language = "en" | "ar";
 type Spot = { id: string; en: string; ar: string; lat: number; lon: number };
 type CoastalCity = { id: string; en: string; ar: string; spots: Spot[] };
 type TideEvent = { time: string; height: number };
-type Metric = { label:string; value:string; sub:string; icon:React.ElementType; emphasis?:"wind"|"wave"; direction?:number; directionFrom?:boolean; iconRotation?:number; temperatureLevel?:number };
+type Metric = { label:string; value:string; sub:string; icon:React.ElementType; emphasis?:"wind"|"wave"; direction?:number; directionFrom?:boolean; iconRotation?:number };
 type Conditions = {
   air: number; wind: number; gust: number; windDirection: number; wave: number;
   waveDirection: number; wavePeriod: number; swell: number; swellDirection: number;
@@ -539,8 +539,8 @@ export default function Home() {
   const currentTime = formatTime12(`${String(localNow.getUTCHours()).padStart(2, "0")}:${String(localNow.getUTCMinutes()).padStart(2, "0")}`);
   const liveNowHour = currentDecimalHour;
   const currentDirectionMetric: Metric = { label: rtl ? "التيار" : "Current", value: `${selected.current.toFixed(1)} km/h`, sub: `${compass(selected.currentDirection, rtl)} · ${rtl ? "اتجاه التيار" : "current direction"}`, icon: Navigation, iconRotation:(selected.currentDirection + 135) % 360 };
-  const waterTemperatureMetric: Metric = { label: rtl ? "درجة حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "حرارة سطح البحر" : "Sea-surface temperature", icon: Thermometer, temperatureLevel:Math.max(8, Math.min(100, ((selected.sea - 10) / 25) * 100)) };
-  const airTemperatureMetric: Metric = { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${formatTime12(selected.time)}` : `At ${formatTime12(selected.time)}`, icon: Thermometer, temperatureLevel:Math.max(8, Math.min(100, (selected.air / 45) * 100)) };
+  const waterTemperatureMetric: Metric = { label: rtl ? "درجة حرارة المياه" : "Water temperature", value: `${selected.sea.toFixed(1)}°C`, sub: rtl ? "حرارة سطح البحر" : "Sea-surface temperature", icon: Thermometer };
+  const airTemperatureMetric: Metric = { label: rtl ? "درجة حرارة الهواء" : "Air temperature", value: `${selected.air.toFixed(1)}°C`, sub: rtl ? `الساعة ${formatTime12(selected.time)}` : `At ${formatTime12(selected.time)}`, icon: Thermometer };
   const rainMetric = { label: rtl ? "احتمال المطر" : "Rain chance", value: `${selected.rain.toFixed(0)}%`, sub: rtl ? "خلال الساعة المختارة" : "During the selected hour", icon: CloudRain };
   const windMetric: Metric = { label: rtl ? "الرياح" : "Wind", value: `${selected.wind.toFixed(0)} km/h`, sub: `${compass(selected.windDirection, rtl)} · ${selected.gust.toFixed(0)} ${rtl ? "هبات" : "gust"}`, icon: Navigation, emphasis:"wind", iconRotation:(selected.windDirection + 135) % 360 };
   const waveMetric: Metric = { label: rtl ? "ارتفاع الموج" : "Wave height", value: `${selected.wave.toFixed(1)} m`, sub: `${selected.wavePeriod.toFixed(1)}s ${rtl ? "فترة الموج" : "period"}`, icon: Waves, emphasis:"wave" };
@@ -619,7 +619,7 @@ export default function Home() {
             <div className="sun-times"><span><Sunrise size={16} /> {conditions.sunrise}</span><span>{conditions.sunset} <ArrowUpRight size={16} /></span></div>
           </article>
           <div className="metrics-grid">
-            {activityMetrics.map((metric) => { const Icon = metric.icon; const metricArrow = metric.direction === undefined ? 0 : (metric.direction + (metric.directionFrom ? 180 : 0)) % 360; return <article className={`metric-card ${metric.emphasis ? `metric-emphasis metric-${metric.emphasis}` : ""}`} key={metric.label}><div className={`metric-icon ${metric.temperatureLevel !== undefined ? "metric-temperature" : ""}`}><Icon size={20} style={metric.iconRotation === undefined ? undefined : { transform:`rotate(${metric.iconRotation}deg)` }} />{metric.temperatureLevel !== undefined && <i className="temperature-fill" aria-hidden="true" style={{ height:`${Math.max(3, 18 * metric.temperatureLevel / 100)}px` }} />}</div><div><p>{metric.label}</p><div className="metric-value"><strong>{metric.value}</strong>{metric.direction !== undefined && <u aria-hidden="true" style={{ transform:`rotate(${metricArrow}deg)` }}>↑</u>}</div><span>{metric.sub}</span></div></article>; })}
+            {activityMetrics.map((metric) => { const Icon = metric.icon; const metricArrow = metric.direction === undefined ? 0 : (metric.direction + (metric.directionFrom ? 180 : 0)) % 360; return <article className={`metric-card ${metric.emphasis ? `metric-emphasis metric-${metric.emphasis}` : ""}`} key={metric.label}><div className="metric-icon"><Icon size={20} style={metric.iconRotation === undefined ? undefined : { transform:`rotate(${metric.iconRotation}deg)` }} /></div><div><p>{metric.label}</p><div className="metric-value"><strong>{metric.value}</strong>{metric.direction !== undefined && <u aria-hidden="true" style={{ transform:`rotate(${metricArrow}deg)` }}>↑</u>}</div><span>{metric.sub}</span></div></article>; })}
           </div>
           </div>
         </div>
