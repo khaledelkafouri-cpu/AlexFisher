@@ -72,9 +72,9 @@ export default function HookMatcherPage(){
   const rtl=language==="ar";
   const t=(en:string,ar:string)=>rtl?ar:en;
 
-  useEffect(()=>{ const saved=window.localStorage.getItem("alexfisher-language"); if(saved==="ar"||saved==="en")setLanguage(saved); },[]);
+  useEffect(()=>{ const saved=window.localStorage.getItem("alexfisher-language"); if(saved==="ar"||saved==="en")setLanguage(saved); const params=new URLSearchParams(window.location.search); const nextStyle=params.get("style"),nextFish=params.get("fish"),nextStructure=params.get("structure"),nextLure=params.get("lure"); if(nextStyle&&styles.some(option=>option[0]===nextStyle))setStyle(nextStyle); if(nextFish&&fish.some(option=>option[0]===nextFish))setTarget(nextFish); if(nextStructure&&structures.some(option=>option[0]===nextStructure))setStructure(nextStructure); if(nextLure){setSource("artificial");setItem(nextLure);} },[]);
   const toggleLanguage=()=>{const next=rtl?"en":"ar";setLanguage(next);window.localStorage.setItem("alexfisher-language",next)};
-  useEffect(()=>{ setItem(source==="natural"?"shrimp":"jig"); },[source]);
+  useEffect(()=>{ setItem(current=>source==="natural"?(natural.some(option=>option[0]===current)?current:"shrimp"):(artificial.some(option=>option[0]===current)?current:"jig")); },[source]);
 
   const recommendation=useMemo(()=>{
     const snag=["rocks","reef","heavy"].includes(structure);

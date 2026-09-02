@@ -395,6 +395,17 @@ export default function Home() {
     tide: selected.tide, sea: selected.sea, current: selected.current, currentDirection: selected.currentDirection,
     tideState: ((conditions.hourly[Math.min(23, selectedHour + 1)]?.tide ?? selected.tide) >= selected.tide ? "rising" : "falling") as "rising" | "falling",
   }), [conditions, selected, selectedHour]);
+  useEffect(() => {
+    window.localStorage.setItem("alexfisher-current-conditions", JSON.stringify({
+      city: city.en,
+      spot: spot.en,
+      wind: selectedConditions.wind,
+      gust: selectedConditions.gust,
+      tideState: selectedConditions.tideState,
+      tide: selectedConditions.tide,
+      updatedAt: lastUpdated?.toISOString() ?? new Date().toISOString(),
+    }));
+  }, [city.en, spot.en, selectedConditions.wind, selectedConditions.gust, selectedConditions.tideState, selectedConditions.tide, lastUpdated]);
   const score = useMemo(() => calculateScore(selectedConditions, activity), [selectedConditions, activity]);
   const fishingRating = fishingActivityLabel(score, rtl);
   const rating = activity === "fishing" ? fishingRating : score >= 72 ? t.good : score >= 48 ? t.caution : t.difficult;

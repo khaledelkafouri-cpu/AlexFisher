@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Anchor, ArrowLeft, ChevronRight, Fish, Languages, Sparkles, Target, Waves } from "lucide-react";
+import { Anchor, ArrowLeft, ChevronRight, Fish, Languages, ScanLine, Sparkles, Target, Waves } from "lucide-react";
 
 type Language = "en" | "ar";
 
@@ -50,6 +50,16 @@ export default function FishingHubPage() {
         ? "اختر نوع الخطاف وحجمه وقوته وموضعه، وافهم لماذا يناسب طريقتك والسمكة المستهدفة."
         : "Choose the hook type, size, strength and position—and understand why it fits your target and technique.",
       action: rtl ? "اختر الخطاف" : "Match your hook",
+    },
+    {
+      href: "/read-my-spot",
+      icon: ScanLine,
+      number: "04",
+      title: rtl ? "حلّل مكان الصيد" : "Read My Fishing Spot",
+      description: rtl
+        ? "ارفع صورة للمكان وحدد مناطق الرمي المحتملة والعوائق وطريقة الصيد والطُعم الذي تبدأ به."
+        : "Upload a spot photo to explore possible cast zones, snags, fishing styles and what to try first.",
+      action: rtl ? "حلّل المكان" : "Read my spot",
     },
   ];
 
