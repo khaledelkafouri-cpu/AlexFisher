@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ChevronRight, Fish, Languages, Sparkles, Target, Waves } from "lucide-react";
+import { Anchor, ArrowLeft, ChevronRight, Fish, Languages, Sparkles, Target, Waves } from "lucide-react";
 
 type Language = "en" | "ar";
 
@@ -40,6 +40,16 @@ export default function FishingHubPage() {
         ? "اختر نوع الطُعم أو الجيج والوزن واللون والحركة حسب الظروف."
         : "Choose the lure or jig type, weight, color and action for the conditions.",
       action: rtl ? "اختر الطُعم" : "Choose your lure",
+    },
+    {
+      href: "/hook-matcher",
+      icon: Anchor,
+      number: "03",
+      title: rtl ? "دليل اختيار الخطاف" : "Hook Matcher",
+      description: rtl
+        ? "اختر نوع الخطاف وحجمه وقوته وموضعه، وافهم لماذا يناسب طريقتك والسمكة المستهدفة."
+        : "Choose the hook type, size, strength and position—and understand why it fits your target and technique.",
+      action: rtl ? "اختر الخطاف" : "Match your hook",
     },
   ];
 
