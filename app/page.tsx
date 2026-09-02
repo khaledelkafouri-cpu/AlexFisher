@@ -263,7 +263,7 @@ function ForecastChart({
   title: string; unit: string; values: number[]; secondary?: number[]; secondaryLabel?: string;
   selectedHour: number; onSelect: (hour: number) => void; accent?: "cyan" | "coral" | "blue";
   icon?: React.ElementType; direction?: number; directionFrom?: boolean; currentDirection?: number; currentDirectionFrom?: boolean; currentSpeed?: number;
-  tideDetails?: { wind: number; windDirection: number; wave: number; current: number; currentDirection: number };
+  tideDetails?: { fishingActivity: number; wind: number; windDirection: number; wave: number; current: number; currentDirection: number };
   nowHour?: number; nowTime?: string; rtl?: boolean; decimals?: number;
   xLabels?: Array<{ primary: string; secondary?: string }>; selectedLabel?: string; rangeLabel?: string; children?: React.ReactNode;
 }) {
@@ -290,10 +290,13 @@ function ForecastChart({
   const yTicks = Array.from({ length: 5 }, (_, index) => axisMax - ((axisMax - axisMin) * index) / 4);
   const yTickTop = (index: number) => (24 / 220) * 100 + index * ((220 - 48) / 220) * 25;
   const axisLabel = (tick: number) => `${tick.toFixed(axisDecimals)}${unit === "/100" ? "/100" : ` ${unit}`}`;
+  const activityScore = tideDetails?.fishingActivity ?? (unit === "/100" ? value : undefined);
+  const fishCount = activityScore === undefined ? 0 : Math.max(1, Math.min(5, Math.ceil(activityScore / 20)));
+  const fishSchool = fishCount > 0 && <span className="fish-school" aria-label={rtl ? `${fishCount} أسماك تمثل مستوى النشاط` : `${fishCount} fish representing the activity level`}>{Array.from({ length: fishCount }, (_, index) => <i aria-hidden="true" key={index}>{index % 2 === 0 ? "🐟" : "🐠"}</i>)}</span>;
   return (
-    <article className={`forecast-chart chart-${accent} ${tideDetails ? "tide-chart" : ""}`}>
+    <article className={`forecast-chart chart-${accent} ${tideDetails ? "tide-chart" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "chart-direction" : ""}`}>
       <div className="chart-heading">
-        <div className="chart-primary-heading"><div className="chart-title-line"><span><ChartIcon size={19}/></span><p>{title}</p></div><strong>{value.toFixed(decimals)} <small>{unit}</small></strong></div>
+        <div className="chart-primary-heading"><div className="chart-title-line"><span><ChartIcon size={19}/></span><p>{title}</p></div><strong>{value.toFixed(decimals)} <small>{unit}</small></strong>{unit === "/100" && <div className="chart-fish-school">{fishSchool}</div>}</div>
         {secondary && <div className="legend"><span /><b>{secondaryLabel}</b><strong>{secondaryValue.toFixed(1)} {unit}</strong></div>}
       </div>
       <div className="chart-canvas">
@@ -306,7 +309,7 @@ function ForecastChart({
           {secondary && <path className="secondary-line" d={chartPath(secondary, 1000, 220, 24, axisMin, axisMax)} />}
         </svg>
         {nowHour !== undefined && <div className="now-cursor" style={{ left: `${nowMarker}%` }}><span>{rtl ? "الآن" : "NOW"}<b>{nowTime}</b></span></div>}
-        <div className={`time-cursor ${selectedHour === 0 ? "at-start" : ""} ${selectedHour === values.length - 1 ? "at-end" : ""} ${tideDetails ? "has-tide-details" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "has-direction" : ""} ${!tideDetails && direction !== undefined && currentDirection !== undefined ? "has-current" : ""}`} style={{ left: `${marker}%` }}><span><b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small>{tideDetails ? <>
+        <div className={`time-cursor ${selectedHour === 0 ? "at-start" : ""} ${selectedHour === values.length - 1 ? "at-end" : ""} ${tideDetails ? "has-tide-details" : ""} ${!tideDetails && (direction !== undefined || currentDirection !== undefined) ? "has-direction" : ""} ${!tideDetails && direction !== undefined && currentDirection !== undefined ? "has-current" : ""}`} style={{ left: `${marker}%` }}><span>{tideDetails && <em className="activity-indicator"><strong>{rtl ? "نشاط الصيد" : "Fishing activity"}</strong><b className="activity-score">{Math.round(tideDetails.fishingActivity)}/100</b>{fishSchool}</em>}<b>{value.toFixed(decimals)} {unit}</b><small>{selectedTime}</small>{tideDetails ? <>
           <em><strong>{rtl ? "الرياح" : "Wind"}</strong><b className="direction-speed">{tideDetails.wind.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideWindArrowDirection}deg)` }}>↑</u>{compass(tideDetails.windDirection, rtl)}</em>
           <em><strong>{rtl ? "الموج" : "Wave"}</strong><b className="direction-speed">{tideDetails.wave.toFixed(1)} m</b></em>
           <em><strong>{rtl ? "التيار" : "Current"}</strong><b className="direction-speed">{tideDetails.current.toFixed(1)} km/h</b><u style={{ transform: `rotate(${tideCurrentArrowDirection}deg)` }}>↑</u>{compass(tideDetails.currentDirection, rtl)}</em>
@@ -584,7 +587,7 @@ export default function Home() {
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{formatTime12(selected.time)}</strong></div></div>
           <div className="time-scrubber"><span>12 AM</span><input dir="ltr" aria-label="Select time of day" type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))} /><span>11 PM</span></div>
           {activity === "fishing" && <>
-            <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" tideDetails={{ wind: selected.wind, windDirection: selected.windDirection, wave: selected.wave, current: selected.current, currentDirection: selected.currentDirection }} nowHour={liveNowHour} nowTime={currentTime} rtl={rtl}>
+            <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" tideDetails={{ fishingActivity: fishingActivityByHour[selectedHour] ?? 0, wind: selected.wind, windDirection: selected.windDirection, wave: selected.wave, current: selected.current, currentDirection: selected.currentDirection }} nowHour={liveNowHour} nowTime={currentTime} rtl={rtl}>
               <div className="chart-facts tide-facts"><span>{rtl ? "المد العالي" : "High tides"}<strong className="tide-event-list">{conditions.highTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {formatTime12(event.time)}</small>)}</strong></span><span>{rtl ? "الجزر" : "Low tides"}<strong className="tide-event-list">{conditions.lowTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {formatTime12(event.time)}</small>)}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
@@ -611,7 +614,7 @@ export default function Home() {
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {rtl ? "توقعات 7 أيام" : "7-day forecast"}</p><h2>{rtl ? "خطط لأسبوعك" : "Plan your week"}</h2><span>{rtl ? "حرّك مؤشر اليوم — الرسوم الثلاثة تتحرك معك" : "Drag the day marker — all three charts move with you"}</span></div><div className="selected-time selected-day"><small>{rtl ? "اليوم المختار" : "Selected day"}</small><strong>{selectedWeekLabel}</strong></div></div>
           <div className="week-scrubber"><span>{weekLabels[0]?.primary}</span><input dir="ltr" aria-label={rtl ? "اختر يوماً من الأسبوع" : "Select a day of the week"} type="range" min="0" max="6" step="1" value={selectedDay} onChange={(event) => selectWeekDay(Number(event.target.value))} /><span>{weekLabels[6]?.primary}</span></div>
           {activity === "fishing" && <>
-            <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={weeklyData.map((day) => day.representative.tide)} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" tideDetails={{ wind: selectedWeek.representative.wind, windDirection: selectedWeek.representative.windDirection, wave: selectedWeek.representative.wave, current: selectedWeek.representative.current, currentDirection: selectedWeek.representative.currentDirection }} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم المد والجزر" : "Select tide forecast day"} rtl={rtl}>
+            <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={weeklyData.map((day) => day.representative.tide)} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" tideDetails={{ fishingActivity: selectedWeek.score, wind: selectedWeek.representative.wind, windDirection: selectedWeek.representative.windDirection, wave: selectedWeek.representative.wave, current: selectedWeek.representative.current, currentDirection: selectedWeek.representative.currentDirection }} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم المد والجزر" : "Select tide forecast day"} rtl={rtl}>
               <div className="chart-facts compact"><span>{rtl ? "المد عند أفضل وقت" : "Tide at best time"}<strong>{selectedWeek.representative.tide.toFixed(2)} m</strong></span><span>{rtl ? "أفضل وقت صيد" : "Best fishing time"}<strong>{formatTime12(selectedWeek.representative.time)}</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
