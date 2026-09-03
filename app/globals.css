@@ -593,9 +593,9 @@ footer>span { color:#7e9297; font-size:9px; }
   .condition-board { width:100%; min-width:0; grid-column:2; grid-row:2; min-height:520px; grid-template-columns:minmax(122px,44%) minmax(0,56%); border-radius:0 0 18px 0; }
   [dir="rtl"] .condition-board { border-radius:0 0 0 18px; }
   .score-card { min-width:0; padding:17px 8px; overflow:hidden; }
-  .score-head { gap:6px; font-size:9px; letter-spacing:.06em; }
-  .score-head span { min-width:0; line-height:1.25; }
-  .score-head b { display:block; flex:0 0 auto; margin:0; padding:3px 5px; font-size:9px; }
+  .score-head { min-height:44px; display:grid; grid-template-columns:minmax(0,1fr) 44px; align-items:start; gap:6px; font-size:9px; letter-spacing:.06em; }
+  .score-head span { width:100%; min-width:0; line-height:1.25; text-align:center; }
+  .score-head b { width:44px; min-width:44px; min-height:28px; margin:0; padding:3px; display:grid; place-items:center; align-self:start; font-size:9px; line-height:1; font-variant-numeric:tabular-nums; }
   .activity-mascot { width:72px; height:72px; margin:6px auto -7px; }
   .score-ring { width:100px; height:100px; margin-bottom:12px; padding:7px; }
   .score-ring>div { padding-top:25px; }
