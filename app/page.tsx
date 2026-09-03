@@ -553,23 +553,34 @@ export default function Home() {
     airTemperatureMetric,
     rainMetric,
   ];
+  const bestWindowStart = Math.max(0, bestHour.index - 1);
+  const bestWindowEnd = Math.min(23, bestHour.index + 1);
+  const bestWindow = `${formatTime12(conditions.hourly[bestWindowStart]?.time)}–${formatTime12(conditions.hourly[bestWindowEnd]?.time)}`;
+  const insightDay = selectedDay === 0 ? (rtl ? "اليوم" : "Today") : selectedWeekLabel;
+  const highWind = selected.wind > 15;
   const activityInsight = activity === "fishing"
-    ? mascotMood === "happy"
-      ? (rtl ? `ظروف الصيد مناسبة؛ رياح بسرعة ${selected.wind.toFixed(0)} كم/س وموج بارتفاع ${selected.wave.toFixed(1)} متر.` : `Fishing conditions look favourable, with ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves.`)
-      : mascotMood === "neutral"
-        ? (rtl ? `ظروف الصيد متوسطة؛ الرياح بسرعة ${selected.wind.toFixed(0)} كم/س والموج بارتفاع ${selected.wave.toFixed(1)} متر قد يجعلان الرمي أصعب.` : `Fishing conditions are moderate; ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves may make casting more demanding.`)
-        : (rtl ? `ظروف الصيد صعبة؛ الرياح بسرعة ${selected.wind.toFixed(0)} كم/س والموج بارتفاع ${selected.wave.toFixed(1)} متر قد يحدّان من سهولة الرمي.` : `Fishing conditions are difficult; ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves may limit comfortable casting.`)
-    : activity === "surfing"
-      ? mascotMood === "happy"
-        ? (rtl ? `ظروف السيرف مناسبة؛ السويل ${selected.swell.toFixed(1)} متر بفترة ${selected.swellPeriod.toFixed(1)} ثانية يمنح الموج طاقة جيدة.` : `Surfing conditions look favourable; ${selected.swell.toFixed(1)} m swell at ${selected.swellPeriod.toFixed(1)} seconds offers useful wave energy.`)
-        : mascotMood === "neutral"
-          ? (rtl ? `ظروف السيرف متوسطة؛ السويل ${selected.swell.toFixed(1)} متر والرياح ${selected.wind.toFixed(0)} كم/س قد يجعلان جودة الموج متغيرة.` : `Surfing conditions are mixed; ${selected.swell.toFixed(1)} m swell and ${selected.wind.toFixed(0)} km/h wind may make wave quality inconsistent.`)
-          : (rtl ? `ظروف السيرف صعبة؛ ضعف السويل أو زيادة الرياح قد يقللان من جودة الموج.` : `Surfing conditions are difficult; limited swell or stronger wind may reduce wave quality.`)
+    ? highWind
+      ? (rtl ? `${insightDay} قد يكون صعباً للصيد من الصخور المكشوفة أو للرميات الطويلة؛ سرعة الرياح ${selected.wind.toFixed(0)} كم/س والهبات تصل إلى ${selected.gust.toFixed(0)} كم/س. الفترة الأهدأ المتاحة من ${bestWindow}.` : `${insightDay} may be difficult for exposed rock fishing or long casting: wind is ${selected.wind.toFixed(0)} km/h with gusts up to ${selected.gust.toFixed(0)} km/h. The calmer available window is ${bestWindow}.`)
       : mascotMood === "happy"
-        ? (rtl ? `ظروف الكاياك مناسبة؛ الرياح ${selected.wind.toFixed(0)} كم/س والموج ${selected.wave.toFixed(1)} متر والتيار ${selected.current.toFixed(1)} كم/س تبدو قابلة للإدارة.` : `Kayaking conditions look manageable, with ${selected.wind.toFixed(0)} km/h wind, ${selected.wave.toFixed(1)} m waves and ${selected.current.toFixed(1)} km/h current.`)
+      ? (rtl ? `${insightDay} مناسب للصيد. أفضل فترة من ${bestWindow} حيث تكون الرياح والأمواج أكثر ملاءمة.` : `${insightDay} looks good for fishing. The best window is ${bestWindow}, when wind and waves are more manageable.`)
+      : mascotMood === "neutral"
+        ? (rtl ? `${insightDay} مناسب للصيد بحذر. جرّب الفترة من ${bestWindow} وراقب تغيّر الرياح وارتفاع الموج.` : `${insightDay} is workable for fishing with caution. Try ${bestWindow} and watch for changes in wind and wave height.`)
+        : (rtl ? `${insightDay} غير مثالي للصيد. أفضل فترة متاحة من ${bestWindow}، وقد تظل الأماكن المكشوفة صعبة.` : `${insightDay} is not ideal for fishing. The best available window is ${bestWindow}, although exposed spots may remain difficult.`)
+    : activity === "surfing"
+      ? highWind
+        ? (rtl ? `الرياح مرتفعة ${selected.wind.toFixed(0)} كم/س وقد تجعل التحكم وجودة الموج أصعب. الفترة الأفضل للسيرف من ${bestWindow}.` : `Wind is high at ${selected.wind.toFixed(0)} km/h and may make board control and wave quality more difficult. The better surfing window is ${bestWindow}.`)
+        : mascotMood === "happy"
+        ? (rtl ? `${insightDay} مناسب للسيرف. أفضل فترة من ${bestWindow} مع سويل ${selected.swell.toFixed(1)} متر وفترة ${selected.swellPeriod.toFixed(1)} ثانية.` : `${insightDay} looks good for surfing. The best window is ${bestWindow}, with ${selected.swell.toFixed(1)} m swell at ${selected.swellPeriod.toFixed(1)} seconds.`)
         : mascotMood === "neutral"
-          ? (rtl ? `ظروف الكاياك تحتاج إلى الحذر؛ راقب الرياح ${selected.wind.toFixed(0)} كم/س والهبات ${selected.gust.toFixed(0)} كم/س والتيار.` : `Kayaking conditions require caution; monitor ${selected.wind.toFixed(0)} km/h wind, ${selected.gust.toFixed(0)} km/h gusts and the current.`)
-          : (rtl ? `ظروف الكاياك صعبة؛ الرياح والهبات والموج قد تجعل الخروج أكثر خطورة.` : `Kayaking conditions are difficult; wind, gusts and waves may make going out more hazardous.`);
+          ? (rtl ? `${insightDay} مناسب للسيرف بحذر. جودة الموج قد تتغير؛ جرّب الفترة من ${bestWindow}.` : `${insightDay} is workable for surfing, but wave quality may vary. Try the ${bestWindow} window.`)
+          : (rtl ? `${insightDay} غير مثالي للسيرف بسبب ضعف السويل أو ظروف الرياح. أفضل فرصة متاحة من ${bestWindow}.` : `${insightDay} is not ideal for surfing because of limited swell or wind conditions. The best available chance is ${bestWindow}.`)
+      : highWind
+        ? (rtl ? `الرياح مرتفعة ${selected.wind.toFixed(0)} كم/س والهبات تصل إلى ${selected.gust.toFixed(0)} كم/س؛ الكاياك غير مناسب للمبتدئين في هذه الفترة. الفترة الأهدأ المتاحة من ${bestWindow}.` : `Wind is high at ${selected.wind.toFixed(0)} km/h with gusts up to ${selected.gust.toFixed(0)} km/h; kayaking is not recommended for beginners at this time. The calmer available window is ${bestWindow}.`)
+        : mascotMood === "happy"
+        ? (rtl ? `${insightDay} مناسب للكاياك. أفضل فترة من ${bestWindow} مع رياح وموج وتيار أكثر هدوءاً.` : `${insightDay} looks good for kayaking. The best window is ${bestWindow}, with more manageable wind, waves and current.`)
+        : mascotMood === "neutral"
+          ? (rtl ? `${insightDay} يحتاج إلى الحذر للكاياك. الفترة الأفضل من ${bestWindow}؛ راقب الرياح والهبات والتيار قبل النزول.` : `${insightDay} requires caution for kayaking. The better window is ${bestWindow}; check wind, gusts and current before launching.`)
+          : (rtl ? `${insightDay} غير مناسب للكاياك، خاصة للمبتدئين. راجع الفترة من ${bestWindow} أو اختر يوماً أهدأ.` : `${insightDay} is not recommended for kayaking, especially for beginners. Check the ${bestWindow} window or choose a calmer day.`);
 
   return (
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
@@ -638,7 +649,7 @@ export default function Home() {
           </div>
           </div>
         </div>
-        <article className="insight-card dashboard-insight"><div><Sparkles size={20} /></div><div><p>{t.insight}</p><strong>{activityInsight}</strong><span className="insight-plan">{rtl ? <>راجع <a href="#plan-your-day">خطط ليومك</a> لمتابعة تغيّر الظروف بالساعة، أو <a href="#plan-your-week">خطط لأسبوعك</a> لاختيار أفضل يوم قبل النزول.</> : <>Check <a href="#plan-your-day">Plan your day</a> for hourly changes, or <a href="#plan-your-week">Plan your week</a> to choose the best day before you go.</>}</span></div></article>
+        <article className="insight-card dashboard-insight"><div><Sparkles size={20} /></div><div><p>{t.insight}</p><strong>{activityInsight}</strong><span className="insight-plan">{rtl ? "اضغط على أحد الخيارين لتحديد أنسب وقت قبل النزول." : "Tap an option below to choose the right time before you go."}</span><div className="insight-actions"><a className="insight-cta primary" href="#plan-your-day"><span><b>{rtl ? "خطط ليومك" : "Plan your day"}</b><small>{rtl ? "قارن الظروف ساعة بساعة" : "Compare conditions hour by hour"}</small></span><ChevronRight size={17} className={rtl ? "flip" : ""} /></a><a className="insight-cta" href="#plan-your-week"><span><b>{rtl ? "خطط لأسبوعك" : "Plan your week"}</b><small>{rtl ? "اختر أفضل يوم خلال 7 أيام" : "Choose the best of the next 7 days"}</small></span><ChevronRight size={17} className={rtl ? "flip" : ""} /></a></div></div></article>
         <div className="forecast-explorer" id="plan-your-day">
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{formatTime12(selected.time)}</strong></div></div>
           {activity === "fishing" && <>

@@ -181,9 +181,19 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .metric-card span { display:block; margin:0; color:#718a8f; font-size:10.5px; line-height:1.3; }
 .insight-card { grid-column:1/-1; display:flex; gap:13px; align-items:center; padding:16px 18px; border-radius:15px; background:var(--sand); color:var(--ink); }
 .insight-card>div:first-child { width:36px; height:36px; flex:0 0 36px; display:grid; place-items:center; border-radius:50%; color:#a9682e; background:white; }
+.insight-card>div:last-child { min-width:0; flex:1; }
 .insight-card strong { display:block; font-family:Georgia,serif; font-size:14px; font-weight:400; line-height:1.4; }
 .insight-plan { display:block; margin-top:5px; color:#5f757a; font-size:11px; line-height:1.45; }
-.insight-plan a { color:#075d67; font-weight:800; text-underline-offset:2px; }
+.insight-actions { margin-top:11px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.insight-cta { min-height:52px; padding:8px 11px; display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid #c8d8d6; border-radius:11px; color:var(--deep); background:rgba(255,255,255,.72); text-decoration:none; transition:transform .18s ease,box-shadow .18s ease; }
+.insight-cta:hover { transform:translateY(-1px); box-shadow:0 7px 16px rgba(7,45,54,.09); }
+.insight-cta.primary { border-color:var(--deep); color:white; background:var(--deep); }
+.insight-cta>span { min-width:0; }
+.insight-cta b,.insight-cta small { display:block; }
+.insight-cta b { font-size:12px; }
+.insight-cta small { margin-top:2px; color:#6d8387; font-size:9px; line-height:1.3; }
+.insight-cta.primary small { color:#b8cecf; }
+.insight-cta>svg { flex:0 0 auto; }
 .forecast-explorer[id] { scroll-margin-top:20px; }
 .dashboard-insight { margin-block-start:12px; margin-inline-start:64px; }
 .hourly-card { margin-top:20px; padding:26px 29px 20px; background:white; border:1px solid var(--line); border-radius:22px; }
@@ -619,6 +629,11 @@ footer>span { color:#7e9297; font-size:9px; }
   .metric-value u { font-size:14px; }
   .metric-card span { grid-column:1/-1; font-size:10px; line-height:1.2; white-space:normal; }
   .dashboard-insight { margin-inline-start:42px; }
+  .dashboard-insight { align-items:flex-start; padding:14px 12px; }
+  .insight-actions { grid-template-columns:1fr; }
+  .insight-cta { min-height:54px; }
+  .insight-cta b { font-size:13px; }
+  .insight-cta small { font-size:10px; }
   .hourly-card { padding:20px 13px 12px; overflow:hidden; }
   .hourly-row { overflow-x:auto; grid-template-columns:repeat(6,105px); padding-bottom:8px; }
   .forecast-explorer { margin-top:14px; padding:18px 10px; border-radius:20px; }
