@@ -481,33 +481,36 @@ export default function Home() {
   }, { index: 0, score: -1 });
   const fishingActivityByHour = conditions.hourly.map((hour, index) => calculateScore({ ...conditions, ...hour, tideState: (conditions.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, "fishing"));
   const weeklyData = useMemo(() => forecastDays.map((day) => {
-    const average = (values: number[]) => values.reduce((total, value) => total + value, 0) / Math.max(1, values.length);
     const scoredHours = day.hourly.map((hour, index) => ({
       index,
       score: calculateScore({ ...day, ...hour, tideState: (day.hourly[Math.min(23, index + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling" }, activity),
     }));
     const best = scoredHours.reduce((winner, candidate) => candidate.score > winner.score ? candidate : winner, scoredHours[0] ?? { index: 0, score: 0 });
-    const representative = day.hourly[best.index] ?? day.hourly[0];
+    const hour = day.hourly[selectedHour] ?? day.hourly[0];
+    const tideState = ((day.hourly[Math.min(23, selectedHour + 1)]?.tide ?? hour.tide) >= hour.tide ? "rising" : "falling") as "rising" | "falling";
+    const representative = { ...hour, tideState };
     const tides = day.hourly.map((hour) => hour.tide);
     return {
-      score: best.score,
+      score: calculateScore({ ...day, ...representative }, activity),
       bestHour: best.index,
       representative,
       tideRange: Math.max(...tides) - Math.min(...tides),
-      wind: average(day.hourly.map((hour) => hour.wind)),
-      gust: Math.max(...day.hourly.map((hour) => hour.gust)),
-      wave: average(day.hourly.map((hour) => hour.wave)),
-      swell: average(day.hourly.map((hour) => hour.swell)),
-      swellPeriod: average(day.hourly.map((hour) => hour.swellPeriod)),
-      current: average(day.hourly.map((hour) => hour.current)),
+      wind: representative.wind,
+      gust: representative.gust,
+      wave: representative.wave,
+      swell: representative.swell,
+      swellPeriod: representative.swellPeriod,
+      current: representative.current,
     };
-  }), [forecastDays, activity]);
+  }), [forecastDays, activity, selectedHour]);
   const selectedWeek = weeklyData[selectedDay] ?? weeklyData[0];
   const weekLabels = forecastDates.map((date) => ({
     primary: new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short" }),
     secondary: new Date(`${date}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { day: "numeric", month: "short" }),
   }));
-  const selectedWeekLabel = new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short", day: "numeric", month: "short" });
+  const selectedWeekDayLabel = new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short", day: "numeric", month: "short" });
+  const selectedWeekTime = formatTime12(selected.time);
+  const selectedWeekLabel = selectedWeekTime;
   const selectWeekDay = (index: number) => {
     setSelectedDay(index);
   };
@@ -551,7 +554,7 @@ export default function Home() {
   const bestWindowStart = Math.max(0, bestHour.index - 1);
   const bestWindowEnd = Math.min(23, bestHour.index + 1);
   const bestWindow = `${formatTime12(conditions.hourly[bestWindowStart]?.time)}–${formatTime12(conditions.hourly[bestWindowEnd]?.time)}`;
-  const insightDay = selectedDay === 0 ? (rtl ? "اليوم" : "Today") : selectedWeekLabel;
+  const insightDay = selectedDay === 0 ? (rtl ? "اليوم" : "Today") : selectedWeekDayLabel;
   const highWind = selected.wind > 15;
   const activityInsight = activity === "fishing"
     ? highWind
@@ -617,7 +620,7 @@ export default function Home() {
         <Tabs value={activity} onValueChange={(value) => setActivity(value as Activity)} className="activity-tabs"><TabsList><TabsTrigger value="fishing"><Fish size={19} /> {t.activities.fishing}</TabsTrigger><TabsTrigger value="surfing"><Waves size={19} /> {t.activities.surfing}</TabsTrigger><TabsTrigger value="kayaking"><ShipWheel size={19} /> {t.activities.kayaking}</TabsTrigger></TabsList></Tabs>
         <div className="dashboard-control-frame">
           <div className="week-axis-control">
-            <div><small>{rtl ? "الأسبوع" : "Week"}</small><strong>{selectedWeekLabel}</strong></div>
+            <div><small>{rtl ? "الأسبوع" : "Week"}</small><strong>{selectedWeekDayLabel}</strong></div>
             <div className="axis-range-row"><span>{weekLabels[0]?.primary}</span><input dir="ltr" aria-label={rtl ? "اختر يوماً من الأسبوع" : "Select day of the week"} type="range" min="0" max="6" step="1" value={selectedDay} onChange={(event) => selectWeekDay(Number(event.target.value))} /><span>{weekLabels[6]?.primary}</span></div>
           </div>
           <aside className="time-axis-control" aria-label={rtl ? "التحكم في وقت اليوم" : "Time-of-day control"}>
@@ -649,7 +652,7 @@ export default function Home() {
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{formatTime12(selected.time)}</strong></div></div>
           <div className="time-scrubber"><span>12 AM</span><input dir="ltr" aria-label={rtl ? "اختر ساعة اليوم لكل الرسوم" : "Select an hour for all daily charts"} type="range" min="0" max="23" step="1" value={selectedHour} onChange={(event) => setSelectedHour(Number(event.target.value))}/><span>11 PM</span></div>
           {activity === "fishing" && <>
-            <ForecastChart title={rtl ? "المد والجزر اليومي" : "Daily Tide"} icon={Waves} unit="m" values={conditions.hourly.map((hour) => hour.tide)} headingDetail={selectedConditions.tideState === "rising" ? t.rising : t.falling} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" tideDetails={{ fishingActivity: fishingActivityByHour[selectedHour] ?? 0, wind: selected.wind, windDirection: selected.windDirection, wave: selected.wave, current: selected.current, currentDirection: selected.currentDirection }} nowHour={liveNowHour} nowTime={currentTime} rtl={rtl}>
+            <ForecastChart title={rtl ? "المد والجزر اليومي" : "Daily Tide"} icon={Waves} unit="m" values={conditions.hourly.map((hour) => hour.tide)} headingDetail={selectedConditions.tideState === "rising" ? t.rising : t.falling} currentDirection={selected.currentDirection} currentSpeed={selected.current} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" tideDetails={{ fishingActivity: fishingActivityByHour[selectedHour] ?? 0, wind: selected.wind, windDirection: selected.windDirection, wave: selected.wave, current: selected.current, currentDirection: selected.currentDirection }} nowHour={liveNowHour} nowTime={currentTime} rtl={rtl}>
               <div className="chart-facts tide-facts"><span>{rtl ? "المد العالي" : "High tides"}<strong className="tide-event-list">{conditions.highTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {formatTime12(event.time)}</small>)}</strong></span><span>{rtl ? "الجزر" : "Low tides"}<strong className="tide-event-list">{conditions.lowTides.map((event) => <small key={event.time}>{event.height.toFixed(2)} m · {formatTime12(event.time)}</small>)}</strong></span><span>{selectedConditions.tideState === "rising" ? t.rising : t.falling}<strong>{selected.tide.toFixed(2)} m</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
@@ -674,16 +677,16 @@ export default function Home() {
           </>}
         </div>
         <div className="forecast-explorer weekly-explorer" id="plan-your-week">
-          <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {rtl ? "توقعات 7 أيام" : "7-day forecast"}</p><h2>{rtl ? "خطط لأسبوعك" : "Plan your week"}</h2><span>{rtl ? "حرّك مؤشر اليوم — كل الرسوم تتحرك معك" : "Drag the day marker — all charts move with you"}</span></div><div className="selected-time selected-day"><small>{rtl ? "اليوم المختار" : "Selected day"}</small><strong>{selectedWeekLabel}</strong></div></div>
+          <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {rtl ? "توقعات 7 أيام" : "7-day forecast"}</p><h2>{rtl ? "خطط لأسبوعك" : "Plan your week"}</h2><span>{rtl ? "اختر اليوم، ويُطبّق الوقت المختار نفسه على كل الرسوم" : "Choose a day — the selected time is applied to every chart"}</span></div><div className="selected-time selected-day"><small>{rtl ? "اليوم المختار" : "Selected day"}</small><strong>{selectedWeekDayLabel}</strong></div></div>
           <div className="week-scrubber"><span>{weekLabels[0]?.primary}</span><input dir="ltr" aria-label={rtl ? "اختر يوماً لكل الرسوم الأسبوعية" : "Select a day for all weekly charts"} type="range" min="0" max="6" step="1" value={selectedDay} onChange={(event) => selectWeekDay(Number(event.target.value))}/><span>{weekLabels[6]?.primary}</span></div>
           {activity === "fishing" && <>
-            <ForecastChart title={rtl ? "المد والجزر الأسبوعي" : "Weekly Tide"} icon={Waves} unit="m" values={weeklyData.map((day) => day.representative.tide)} headingDetail={selectedWeek.representative.tideState === "rising" ? t.rising : t.falling} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" tideDetails={{ fishingActivity: selectedWeek.score, wind: selectedWeek.representative.wind, windDirection: selectedWeek.representative.windDirection, wave: selectedWeek.representative.wave, current: selectedWeek.representative.current, currentDirection: selectedWeek.representative.currentDirection }} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم المد والجزر" : "Select tide forecast day"} rtl={rtl}>
-              <div className="chart-facts compact"><span>{rtl ? "المد عند أفضل وقت" : "Tide at best time"}<strong>{selectedWeek.representative.tide.toFixed(2)} m</strong></span><span>{rtl ? "أفضل وقت صيد" : "Best fishing time"}<strong>{formatTime12(selectedWeek.representative.time)}</strong></span></div>
+            <ForecastChart title={rtl ? "المد والجزر الأسبوعي" : "Weekly Tide"} icon={Waves} unit="m" values={weeklyData.map((day) => day.representative.tide)} headingDetail={selectedWeek.representative.tideState === "rising" ? t.rising : t.falling} currentDirection={selectedWeek.representative.currentDirection} currentSpeed={selectedWeek.representative.current} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" tideDetails={{ fishingActivity: selectedWeek.score, wind: selectedWeek.representative.wind, windDirection: selectedWeek.representative.windDirection, wave: selectedWeek.representative.wave, current: selectedWeek.representative.current, currentDirection: selectedWeek.representative.currentDirection }} xLabels={weekLabels} selectedLabel={selectedWeekTime} rangeLabel={rtl ? "اختر يوم المد والجزر" : "Select tide forecast day"} rtl={rtl}>
+              <div className="chart-facts compact"><span>{rtl ? "المد في الوقت المختار" : "Tide at selected time"}<strong>{selectedWeek.representative.tide.toFixed(2)} m</strong></span><span>{rtl ? "الوقت المختار" : "Selected time"}<strong>{selectedWeekTime}</strong></span></div>
             </ForecastChart>
             <div className="chart-grid">
-              <ForecastChart title={rtl ? "الرياح الأسبوعية" : "Weekly Wind"} icon={Wind} unit="km/h" values={weeklyData.map((day) => day.wind)} secondary={weeklyData.map((day) => day.gust)} secondaryLabel={rtl ? "أقصى هبات" : "Max gusts"} selectedHour={selectedDay} onSelect={selectWeekDay} accent="coral" direction={selectedWeek.representative.windDirection} directionFrom xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم الرياح" : "Select wind forecast day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "متوسط الرياح" : "Average wind"}<strong>{selectedWeek.wind.toFixed(1)} km/h</strong></span><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(selectedWeek.representative.windDirection, rtl)}</strong></span></div></ForecastChart>
-              <ForecastChart title={rtl ? "ارتفاع الموج الأسبوعي" : "Weekly Wave Height"} icon={Waves} unit="m" values={weeklyData.map((day) => day.wave)} headingDetail={`${selectedWeek.representative.wavePeriod.toFixed(1)}s ${rtl ? "فترة الموج" : "period"}`} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم الموج" : "Select wave forecast day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "متوسط الموج" : "Average wave"}<strong>{selectedWeek.wave.toFixed(1)} m</strong></span><span>{rtl ? "فترة الموج" : "Wave period"}<strong>{selectedWeek.representative.wavePeriod.toFixed(1)} s</strong></span></div></ForecastChart>
-              <ForecastChart title={rtl ? "نشاط الصيد الأسبوعي" : "Weekly Fishing Activity"} icon={Fish} unit="/100" values={weeklyData.map((day) => day.score)} selectedHour={selectedDay} onSelect={selectWeekDay} accent="cyan" decimals={0} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم نشاط الصيد" : "Select fishing activity day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "تقييم اليوم" : "Day rating"}<strong>{fishingActivityLabel(selectedWeek.score, rtl)}</strong></span><span>{rtl ? "أفضل وقت" : "Best time"}<strong>{formatTime12(selectedWeek.representative.time)}</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "الرياح الأسبوعية" : "Weekly Wind"} icon={Wind} unit="km/h" values={weeklyData.map((day) => day.wind)} secondary={weeklyData.map((day) => day.gust)} secondaryLabel={rtl ? "هبات" : "Gusts"} selectedHour={selectedDay} onSelect={selectWeekDay} accent="coral" direction={selectedWeek.representative.windDirection} directionFrom xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم الرياح" : "Select wind forecast day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "الرياح في الوقت المختار" : "Wind at selected time"}<strong>{selectedWeek.wind.toFixed(1)} km/h</strong></span><span>{rtl ? "الاتجاه" : "Direction"}<strong>{compass(selectedWeek.representative.windDirection, rtl)}</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "ارتفاع الموج الأسبوعي" : "Weekly Wave Height"} icon={Waves} unit="m" values={weeklyData.map((day) => day.wave)} headingDetail={`${selectedWeek.representative.wavePeriod.toFixed(1)}s ${rtl ? "فترة الموج" : "period"}`} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم الموج" : "Select wave forecast day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "الموج في الوقت المختار" : "Wave at selected time"}<strong>{selectedWeek.wave.toFixed(1)} m</strong></span><span>{rtl ? "فترة الموج" : "Wave period"}<strong>{selectedWeek.representative.wavePeriod.toFixed(1)} s</strong></span></div></ForecastChart>
+              <ForecastChart title={rtl ? "نشاط الصيد الأسبوعي" : "Weekly Fishing Activity"} icon={Fish} unit="/100" values={weeklyData.map((day) => day.score)} selectedHour={selectedDay} onSelect={selectWeekDay} accent="cyan" decimals={0} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم نشاط الصيد" : "Select fishing activity day"} rtl={rtl}><div className="chart-facts compact"><span>{rtl ? "تقييم الوقت المختار" : "Selected-time rating"}<strong>{fishingActivityLabel(selectedWeek.score, rtl)}</strong></span><span>{rtl ? "الوقت المختار" : "Selected time"}<strong>{selectedWeekTime}</strong></span></div></ForecastChart>
             </div>
           </>}
           {activity === "surfing" && <>
