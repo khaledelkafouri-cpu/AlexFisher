@@ -611,7 +611,10 @@ export default function Home() {
           </aside>
           <div className={`condition-board ${loading ? "is-loading" : ""}`}>
           <article className="score-card">
-            <div className="score-head"><span>{scoreTitle}</span><b>{selectedDay === 0 ? t.today : new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short" })}</b><Gauge size={20} /></div>
+            <div className="score-head">
+              <span>{scoreTitle}</span>
+              <b className="score-day">{new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "short" })}</b>
+            </div>
             <div className={`activity-mascot mascot-${activity} mascot-${mascotMood}`} role="img" aria-label={`${t.activities[activity]} — ${rating}`} />
             <div className={`score-ring ${scoreClass}`} style={{ "--score": `${score * 3.6}deg` } as React.CSSProperties}><div dir="ltr"><strong>{score}</strong><span>/100</span></div></div>
             <h2>{rating}</h2><p>{t.bestAt}</p><strong className="best-time">{formatTime12(conditions.hourly[bestHour.index]?.time ?? selected.time)}</strong>
