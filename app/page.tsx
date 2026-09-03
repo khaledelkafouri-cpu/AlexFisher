@@ -13,6 +13,7 @@ type Activity = "fishing" | "surfing" | "kayaking";
 type Language = "en" | "ar";
 type Spot = { id: string; en: string; ar: string; lat: number; lon: number };
 type CoastalCity = { id: string; en: string; ar: string; spots: Spot[] };
+type CoastalCountry = { id: string; en: string; ar: string; cities: CoastalCity[] };
 type TideEvent = { time: string; height: number };
 type Metric = { label:string; value:string; sub:string; icon:React.ElementType; emphasis?:"wind"|"wave"; direction?:number; directionFrom?:boolean; iconRotation?:number };
 type Conditions = {
@@ -29,7 +30,8 @@ type Conditions = {
   }>;
 };
 
-const coastalCities: CoastalCity[] = [
+const coastalCountries: CoastalCountry[] = [
+  { id: "egypt", en: "Egypt", ar: "مصر", cities: [
   { id: "alexandria", en: "Alexandria", ar: "الإسكندرية", spots: [
     { id: "alex-corniche", en: "Alexandria Corniche", ar: "كورنيش الإسكندرية", lat: 31.2156, lon: 29.9553 },
     { id: "abu-qir", en: "Abu Qir", ar: "أبو قير", lat: 31.319, lon: 30.06 },
@@ -129,6 +131,309 @@ const coastalCities: CoastalCity[] = [
     { id: "fjord-bay", en: "Fjord Bay", ar: "خليج فيورد", lat: 29.38, lon: 34.80 },
     { id: "pharaoh-island", en: "Pharaoh's Island", ar: "جزيرة فرعون", lat: 29.46, lon: 34.86 },
   ]},
+  ]},
+  { id: "saudi-arabia", en: "Saudi Arabia", ar: "السعودية", cities: [
+    { id: "jeddah", en: "Jeddah", ar: "جدة", spots: [
+      { id: "jeddah-corniche", en: "Jeddah Corniche", ar: "كورنيش جدة", lat: 21.632, lon: 39.104 },
+      { id: "obhur", en: "Obhur Creek", ar: "شرم أبحر", lat: 21.733, lon: 39.095 },
+      { id: "thuwal", en: "Thuwal Coast", ar: "ساحل ثول", lat: 22.283, lon: 39.101 },
+    ]},
+    { id: "yanbu", en: "Yanbu", ar: "ينبع", spots: [
+      { id: "yanbu-waterfront", en: "Yanbu Waterfront", ar: "واجهة ينبع البحرية", lat: 24.096, lon: 38.059 },
+      { id: "sharm-yanbu", en: "Sharm Yanbu", ar: "شرم ينبع", lat: 24.178, lon: 37.997 },
+    ]},
+    { id: "dammam-khobar", en: "Dammam & Al Khobar", ar: "الدمام والخبر", spots: [
+      { id: "dammam-corniche", en: "Dammam Corniche", ar: "كورنيش الدمام", lat: 26.452, lon: 50.111 },
+      { id: "khobar-corniche", en: "Al Khobar Corniche", ar: "كورنيش الخبر", lat: 26.289, lon: 50.224 },
+      { id: "half-moon-bay", en: "Half Moon Bay", ar: "شاطئ نصف القمر", lat: 26.139, lon: 50.032 },
+    ]},
+    { id: "jubail", en: "Jubail", ar: "الجبيل", spots: [
+      { id: "fanateer", en: "Fanateer Beach", ar: "شاطئ الفناتير", lat: 27.145, lon: 49.568 },
+      { id: "jubail-coast", en: "Jubail Coast", ar: "ساحل الجبيل", lat: 27.004, lon: 49.665 },
+    ]},
+    { id: "jizan", en: "Jizan", ar: "جازان", spots: [
+      { id: "jizan-corniche", en: "Jizan Corniche", ar: "كورنيش جازان", lat: 16.887, lon: 42.548 },
+      { id: "farasan", en: "Farasan Islands", ar: "جزر فرسان", lat: 16.704, lon: 42.118 },
+    ]},
+  ]},
+  { id: "uae", en: "United Arab Emirates", ar: "الإمارات العربية المتحدة", cities: [
+    { id: "dubai", en: "Dubai", ar: "دبي", spots: [
+      { id: "jumeirah", en: "Jumeirah Beach", ar: "شاطئ جميرا", lat: 25.204, lon: 55.238 },
+      { id: "kite-beach", en: "Kite Beach", ar: "كايت بيتش", lat: 25.162, lon: 55.208 },
+      { id: "jebel-ali", en: "Jebel Ali Coast", ar: "ساحل جبل علي", lat: 24.985, lon: 55.027 },
+    ]},
+    { id: "abu-dhabi", en: "Abu Dhabi", ar: "أبوظبي", spots: [
+      { id: "abu-dhabi-corniche", en: "Abu Dhabi Corniche", ar: "كورنيش أبوظبي", lat: 24.475, lon: 54.329 },
+      { id: "yas-coast", en: "Yas Island Coast", ar: "ساحل جزيرة ياس", lat: 24.498, lon: 54.607 },
+      { id: "al-sila", en: "Al Sila Coast", ar: "ساحل السلع", lat: 24.063, lon: 51.765 },
+    ]},
+    { id: "sharjah-ajman", en: "Sharjah & Ajman", ar: "الشارقة وعجمان", spots: [
+      { id: "sharjah-corniche", en: "Sharjah Corniche", ar: "كورنيش الشارقة", lat: 25.362, lon: 55.369 },
+      { id: "ajman-corniche", en: "Ajman Corniche", ar: "كورنيش عجمان", lat: 25.408, lon: 55.435 },
+    ]},
+    { id: "fujairah", en: "Fujairah", ar: "الفجيرة", spots: [
+      { id: "fujairah-corniche", en: "Fujairah Corniche", ar: "كورنيش الفجيرة", lat: 25.133, lon: 56.357 },
+      { id: "al-aqah", en: "Al Aqah", ar: "العقة", lat: 25.498, lon: 56.361 },
+      { id: "dibba-fujairah", en: "Dibba Coast", ar: "ساحل دبا", lat: 25.603, lon: 56.272 },
+    ]},
+    { id: "khor-fakkan-kalba", en: "Khor Fakkan & Kalba", ar: "خورفكان وكلباء", spots: [
+      { id: "khor-fakkan", en: "Khor Fakkan Corniche", ar: "كورنيش خورفكان", lat: 25.344, lon: 56.363 },
+      { id: "kalba", en: "Kalba Coast", ar: "ساحل كلباء", lat: 25.074, lon: 56.362 },
+    ]},
+  ]},
+  { id: "oman", en: "Oman", ar: "عُمان", cities: [
+    { id: "muscat", en: "Muscat", ar: "مسقط", spots: [
+      { id: "qurum", en: "Qurum Beach", ar: "شاطئ القرم", lat: 23.615, lon: 58.473 },
+      { id: "muttrah", en: "Muttrah Corniche", ar: "كورنيش مطرح", lat: 23.621, lon: 58.565 },
+      { id: "seeb", en: "Seeb Coast", ar: "ساحل السيب", lat: 23.67, lon: 58.19 },
+    ]},
+    { id: "musandam", en: "Musandam", ar: "مسندم", spots: [
+      { id: "khasab", en: "Khasab Coast", ar: "ساحل خصب", lat: 26.196, lon: 56.244 },
+      { id: "dibba-musandam", en: "Dibba Musandam", ar: "دبا مسندم", lat: 25.617, lon: 56.268 },
+    ]},
+    { id: "sur", en: "Sur", ar: "صور", spots: [
+      { id: "sur-coast", en: "Sur Coast", ar: "ساحل صور", lat: 22.567, lon: 59.528 },
+      { id: "ras-al-hadd", en: "Ras Al Hadd", ar: "رأس الحد", lat: 22.526, lon: 59.796 },
+    ]},
+    { id: "duqm", en: "Duqm", ar: "الدقم", spots: [
+      { id: "duqm-coast", en: "Duqm Coast", ar: "ساحل الدقم", lat: 19.657, lon: 57.706 },
+      { id: "ras-markaz", en: "Ras Markaz", ar: "رأس مركز", lat: 19.477, lon: 57.744 },
+    ]},
+    { id: "salalah", en: "Salalah", ar: "صلالة", spots: [
+      { id: "dahariz", en: "Dahariz Beach", ar: "شاطئ الدهاريز", lat: 16.993, lon: 54.166 },
+      { id: "mughsail", en: "Mughsail Beach", ar: "شاطئ المغسيل", lat: 16.88, lon: 53.768 },
+      { id: "mirbat", en: "Mirbat Coast", ar: "ساحل مرباط", lat: 16.992, lon: 54.691 },
+    ]},
+  ]},
+  { id: "yemen", en: "Yemen", ar: "اليمن", cities: [
+    { id: "aden", en: "Aden", ar: "عدن", spots: [
+      { id: "gold-mohur", en: "Gold Mohur", ar: "جولد مور", lat: 12.77, lon: 44.987 },
+      { id: "aden-bay", en: "Aden Bay", ar: "خليج عدن", lat: 12.789, lon: 45.018 },
+    ]},
+    { id: "hodeidah", en: "Al Hudaydah", ar: "الحديدة", spots: [
+      { id: "hodeidah-coast", en: "Al Hudaydah Coast", ar: "ساحل الحديدة", lat: 14.798, lon: 42.949 },
+      { id: "al-khawkhah", en: "Al Khawkhah", ar: "الخوخة", lat: 13.802, lon: 43.247 },
+    ]},
+    { id: "mukalla", en: "Mukalla", ar: "المكلا", spots: [
+      { id: "mukalla-corniche", en: "Mukalla Corniche", ar: "كورنيش المكلا", lat: 14.526, lon: 49.133 },
+      { id: "bir-ali", en: "Bir Ali Coast", ar: "ساحل بئر علي", lat: 14.014, lon: 48.339 },
+    ]},
+    { id: "socotra", en: "Socotra", ar: "سقطرى", spots: [
+      { id: "hadibo", en: "Hadibo Coast", ar: "ساحل حديبو", lat: 12.65, lon: 54.025 },
+      { id: "qalandia", en: "Qalansiyah", ar: "قلنسية", lat: 12.69, lon: 53.49 },
+    ]},
+  ]},
+  { id: "qatar", en: "Qatar", ar: "قطر", cities: [
+    { id: "doha", en: "Doha", ar: "الدوحة", spots: [
+      { id: "doha-corniche", en: "Doha Corniche", ar: "كورنيش الدوحة", lat: 25.306, lon: 51.526 },
+      { id: "katara", en: "Katara Beach", ar: "شاطئ كتارا", lat: 25.36, lon: 51.525 },
+    ]},
+    { id: "al-khor", en: "Al Khor", ar: "الخور", spots: [
+      { id: "al-khor-corniche", en: "Al Khor Corniche", ar: "كورنيش الخور", lat: 25.69, lon: 51.507 },
+      { id: "al-thakhira", en: "Al Thakhira", ar: "الذخيرة", lat: 25.735, lon: 51.533 },
+    ]},
+    { id: "al-wakrah", en: "Al Wakrah", ar: "الوكرة", spots: [
+      { id: "wakrah-beach", en: "Al Wakrah Beach", ar: "شاطئ الوكرة", lat: 25.163, lon: 51.606 },
+      { id: "mesaieed", en: "Mesaieed Coast", ar: "ساحل مسيعيد", lat: 24.991, lon: 51.553 },
+    ]},
+    { id: "dukhan", en: "Dukhan", ar: "دخان", spots: [
+      { id: "dukhan-beach", en: "Dukhan Beach", ar: "شاطئ دخان", lat: 25.426, lon: 50.785 },
+      { id: "zekreet", en: "Zekreet Coast", ar: "ساحل زكريت", lat: 25.49, lon: 50.848 },
+    ]},
+  ]},
+  { id: "bahrain", en: "Bahrain", ar: "البحرين", cities: [
+    { id: "manama", en: "Manama", ar: "المنامة", spots: [
+      { id: "bahrain-bay", en: "Bahrain Bay", ar: "خليج البحرين", lat: 26.246, lon: 50.587 },
+      { id: "nurana", en: "Nurana Coast", ar: "ساحل نورانا", lat: 26.253, lon: 50.516 },
+    ]},
+    { id: "muharraq", en: "Muharraq", ar: "المحرق", spots: [
+      { id: "amwaj", en: "Amwaj Islands", ar: "جزر أمواج", lat: 26.289, lon: 50.666 },
+      { id: "hidd", en: "Al Hidd Coast", ar: "ساحل الحد", lat: 26.244, lon: 50.654 },
+    ]},
+    { id: "sitra", en: "Sitra", ar: "سترة", spots: [
+      { id: "sitra-wharf", en: "Sitra Wharf", ar: "فرضـة سترة", lat: 26.154, lon: 50.622 },
+      { id: "asry-coast", en: "ASRY Coast", ar: "ساحل أسري", lat: 26.185, lon: 50.657 },
+    ]},
+    { id: "zallaq", en: "Zallaq", ar: "الزلاق", spots: [
+      { id: "zallaq-beach", en: "Zallaq Beach", ar: "شاطئ الزلاق", lat: 26.048, lon: 50.48 },
+      { id: "hawar", en: "Hawar Islands", ar: "جزر حوار", lat: 25.65, lon: 50.75 },
+    ]},
+  ]},
+  { id: "kuwait", en: "Kuwait", ar: "الكويت", cities: [
+    { id: "kuwait-city", en: "Kuwait City", ar: "مدينة الكويت", spots: [
+      { id: "shuwaikh", en: "Shuwaikh Coast", ar: "ساحل الشويخ", lat: 29.354, lon: 47.93 },
+      { id: "green-island", en: "Green Island", ar: "الجزيرة الخضراء", lat: 29.363, lon: 48.04 },
+      { id: "salmiya", en: "Salmiya Coast", ar: "ساحل السالمية", lat: 29.333, lon: 48.087 },
+    ]},
+    { id: "fahaheel", en: "Fahaheel", ar: "الفحيحيل", spots: [
+      { id: "fahaheel-coast", en: "Fahaheel Coast", ar: "ساحل الفحيحيل", lat: 29.083, lon: 48.142 },
+      { id: "mahboula", en: "Mahboula Coast", ar: "ساحل المهبولة", lat: 29.146, lon: 48.13 },
+    ]},
+    { id: "al-khiran", en: "Al Khiran", ar: "الخيران", spots: [
+      { id: "khiran-marina", en: "Al Khiran Marina", ar: "مارينا الخيران", lat: 28.66, lon: 48.37 },
+      { id: "al-zour", en: "Al Zour Coast", ar: "ساحل الزور", lat: 28.743, lon: 48.39 },
+    ]},
+  ]},
+  { id: "iraq", en: "Iraq", ar: "العراق", cities: [
+    { id: "al-faw", en: "Al Faw", ar: "الفاو", spots: [
+      { id: "faw-coast", en: "Al Faw Coast", ar: "ساحل الفاو", lat: 29.975, lon: 48.472 },
+      { id: "shatt-al-arab-mouth", en: "Shatt Al-Arab Mouth", ar: "مصب شط العرب", lat: 29.883, lon: 48.62 },
+    ]},
+    { id: "umm-qasr", en: "Umm Qasr", ar: "أم قصر", spots: [
+      { id: "umm-qasr-channel", en: "Umm Qasr Channel", ar: "قناة أم قصر", lat: 30.033, lon: 47.94 },
+      { id: "khor-abdullah", en: "Khor Abdullah", ar: "خور عبد الله", lat: 29.86, lon: 48.08 },
+    ]},
+  ]},
+  { id: "iran", en: "Iran", ar: "إيران", cities: [
+    { id: "bandar-abbas", en: "Bandar Abbas", ar: "بندر عباس", spots: [
+      { id: "bandar-abbas-coast", en: "Bandar Abbas Coast", ar: "ساحل بندر عباس", lat: 27.184, lon: 56.267 },
+      { id: "hormuz", en: "Hormuz Island", ar: "جزيرة هرمز", lat: 27.058, lon: 56.46 },
+    ]},
+    { id: "qeshm", en: "Qeshm", ar: "قشم", spots: [
+      { id: "qeshm-town", en: "Qeshm Coast", ar: "ساحل قشم", lat: 26.95, lon: 56.27 },
+      { id: "laft", en: "Laft Coast", ar: "ساحل لافت", lat: 26.897, lon: 55.758 },
+    ]},
+    { id: "kish", en: "Kish Island", ar: "جزيرة كيش", spots: [
+      { id: "kish-east", en: "Kish East Coast", ar: "الساحل الشرقي لكيش", lat: 26.532, lon: 54.023 },
+      { id: "kish-west", en: "Kish West Coast", ar: "الساحل الغربي لكيش", lat: 26.534, lon: 53.94 },
+    ]},
+    { id: "bushehr", en: "Bushehr", ar: "بوشهر", spots: [
+      { id: "bushehr-coast", en: "Bushehr Coast", ar: "ساحل بوشهر", lat: 28.923, lon: 50.82 },
+      { id: "bandar-ganaveh", en: "Bandar Ganaveh", ar: "بندر غناوة", lat: 29.58, lon: 50.517 },
+    ]},
+    { id: "chabahar", en: "Chabahar", ar: "تشابهار", spots: [
+      { id: "chabahar-bay", en: "Chabahar Bay", ar: "خليج تشابهار", lat: 25.292, lon: 60.616 },
+      { id: "beris", en: "Beris Coast", ar: "ساحل بيريس", lat: 25.137, lon: 61.171 },
+    ]},
+    { id: "bandar-anzali", en: "Bandar Anzali", ar: "بندر أنزلي", spots: [
+      { id: "anzali-caspian", en: "Anzali Caspian Coast", ar: "ساحل أنزلي على بحر قزوين", lat: 37.478, lon: 49.458 },
+      { id: "caspian-breakwater", en: "Anzali Breakwater", ar: "حاجز أمواج أنزلي", lat: 37.486, lon: 49.466 },
+    ]},
+  ]},
+  { id: "turkiye", en: "Türkiye", ar: "تركيا", cities: [
+    { id: "istanbul", en: "Istanbul", ar: "إسطنبول", spots: [
+      { id: "bosphorus", en: "Bosphorus Shore", ar: "ساحل البوسفور", lat: 41.055, lon: 29.043 },
+      { id: "sarayburnu", en: "Sarayburnu", ar: "سراي بورنو", lat: 41.015, lon: 28.986 },
+      { id: "buyukcekmece", en: "Büyükçekmece Coast", ar: "ساحل بيوك تشكمجة", lat: 41.005, lon: 28.573 },
+    ]},
+    { id: "izmir", en: "İzmir", ar: "إزمير", spots: [
+      { id: "kordon", en: "Kordon Waterfront", ar: "واجهة كوردون", lat: 38.437, lon: 27.141 },
+      { id: "cesme", en: "Çeşme Coast", ar: "ساحل تشيشمي", lat: 38.324, lon: 26.305 },
+    ]},
+    { id: "antalya", en: "Antalya", ar: "أنطاليا", spots: [
+      { id: "konyaalti", en: "Konyaaltı Coast", ar: "ساحل كونيالتي", lat: 36.872, lon: 30.64 },
+      { id: "side", en: "Side Coast", ar: "ساحل سيدا", lat: 36.766, lon: 31.39 },
+    ]},
+    { id: "bodrum", en: "Bodrum", ar: "بودروم", spots: [
+      { id: "bodrum-harbour", en: "Bodrum Harbour", ar: "ميناء بودروم", lat: 37.034, lon: 27.431 },
+      { id: "gumusluk", en: "Gümüşlük Coast", ar: "ساحل غوموشلوك", lat: 37.053, lon: 27.234 },
+    ]},
+    { id: "mersin", en: "Mersin", ar: "مرسين", spots: [
+      { id: "mersin-marina", en: "Mersin Marina", ar: "مارينا مرسين", lat: 36.773, lon: 34.567 },
+      { id: "tasucu", en: "Taşucu Coast", ar: "ساحل طاشوجو", lat: 36.319, lon: 33.881 },
+    ]},
+    { id: "trabzon", en: "Trabzon", ar: "طرابزون", spots: [
+      { id: "trabzon-coast", en: "Trabzon Coast", ar: "ساحل طرابزون", lat: 41.008, lon: 39.72 },
+      { id: "akcaabat", en: "Akçaabat Coast", ar: "ساحل أكشابات", lat: 41.019, lon: 39.572 },
+    ]},
+  ]},
+  { id: "cyprus", en: "Cyprus", ar: "قبرص", cities: [
+    { id: "limassol", en: "Limassol", ar: "ليماسول", spots: [
+      { id: "limassol-molos", en: "Molos Waterfront", ar: "واجهة مولوس", lat: 34.674, lon: 33.044 },
+      { id: "akrotiri", en: "Akrotiri Coast", ar: "ساحل أكروتيري", lat: 34.589, lon: 32.989 },
+    ]},
+    { id: "larnaca", en: "Larnaca", ar: "لارنكا", spots: [
+      { id: "finikoudes", en: "Finikoudes", ar: "فينيكودس", lat: 34.913, lon: 33.638 },
+      { id: "mackenzie", en: "Mackenzie Beach", ar: "شاطئ ماكنزي", lat: 34.89, lon: 33.637 },
+    ]},
+    { id: "paphos", en: "Paphos", ar: "بافوس", spots: [
+      { id: "paphos-harbour", en: "Paphos Harbour", ar: "ميناء بافوس", lat: 34.755, lon: 32.407 },
+      { id: "coral-bay", en: "Coral Bay", ar: "خليج كورال", lat: 34.853, lon: 32.37 },
+    ]},
+    { id: "ayia-napa", en: "Ayia Napa", ar: "أيا نابا", spots: [
+      { id: "cape-greco", en: "Cape Greco", ar: "رأس غريكو", lat: 34.961, lon: 34.07 },
+      { id: "ayia-napa-harbour", en: "Ayia Napa Harbour", ar: "ميناء أيا نابا", lat: 34.982, lon: 34.002 },
+    ]},
+    { id: "kyrenia", en: "Kyrenia", ar: "كيرينيا", spots: [
+      { id: "kyrenia-harbour", en: "Kyrenia Harbour", ar: "ميناء كيرينيا", lat: 35.342, lon: 33.322 },
+      { id: "lapta", en: "Lapta Coast", ar: "ساحل لابتا", lat: 35.349, lon: 33.179 },
+    ]},
+  ]},
+  { id: "lebanon", en: "Lebanon", ar: "لبنان", cities: [
+    { id: "beirut", en: "Beirut", ar: "بيروت", spots: [
+      { id: "raouche", en: "Raouche", ar: "الروشة", lat: 33.888, lon: 35.473 },
+      { id: "beirut-waterfront", en: "Beirut Waterfront", ar: "واجهة بيروت البحرية", lat: 33.906, lon: 35.509 },
+    ]},
+    { id: "tripoli-lebanon", en: "Tripoli", ar: "طرابلس", spots: [
+      { id: "mina-tripoli", en: "El Mina", ar: "الميناء", lat: 34.454, lon: 35.812 },
+      { id: "palm-islands", en: "Palm Islands Coast", ar: "ساحل جزر النخيل", lat: 34.494, lon: 35.786 },
+    ]},
+    { id: "sidon", en: "Sidon", ar: "صيدا", spots: [
+      { id: "sidon-seafront", en: "Sidon Seafront", ar: "واجهة صيدا البحرية", lat: 33.56, lon: 35.367 },
+      { id: "zireh-island", en: "Zireh Island", ar: "جزيرة الزيرة", lat: 33.57, lon: 35.352 },
+    ]},
+    { id: "tyre", en: "Tyre", ar: "صور", spots: [
+      { id: "tyre-coast", en: "Tyre Coast", ar: "ساحل صور", lat: 33.267, lon: 35.193 },
+      { id: "ras-al-ain", en: "Ras Al Ain", ar: "رأس العين", lat: 33.228, lon: 35.218 },
+    ]},
+    { id: "byblos", en: "Byblos", ar: "جبيل", spots: [
+      { id: "byblos-harbour", en: "Byblos Harbour", ar: "ميناء جبيل", lat: 34.121, lon: 35.643 },
+      { id: "amchit", en: "Amchit Coast", ar: "ساحل عمشيت", lat: 34.147, lon: 35.628 },
+    ]},
+  ]},
+  { id: "syria", en: "Syria", ar: "سوريا", cities: [
+    { id: "latakia", en: "Latakia", ar: "اللاذقية", spots: [
+      { id: "latakia-corniche", en: "Latakia Corniche", ar: "كورنيش اللاذقية", lat: 35.531, lon: 35.776 },
+      { id: "blue-beach", en: "Blue Beach", ar: "الشاطئ الأزرق", lat: 35.582, lon: 35.737 },
+    ]},
+    { id: "tartus", en: "Tartus", ar: "طرطوس", spots: [
+      { id: "tartus-corniche", en: "Tartus Corniche", ar: "كورنيش طرطوس", lat: 34.889, lon: 35.875 },
+      { id: "arwad", en: "Arwad Island", ar: "جزيرة أرواد", lat: 34.855, lon: 35.858 },
+    ]},
+  ]},
+  { id: "jordan", en: "Jordan", ar: "الأردن", cities: [
+    { id: "aqaba", en: "Aqaba", ar: "العقبة", spots: [
+      { id: "aqaba-corniche", en: "Aqaba Corniche", ar: "كورنيش العقبة", lat: 29.526, lon: 35.002 },
+      { id: "south-beach-aqaba", en: "Aqaba South Beach", ar: "الشاطئ الجنوبي بالعقبة", lat: 29.438, lon: 34.978 },
+      { id: "tala-bay", en: "Tala Bay", ar: "تالا باي", lat: 29.408, lon: 34.979 },
+    ]},
+  ]},
+  { id: "israel", en: "Israel", ar: "إسرائيل", cities: [
+    { id: "haifa", en: "Haifa", ar: "حيفا", spots: [
+      { id: "bat-galim", en: "Bat Galim", ar: "بات غاليم", lat: 32.836, lon: 34.981 },
+      { id: "kishon", en: "Kishon Estuary", ar: "مصب نهر المقطع", lat: 32.814, lon: 35.028 },
+    ]},
+    { id: "tel-aviv-jaffa", en: "Tel Aviv–Jaffa", ar: "تل أبيب–يافا", spots: [
+      { id: "jaffa-port", en: "Jaffa Port", ar: "ميناء يافا", lat: 32.052, lon: 34.75 },
+      { id: "reading-breakwater", en: "Reading Breakwater", ar: "حاجز ريدينغ", lat: 32.101, lon: 34.773 },
+    ]},
+    { id: "ashdod", en: "Ashdod", ar: "أشدود", spots: [
+      { id: "ashdod-marina", en: "Ashdod Marina", ar: "مارينا أشدود", lat: 31.795, lon: 34.634 },
+      { id: "lachish-estuary", en: "Lachish Estuary", ar: "مصب لخيش", lat: 31.82, lon: 34.642 },
+    ]},
+    { id: "ashkelon", en: "Ashkelon", ar: "عسقلان", spots: [
+      { id: "ashkelon-marina", en: "Ashkelon Marina", ar: "مارينا عسقلان", lat: 31.68, lon: 34.555 },
+      { id: "delilah-beach", en: "Delilah Beach", ar: "شاطئ دليلة", lat: 31.675, lon: 34.557 },
+    ]},
+    { id: "eilat", en: "Eilat", ar: "إيلات", spots: [
+      { id: "eilat-north", en: "Eilat North Beach", ar: "شاطئ إيلات الشمالي", lat: 29.552, lon: 34.961 },
+      { id: "south-coral-coast", en: "South Coral Coast", ar: "ساحل المرجان الجنوبي", lat: 29.508, lon: 34.921 },
+    ]},
+  ]},
+  { id: "palestine", en: "Palestine", ar: "فلسطين", cities: [
+    { id: "gaza-city", en: "Gaza City", ar: "مدينة غزة", spots: [
+      { id: "gaza-port", en: "Gaza Port", ar: "ميناء غزة", lat: 31.524, lon: 34.429 },
+      { id: "gaza-beach", en: "Gaza Beach", ar: "شاطئ غزة", lat: 31.531, lon: 34.435 },
+    ]},
+    { id: "deir-al-balah", en: "Deir al-Balah", ar: "دير البلح", spots: [
+      { id: "deir-al-balah-coast", en: "Deir al-Balah Coast", ar: "ساحل دير البلح", lat: 31.418, lon: 34.338 },
+      { id: "wadi-gaza-mouth", en: "Wadi Gaza Mouth", ar: "مصب وادي غزة", lat: 31.45, lon: 34.37 },
+    ]},
+    { id: "khan-younis", en: "Khan Younis", ar: "خان يونس", spots: [
+      { id: "mawasi-khan-younis", en: "Al-Mawasi Coast", ar: "ساحل المواصي", lat: 31.351, lon: 34.267 },
+      { id: "rafah-coast", en: "Rafah Coast", ar: "ساحل رفح", lat: 31.296, lon: 34.245 },
+    ]},
+  ]},
 ];
 
 const copy = {
@@ -136,7 +441,7 @@ const copy = {
     nav: ["Conditions", "Fishing Hub", "Learning", "Community", "Shop"], eyebrow: "LIVE MARINE INTELLIGENCE",
     titleA: "Know the sea.", titleB: "Own the day.",
     subtitle: "One clear forecast for fishing, surfing and kayaking — interpreted for the way you move on the water.",
-    where: "Where are you heading?", city: "City", spot: "Fishing spot", live: "LIVE MODEL FORECAST", updated: "Updated",
+    where: "Where are you heading?", country: "Country", city: "Coastal city", spot: "Fishing spot", live: "LIVE MODEL FORECAST", updated: "Updated",
     activities: { fishing: "Fishing", surfing: "Surfing", kayaking: "Kayaking" }, score: "activity score",
     good: "Good conditions", caution: "Use caution", difficult: "Difficult conditions", window: "Best window",
     insight: "AlexFisher insight", insightText: "The morning offers the cleanest conditions. Wind and waves build after midday, so plan an early session.",
@@ -151,7 +456,7 @@ const copy = {
   ar: {
     nav: ["حالة البحر", "مركز الصيد", "تعلم", "المجتمع", "المتجر"], eyebrow: "بيانات بحرية مباشرة",
     titleA: "اعرف البحر.", titleB: "واختار يومك.",
-    subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟", city: "المدينة", spot: "مكان الصيد",
+    subtitle: "توقعات واضحة للصيد والسيرف والكاياك — متفسرة حسب نشاطك على البحر.", where: "رايح فين؟", country: "الدولة", city: "المدينة الساحلية", spot: "مكان الصيد",
     live: "توقع مباشر", updated: "آخر تحديث", activities: { fishing: "صيد", surfing: "سيرف", kayaking: "كاياك" },
     score: "تقييم النشاط", good: "الظروف جيدة", caution: "توخَّ الحذر", difficult: "الظروف صعبة", window: "أفضل وقت",
     insight: "نصيحة AlexFisher", insightText: "الصباح يقدم أفضل الظروف. الرياح والأمواج تزيد بعد الظهر، لذلك خطط للنزول مبكراً.",
@@ -349,6 +654,7 @@ function ForecastChart({
 export default function Home() {
   const [language, setLanguage] = useState<Language>("en");
   const [activity, setActivity] = useState<Activity>("fishing");
+  const [countryId, setCountryId] = useState("egypt");
   const [cityId, setCityId] = useState("alexandria");
   const [spotId, setSpotId] = useState("alex-corniche");
   const [forecastDays, setForecastDays] = useState<Conditions[]>(fallbackDays);
@@ -363,6 +669,8 @@ export default function Home() {
   const [utcOffsetSeconds, setUtcOffsetSeconds] = useState(3 * 60 * 60);
   const t = copy[language];
   const rtl = language === "ar";
+  const country = coastalCountries.find((item) => item.id === countryId) ?? coastalCountries[0];
+  const coastalCities = country.cities;
   const city = coastalCities.find((item) => item.id === cityId) ?? coastalCities[0];
   const citySpots = city.spots;
   const spot = citySpots.find((item) => item.id === spotId) ?? citySpots[0];
@@ -496,6 +804,7 @@ export default function Home() {
   }), [conditions, selected, selectedHour]);
   useEffect(() => {
     window.localStorage.setItem("alexfisher-current-conditions", JSON.stringify({
+      country: country.en,
       city: city.en,
       spot: spot.en,
       wind: selectedConditions.wind,
@@ -504,7 +813,7 @@ export default function Home() {
       tide: selectedConditions.tide,
       updatedAt: lastUpdated?.toISOString() ?? new Date().toISOString(),
     }));
-  }, [city.en, spot.en, selectedConditions.wind, selectedConditions.gust, selectedConditions.tideState, selectedConditions.tide, lastUpdated]);
+  }, [country.en, city.en, spot.en, selectedConditions.wind, selectedConditions.gust, selectedConditions.tideState, selectedConditions.tide, lastUpdated]);
   const score = useMemo(() => calculateScore(selectedConditions, activity), [selectedConditions, activity]);
   const fishingRating = fishingActivityLabel(score, rtl);
   const rating = activity === "fishing" ? fishingRating : score >= 72 ? t.good : score >= 48 ? t.caution : t.difficult;
@@ -646,8 +955,9 @@ export default function Home() {
       <section id="top" className="hero">
         <div className="hero-copy"><p className="eyebrow"><span /> {t.eyebrow}</p><h1>{t.titleA}<br /><em>{t.titleB}</em></h1><p className="hero-subtitle">{t.subtitle}</p></div>
         <div className="location-panel">
-          <label htmlFor="city"><MapPin size={18} /> {t.where}</label>
+          <label htmlFor="country"><MapPin size={18} /> {t.where}</label>
           <div className="location-pickers">
+            <div className="location-country"><small>{t.country}</small><div className="location-select-wrap"><MapPin size={19} /><select id="country" value={countryId} onChange={(event) => { const nextCountry = coastalCountries.find((item) => item.id === event.target.value) ?? coastalCountries[0]; const nextCity = nextCountry.cities[0]; setCountryId(nextCountry.id); setCityId(nextCity.id); setSpotId(nextCity.spots[0].id); setSelectedDay(0); }}><option value="" disabled>{t.country}</option>{coastalCountries.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div></div>
             <div><small>{t.city}</small><div className="location-select-wrap"><Search size={19} /><select id="city" value={cityId} onChange={(event) => { const nextCity = coastalCities.find((item) => item.id === event.target.value) ?? coastalCities[0]; setCityId(nextCity.id); setSpotId(nextCity.spots[0].id); setSelectedDay(0); }}><option value="" disabled>{t.city}</option>{coastalCities.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div></div>
             <div><small>{t.spot}</small><div className="location-select-wrap"><Navigation size={19} /><select id="spot" value={spotId} onChange={(event) => { setSpotId(event.target.value); setSelectedDay(0); }}>{citySpots.map((item) => <option key={item.id} value={item.id}>{rtl ? item.ar : item.en}</option>)}</select><ChevronRight size={19} className={rtl ? "flip" : ""} /></div></div>
           </div>
