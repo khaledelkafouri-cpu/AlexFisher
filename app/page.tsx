@@ -554,10 +554,22 @@ export default function Home() {
     rainMetric,
   ];
   const activityInsight = activity === "fishing"
-    ? (rtl ? `أفضل نشاط متوقع الساعة ${conditions.hourly[bestHour.index]?.time}. راقب حركة المد والرياح قبل النزول.` : `Best fishing activity is expected around ${conditions.hourly[bestHour.index]?.time}. Check the tide movement and wind before you go.`)
+    ? mascotMood === "happy"
+      ? (rtl ? `ظروف الصيد مناسبة؛ رياح بسرعة ${selected.wind.toFixed(0)} كم/س وموج بارتفاع ${selected.wave.toFixed(1)} متر.` : `Fishing conditions look favourable, with ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves.`)
+      : mascotMood === "neutral"
+        ? (rtl ? `ظروف الصيد متوسطة؛ الرياح بسرعة ${selected.wind.toFixed(0)} كم/س والموج بارتفاع ${selected.wave.toFixed(1)} متر قد يجعلان الرمي أصعب.` : `Fishing conditions are moderate; ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves may make casting more demanding.`)
+        : (rtl ? `ظروف الصيد صعبة؛ الرياح بسرعة ${selected.wind.toFixed(0)} كم/س والموج بارتفاع ${selected.wave.toFixed(1)} متر قد يحدّان من سهولة الرمي.` : `Fishing conditions are difficult; ${selected.wind.toFixed(0)} km/h wind and ${selected.wave.toFixed(1)} m waves may limit comfortable casting.`)
     : activity === "surfing"
-      ? (rtl ? `السويل ${selected.swell.toFixed(1)} متر بفترة ${selected.swellPeriod.toFixed(1)} ثانية. التقييم يتغير مع الرياح والمد.` : `${selected.swell.toFixed(1)} m swell at ${selected.swellPeriod.toFixed(1)} seconds. The rating responds to wind and tide.`)
-      : (rtl ? `الهبات ${selected.gust.toFixed(0)} كم/س والتيار ${selected.current.toFixed(1)} كم/س. ارجع قبل زيادة الرياح.` : `Gusts are ${selected.gust.toFixed(0)} km/h and current is ${selected.current.toFixed(1)} km/h. Return before the wind strengthens.`);
+      ? mascotMood === "happy"
+        ? (rtl ? `ظروف السيرف مناسبة؛ السويل ${selected.swell.toFixed(1)} متر بفترة ${selected.swellPeriod.toFixed(1)} ثانية يمنح الموج طاقة جيدة.` : `Surfing conditions look favourable; ${selected.swell.toFixed(1)} m swell at ${selected.swellPeriod.toFixed(1)} seconds offers useful wave energy.`)
+        : mascotMood === "neutral"
+          ? (rtl ? `ظروف السيرف متوسطة؛ السويل ${selected.swell.toFixed(1)} متر والرياح ${selected.wind.toFixed(0)} كم/س قد يجعلان جودة الموج متغيرة.` : `Surfing conditions are mixed; ${selected.swell.toFixed(1)} m swell and ${selected.wind.toFixed(0)} km/h wind may make wave quality inconsistent.`)
+          : (rtl ? `ظروف السيرف صعبة؛ ضعف السويل أو زيادة الرياح قد يقللان من جودة الموج.` : `Surfing conditions are difficult; limited swell or stronger wind may reduce wave quality.`)
+      : mascotMood === "happy"
+        ? (rtl ? `ظروف الكاياك مناسبة؛ الرياح ${selected.wind.toFixed(0)} كم/س والموج ${selected.wave.toFixed(1)} متر والتيار ${selected.current.toFixed(1)} كم/س تبدو قابلة للإدارة.` : `Kayaking conditions look manageable, with ${selected.wind.toFixed(0)} km/h wind, ${selected.wave.toFixed(1)} m waves and ${selected.current.toFixed(1)} km/h current.`)
+        : mascotMood === "neutral"
+          ? (rtl ? `ظروف الكاياك تحتاج إلى الحذر؛ راقب الرياح ${selected.wind.toFixed(0)} كم/س والهبات ${selected.gust.toFixed(0)} كم/س والتيار.` : `Kayaking conditions require caution; monitor ${selected.wind.toFixed(0)} km/h wind, ${selected.gust.toFixed(0)} km/h gusts and the current.`)
+          : (rtl ? `ظروف الكاياك صعبة؛ الرياح والهبات والموج قد تجعل الخروج أكثر خطورة.` : `Kayaking conditions are difficult; wind, gusts and waves may make going out more hazardous.`);
 
   return (
     <main dir={rtl ? "rtl" : "ltr"} className={`site-shell ${rtl ? "font-arabic" : ""}`}>
@@ -626,8 +638,8 @@ export default function Home() {
           </div>
           </div>
         </div>
-        <article className="insight-card dashboard-insight"><div><Sparkles size={20} /></div><div><p>{t.insight}</p><strong>{activityInsight}</strong></div></article>
-        <div className="forecast-explorer">
+        <article className="insight-card dashboard-insight"><div><Sparkles size={20} /></div><div><p>{t.insight}</p><strong>{activityInsight}</strong><span className="insight-plan">{rtl ? <>راجع <a href="#plan-your-day">خطط ليومك</a> لمتابعة تغيّر الظروف بالساعة، أو <a href="#plan-your-week">خطط لأسبوعك</a> لاختيار أفضل يوم قبل النزول.</> : <>Check <a href="#plan-your-day">Plan your day</a> for hourly changes, or <a href="#plan-your-week">Plan your week</a> to choose the best day before you go.</>}</span></div></article>
+        <div className="forecast-explorer" id="plan-your-day">
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {new Date(`${forecastDates[selectedDay]}T12:00:00`).toLocaleDateString(rtl ? arabicLatinLocale : "en-GB", { weekday: "long", day: "numeric", month: "long" })}</p><h2>{t.hourly}</h2><span>{t.drag}</span></div><div className="selected-time"><small>{t.selected}</small><strong>{formatTime12(selected.time)}</strong></div></div>
           {activity === "fishing" && <>
             <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={conditions.hourly.map((hour) => hour.tide)} selectedHour={selectedHour} onSelect={setSelectedHour} accent="blue" tideDetails={{ fishingActivity: fishingActivityByHour[selectedHour] ?? 0, wind: selected.wind, windDirection: selected.windDirection, wave: selected.wave, current: selected.current, currentDirection: selected.currentDirection }} nowHour={liveNowHour} nowTime={currentTime} rtl={rtl}>
@@ -654,7 +666,7 @@ export default function Home() {
             </div>
           </>}
         </div>
-        <div className="forecast-explorer weekly-explorer">
+        <div className="forecast-explorer weekly-explorer" id="plan-your-week">
           <div className="section-title forecast-title"><div><p>{rtl ? spot.ar : spot.en} · {rtl ? "توقعات 7 أيام" : "7-day forecast"}</p><h2>{rtl ? "خطط لأسبوعك" : "Plan your week"}</h2><span>{rtl ? "حرّك مؤشر اليوم — كل الرسوم تتحرك معك" : "Drag the day marker — all charts move with you"}</span></div><div className="selected-time selected-day"><small>{rtl ? "اليوم المختار" : "Selected day"}</small><strong>{selectedWeekLabel}</strong></div></div>
           {activity === "fishing" && <>
             <ForecastChart title={rtl ? "المد والجزر" : "Tide"} icon={Waves} unit="m" values={weeklyData.map((day) => day.representative.tide)} selectedHour={selectedDay} onSelect={selectWeekDay} accent="blue" tideDetails={{ fishingActivity: selectedWeek.score, wind: selectedWeek.representative.wind, windDirection: selectedWeek.representative.windDirection, wave: selectedWeek.representative.wave, current: selectedWeek.representative.current, currentDirection: selectedWeek.representative.currentDirection }} xLabels={weekLabels} selectedLabel={selectedWeekLabel} rangeLabel={rtl ? "اختر يوم المد والجزر" : "Select tide forecast day"} rtl={rtl}>
