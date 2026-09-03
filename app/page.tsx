@@ -373,6 +373,45 @@ export default function Home() {
     if (savedLanguage === "ar" || savedLanguage === "en") setLanguage(savedLanguage);
   }, []);
 
+  useEffect(() => {
+    const navigation = window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    const legacyNavigation = window.performance as Performance & { navigation?: { type: number } };
+    const isReload = navigation?.type === "reload" || legacyNavigation.navigation?.type === 1;
+    if (!isReload) return;
+
+    const previousRestoration = window.history.scrollRestoration;
+    const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+    window.history.scrollRestoration = "manual";
+    document.documentElement.style.scrollBehavior = "auto";
+
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    }
+
+    const resetToHero = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    resetToHero();
+    const firstFrame = window.requestAnimationFrame(() => {
+      resetToHero();
+      window.requestAnimationFrame(resetToHero);
+    });
+    const finalReset = window.setTimeout(() => {
+      resetToHero();
+      window.history.scrollRestoration = previousRestoration;
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    }, 400);
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.clearTimeout(finalReset);
+      window.history.scrollRestoration = previousRestoration;
+      document.documentElement.style.scrollBehavior = previousScrollBehavior;
+    };
+  }, []);
+
   const toggleLanguage = () => {
     const nextLanguage: Language = language === "en" ? "ar" : "en";
     setLanguage(nextLanguage);
