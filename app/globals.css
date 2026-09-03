@@ -639,6 +639,12 @@ footer>span { color:#7e9297; font-size:9px; }
   .chart-heading-meta { max-width:58%; gap:7px 9px; }
   .heading-detail { font-size:9px; }
   .heading-direction b { font-size:11px; }
+  .tide-chart .chart-heading-meta { width:100%; max-width:none; min-height:48px; margin-inline-start:0; display:grid; grid-template-columns:88px 176px; align-items:center; justify-content:end; gap:10px; }
+  .tide-chart .heading-detail { width:88px; min-width:88px; text-align:center; }
+  .tide-chart .heading-direction { width:176px; min-width:176px; display:grid; grid-template-columns:24px 1fr; align-items:center; gap:8px; }
+  .tide-chart .heading-direction>svg { width:24px; height:24px; }
+  .tide-chart .heading-direction span { width:144px; min-width:144px; }
+  .tide-chart .heading-direction small,.tide-chart .heading-direction b { display:block; width:100%; }
   .drag-target-label { font-size:8px; }
   .drag-target { width:56px; height:56px; border-width:5px; }
   .drag-target i { width:14px; height:6px; }
