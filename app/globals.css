@@ -584,11 +584,11 @@ footer>span { color:#7e9297; font-size:9px; }
   [dir="rtl"] .time-axis-control { border-radius:0 0 18px 0; }
   .time-range-shell { min-height:350px; }
   .time-range-shell output { width:58px; min-height:32px; padding:5px 3px; border-radius:999px; writing-mode:horizontal-tb; transform:translate(-50%,-50%); font-size:8px; }
-  .condition-board { grid-column:2; grid-row:2; min-height:520px; grid-template-columns:minmax(126px,.8fr) minmax(158px,1.2fr); border-radius:0 0 18px 0; }
+  .condition-board { width:100%; min-width:0; grid-column:2; grid-row:2; min-height:520px; grid-template-columns:minmax(122px,44%) minmax(0,56%); border-radius:0 0 18px 0; }
   [dir="rtl"] .condition-board { border-radius:0 0 0 18px; }
-  .score-card { padding:17px 8px; }
+  .score-card { min-width:0; padding:17px 8px; overflow:hidden; }
   .score-head { gap:6px; font-size:9px; letter-spacing:.06em; }
-  .score-head span { min-width:0; }
+  .score-head span { min-width:0; line-height:1.25; }
   .score-head b { display:block; flex:0 0 auto; margin:0; padding:3px 5px; font-size:9px; }
   .activity-mascot { width:72px; height:72px; margin:6px auto -7px; }
   .score-ring { width:100px; height:100px; margin-bottom:12px; padding:7px; }
@@ -604,15 +604,15 @@ footer>span { color:#7e9297; font-size:9px; }
   .moon-condition strong { display:block; font-size:8px; }
   .moon-condition em { display:none; }
   .sun-times { margin-top:12px; padding-top:10px; font-size:8px; }
-  .score-ring { width:132px; height:132px; margin:18px auto 12px; } .score-ring>div { padding-top:31px; }
-  .metrics-grid { padding:8px; grid-template-columns:1fr; gap:5px; }
-  .metric-card,.metric-card.metric-emphasis { min-height:64px; padding:7px; gap:7px; border-radius:10px; }
+  .score-ring { width:min(116px,100%); height:auto; aspect-ratio:1; margin:18px auto 12px; } .score-ring>div { padding-top:31px; }
+  .metrics-grid { width:100%; min-width:0; padding:8px; grid-template-columns:minmax(0,1fr); gap:5px; overflow:hidden; }
+  .metric-card,.metric-card.metric-emphasis { width:100%; min-width:0; min-height:64px; padding:7px; gap:7px; border-radius:10px; overflow:hidden; }
   .metric-icon { width:27px; height:27px; flex-basis:27px; border-radius:8px; }
   .metric-icon svg { width:16px; height:16px; }
-  .metric-card>div:last-child { grid-template-columns:1fr auto; gap:2px 5px; }
-  .metric-card p { font-size:10px; letter-spacing:.04em; line-height:1.15; }
-  .metric-value { justify-self:end; gap:4px; }
-  .metric-value strong { font-size:15px; }
+  .metric-card>div:last-child { width:100%; min-width:0; grid-template-columns:minmax(0,1fr) max-content; gap:2px 5px; }
+  .metric-card p { min-width:0; font-size:10px; letter-spacing:.025em; line-height:1.15; }
+  .metric-value { min-width:0; justify-self:end; gap:3px; }
+  .metric-value strong { font-size:14px; }
   .metric-value u { font-size:14px; }
   .metric-card span { grid-column:1/-1; font-size:10px; line-height:1.2; white-space:normal; }
   .dashboard-insight { margin-inline-start:42px; }
@@ -662,6 +662,16 @@ footer>span { color:#7e9297; font-size:9px; }
   .fishing-hub-page { padding-bottom:50px; }.fishing-hub-head { padding:50px 20px 27px; }.fishing-hub-head h1 { font-size:54px; }.fishing-hub-tools { padding:0 14px; grid-template-columns:1fr; }.fishing-tool-card { min-height:270px; padding:23px; }.fishing-tool-card h2 { margin-top:45px; font-size:27px; }
   .hook-page { padding-bottom:55px; }.hook-page .matcher-topbar { height:auto; padding:14px 16px; grid-template-columns:1fr auto; }.hook-page .matcher-topbar>.brand,.hook-page .matcher-topbar>nav { display:none; }.hook-hero { min-height:0; padding:45px 20px 32px; grid-template-columns:1fr; gap:26px; }.hook-hero h1 { font-size:49px; }.hook-hero>img { width:180px; justify-self:start; border-radius:22px; }.hook-matcher-shell { margin-inline:10px; border-radius:19px; }.hook-progress { height:61px; }.hook-progress i { width:34px; }.hook-step { min-height:520px; padding:29px 15px; }.hook-step h2 { font-size:34px; }.hook-options { grid-template-columns:1fr 1fr; gap:7px; }.hook-options button { min-height:56px; padding:11px; font-size:10px; }.hook-result { padding:12px; grid-template-columns:1fr; }.hook-result-main { min-height:0; }.hook-result-main img { margin-top:22px; }.hook-result-details { grid-template-columns:1fr; }.hook-result-details article,.hook-warning,.hook-result-actions { grid-column:auto; }.hook-result-actions { grid-template-columns:1fr; }.hook-step-actions { padding:11px; }.hook-step-actions button { flex:1; }.hook-learning,.wire-section,.hook-compare { margin-top:62px; padding:0 14px; }.hook-section-head h2 { font-size:42px; }.hook-library-grid { grid-template-columns:1fr 1fr; }.hook-library-detail { grid-template-columns:1fr; padding:13px; gap:5px; }.hook-library-detail>div { padding:13px 5px; }.hook-detail-grid { grid-template-columns:1fr; }.hook-education-grid { margin-top:45px; padding:0 14px; }.hook-anatomy { grid-template-columns:1fr; padding:19px; }.hook-anatomy img { max-width:260px; }.hook-size-guide { padding:20px 14px; }.size-flow { gap:2px; }.size-flow span:nth-child(1){width:22px;height:22px}.size-flow span:nth-child(2){width:26px;height:26px}.size-flow span:nth-child(3){width:31px;height:31px}.size-flow span:nth-child(4){width:36px;height:36px}.size-flow b:nth-child(5){width:41px;height:41px}.size-flow b:nth-child(6){width:47px;height:47px}.size-flow b:nth-child(7){width:53px;height:53px}.wire-grid { grid-template-columns:1fr; }.compare-table { grid-template-columns:90px 1fr 1fr; }.compare-table>strong,.compare-row>* { padding:10px 7px; font-size:8px; }.hook-future { margin:50px 14px 0; padding:23px; align-items:flex-start; }.future-icon { width:50px; height:50px; flex:0 0 50px; }
   .lure-page { padding-bottom:55px; }.lure-tool-head { padding:43px 18px 27px; }.lure-tool-head h1 { font-size:46px; }.mode-switch { width:100%; }.mode-switch button { flex:1; justify-content:center; }.lure-shell { padding:0 11px; }.lure-live-strip { align-items:flex-start; flex-direction:column; }.lure-progress { justify-content:flex-start; padding:10px; }.lure-progress button { min-width:77px; flex-direction:column; }.lure-stage { min-height:600px; padding:25px 14px; }.lure-style-grid { grid-template-columns:1fr; }.lure-style-grid button { min-height:145px; }.lure-target-controls { grid-template-columns:1fr; }.lure-fish-grid { grid-template-columns:1fr 1fr; }.lure-option-grid { grid-template-columns:1fr 1fr; }.lure-result-title { align-items:flex-start; flex-direction:column; }.lure-result-title>div:last-child { width:100%; }.best-lure-card { grid-template-columns:1fr; padding:14px; gap:15px; }.lure-visual,.lure-visual img { min-height:220px; height:220px; }.lure-color-gallery { grid-template-columns:repeat(2,minmax(0,1fr)); }.lure-color-gallery img { height:64px; }.lure-color-gallery span { font-size:8px; }.best-lure-card h3 { font-size:22px; }.best-lure-card dl { grid-template-columns:1fr; }.lure-result-grid { grid-template-columns:1fr; }.no-bites { grid-template-columns:1fr; }.no-bites ol { grid-template-columns:1fr; }.tool-connection { align-items:flex-start; flex-direction:column; }.tool-connection a { width:100%; justify-content:center; }
+}
+@media (max-width:380px) {
+  .dashboard-wrap { padding-inline:8px; }
+  .dashboard-control-frame { grid-template-columns:40px minmax(0,1fr); }
+  .condition-board { grid-template-columns:minmax(116px,43%) minmax(0,57%); }
+  .score-head { font-size:8px; }
+  .score-head b { font-size:8px; }
+  .metric-card p { font-size:9px; }
+  .metric-value strong { font-size:13px; }
+  .metric-card span { font-size:9px; }
 }
 
 /* Read My Fishing Spot */
