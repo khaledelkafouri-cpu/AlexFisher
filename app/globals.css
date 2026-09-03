@@ -623,8 +623,8 @@ footer>span { color:#7e9297; font-size:9px; }
   .metric-value u { font-size:14px; }
   .metric-card span { grid-column:1/-1; font-size:10px; line-height:1.2; white-space:normal; }
   .dashboard-insight { margin-inline-start:42px; }
-  .time-range-shell output { width:56px; left:calc(50% + 7px); }
-  [dir="rtl"] .time-range-shell output { left:calc(50% - 7px); }
+  .time-range-shell output { width:58px; left:calc(50% + 7px); transform:translateY(-50%); z-index:6; }
+  [dir="rtl"] .time-range-shell output { left:auto; right:calc(50% + 7px); transform:translateY(-50%); }
   .dashboard-insight { align-items:flex-start; padding:14px 12px; }
   .insight-actions { grid-template-columns:1fr; }
   .insight-cta { min-height:54px; }
