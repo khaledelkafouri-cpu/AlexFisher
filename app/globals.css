@@ -591,10 +591,10 @@ footer>span { color:#7e9297; font-size:9px; }
   [dir="rtl"] .time-axis-control { border-radius:0 0 18px 0; }
   .time-range-shell { min-height:350px; }
   .time-range-shell output { width:58px; min-height:32px; padding:5px 3px; border-radius:999px; writing-mode:horizontal-tb; transform:translate(-50%,-50%); font-size:8px; }
-  .condition-board { width:100%; min-width:0; grid-column:2; grid-row:2; min-height:520px; grid-template-columns:minmax(118px,42%) minmax(0,58%); border-radius:0 0 18px 0; }
+  .condition-board { width:100%; min-width:0; grid-column:2; grid-row:2; min-height:520px; grid-template-columns:minmax(122px,44%) minmax(0,56%); border-radius:0 0 18px 0; }
   [dir="rtl"] .condition-board { border-radius:0 0 0 18px; }
-  .score-card { min-width:0; padding:17px 2px; overflow:hidden; position:relative; z-index:2; }
-  .score-head { min-height:44px; padding-inline:6px; display:grid; grid-template-columns:minmax(0,1fr) 44px; align-items:start; gap:6px; font-size:9px; letter-spacing:.06em; }
+  .score-card { min-width:0; padding:17px 8px; overflow:hidden; }
+  .score-head { min-height:44px; display:grid; grid-template-columns:minmax(0,1fr) 44px; align-items:start; gap:6px; font-size:9px; letter-spacing:.06em; }
   .score-head span { width:100%; min-width:0; line-height:1.25; text-align:center; }
   .score-head b { width:44px; min-width:44px; min-height:28px; margin:0; padding:3px; display:grid; place-items:center; align-self:start; font-size:9px; line-height:1; font-variant-numeric:tabular-nums; }
   .activity-mascot { width:72px; height:72px; margin:6px auto -7px; }
@@ -611,20 +611,18 @@ footer>span { color:#7e9297; font-size:9px; }
   .moon-condition strong { display:block; font-size:8px; }
   .moon-condition em { display:none; }
   .sun-times { margin-top:12px; padding-top:10px; font-size:8px; }
-  .score-ring { width:min(132px,calc(100% - 4px)); height:auto; aspect-ratio:1; margin:18px auto 12px; } .score-ring>div { padding-top:31px; }
+  .score-ring { width:min(116px,100%); height:auto; aspect-ratio:1; margin:18px auto 12px; } .score-ring>div { padding-top:31px; }
   .metrics-grid { width:100%; min-width:0; padding:8px; grid-template-columns:minmax(0,1fr); gap:5px; overflow:hidden; }
   .metric-card,.metric-card.metric-emphasis { width:100%; min-width:0; min-height:64px; padding:7px; gap:7px; border-radius:10px; overflow:hidden; }
   .metric-icon { width:27px; height:27px; flex-basis:27px; border-radius:8px; }
   .metric-icon svg { width:16px; height:16px; }
-  .metric-card>div:last-child { width:100%; min-width:0; grid-template-columns:minmax(0,1fr) max-content; gap:2px 10px; }
-  .metric-card p { min-width:0; max-width:100%; padding-inline-end:2px; overflow-wrap:break-word; word-break:normal; font-size:9px; letter-spacing:.01em; line-height:1.2; }
+  .metric-card>div:last-child { width:100%; min-width:0; grid-template-columns:minmax(0,1fr) max-content; gap:2px 5px; }
+  .metric-card p { min-width:0; font-size:10px; letter-spacing:.025em; line-height:1.15; }
   .metric-value { min-width:0; justify-self:end; gap:3px; }
-  .metric-value strong { font-size:13px; }
+  .metric-value strong { font-size:14px; }
   .metric-value u { font-size:14px; }
   .metric-card span { grid-column:1/-1; font-size:10px; line-height:1.2; white-space:normal; }
   .dashboard-insight { margin-inline-start:42px; }
-  .time-range-shell output { width:58px; left:calc(50% + 7px); transform:translateY(-50%); z-index:6; }
-  [dir="rtl"] .time-range-shell output { left:auto; right:calc(50% + 7px); transform:translateY(-50%); }
   .dashboard-insight { align-items:flex-start; padding:14px 12px; }
   .insight-actions { grid-template-columns:1fr; }
   .insight-cta { min-height:54px; }
@@ -698,7 +696,7 @@ footer>span { color:#7e9297; font-size:9px; }
 @media (max-width:380px) {
   .dashboard-wrap { padding-inline:8px; }
   .dashboard-control-frame { grid-template-columns:40px minmax(0,1fr); }
-  .condition-board { grid-template-columns:minmax(112px,42%) minmax(0,58%); }
+  .condition-board { grid-template-columns:minmax(116px,43%) minmax(0,57%); }
   .score-head { font-size:8px; }
   .score-head b { font-size:8px; }
   .metric-card p { font-size:9px; }
