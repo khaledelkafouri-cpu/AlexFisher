@@ -398,7 +398,7 @@ const coastalCountries: CoastalCountry[] = [
       { id: "tala-bay", en: "Tala Bay", ar: "تالا باي", lat: 29.408, lon: 34.979 },
     ]},
   ]},
-  { id: "israel", en: "Israel", ar: "إسرائيل", cities: [
+  { id: "palestine", en: "Palestine", ar: "فلسطين", cities: [
     { id: "haifa", en: "Haifa", ar: "حيفا", spots: [
       { id: "bat-galim", en: "Bat Galim", ar: "بات غاليم", lat: 32.836, lon: 34.981 },
       { id: "kishon", en: "Kishon Estuary", ar: "مصب نهر المقطع", lat: 32.814, lon: 35.028 },
@@ -419,8 +419,6 @@ const coastalCountries: CoastalCountry[] = [
       { id: "eilat-north", en: "Eilat North Beach", ar: "شاطئ إيلات الشمالي", lat: 29.552, lon: 34.961 },
       { id: "south-coral-coast", en: "South Coral Coast", ar: "ساحل المرجان الجنوبي", lat: 29.508, lon: 34.921 },
     ]},
-  ]},
-  { id: "palestine", en: "Palestine", ar: "فلسطين", cities: [
     { id: "gaza-city", en: "Gaza City", ar: "مدينة غزة", spots: [
       { id: "gaza-port", en: "Gaza Port", ar: "ميناء غزة", lat: 31.524, lon: 34.429 },
       { id: "gaza-beach", en: "Gaza Beach", ar: "شاطئ غزة", lat: 31.531, lon: 34.435 },
