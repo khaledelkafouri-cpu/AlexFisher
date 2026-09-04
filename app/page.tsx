@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDown, ArrowUp, ArrowUpRight, Bell, ChevronRight, CloudRain, Compass, Fish, Gauge,
-  Languages, MapPin, Menu, Navigation, RefreshCw, Search, ShipWheel,
+  Languages, MapPin, Navigation, RefreshCw, Search, ShipWheel,
   Sparkles, Sunrise, Thermometer, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -933,7 +933,7 @@ export default function Home() {
         <nav aria-label="Main navigation">{t.nav.map((item, index) => <a key={item} href={index === 1 ? "/fishing-hub" : index === 2 ? "/learning" : index === 3 ? "/community" : index === 4 ? "/shop" : "#conditions"}>{item}</a>)}</nav>
         <div className="header-actions">
           <Sheet>
-            <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><Menu size={19} /><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
+            <SheetTrigger asChild><button className="mobile-menu-button" aria-label={rtl ? "افتح قائمة الاستكشاف" : "Open explore menu"}><span className="explore-wave-mark" aria-hidden="true"><Waves size={18} /></span><span>{rtl ? "استكشف" : "Explore"}</span></button></SheetTrigger>
             <SheetContent side={rtl ? "right" : "left"} dir={rtl ? "rtl" : "ltr"} className="mobile-nav-sheet">
               <SheetHeader className="mobile-nav-header">
                 <span className="brand-mark"><Waves size={22} /></span>
