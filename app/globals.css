@@ -160,7 +160,10 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .moon-condition strong { color:#e7f5f3; font-size:11px; }
 .moon-condition em { color:#9eb7ba; font-size:8px; font-style:normal; white-space:nowrap; }
 .sun-times { display:flex; justify-content:space-between; margin-top:21px; padding-top:15px; border-top:1px solid rgba(255,255,255,.1); color:#a9c0c3; font-size:11px; }
-.sun-times span { display:flex; align-items:center; gap:5px; }
+.sun-times .sun-time-item { display:grid; justify-items:start; gap:5px; }
+.sun-times .sun-time-item:last-child { justify-items:end; }
+.sun-time-value { display:flex; align-items:center; gap:5px; }
+.sun-times small { padding:3px 6px; border:1px solid rgba(61,215,208,.22); border-radius:999px; color:#bfe9e4; background:rgba(61,215,208,.08); font-size:7px; font-weight:850; line-height:1; text-transform:uppercase; letter-spacing:.08em; }
 .metrics-grid { padding:16px; display:grid; grid-template-columns:1fr; align-content:start; gap:7px; }
 .metric-card { min-height:58px; padding:9px 12px; display:flex; align-items:center; gap:11px; border:1px solid var(--line); border-radius:12px; background:#fbfdfc; }
 .metric-card>div:last-child { min-width:0; flex:1; display:grid; grid-template-columns:minmax(120px,.8fr) auto minmax(120px,1fr); align-items:center; gap:10px; }
@@ -287,6 +290,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .chart-hours.week-labels b { color:#657f84; font-size:9px; }
 .chart-hours.week-labels small { color:#93a5a9; font-size:7px; white-space:nowrap; }
 .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.chart-span-full { grid-column:1/-1; }
 .chart-facts { margin-top:12px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
 .chart-facts span { padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:9px; border-radius:10px; color:#748a8f; background:#f3f8f6; font-size:9px; font-weight:700; }
 .chart-facts strong { color:var(--ink); font-size:11px; }
