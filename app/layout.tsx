@@ -5,6 +5,12 @@ const siteUrl = "https://www.alexfisherofficial.com";
 const siteTitle = "AlexFisher | Live Sea Conditions & Marine Forecasts";
 const siteDescription =
   "Live sea conditions, tides, wind, waves and activity forecasts for fishing, surfing and kayaking across Egypt and the wider region.";
+const socialProfiles = [
+  "https://www.youtube.com/@alexfisher_khaled",
+  "https://www.instagram.com/alexfisher_khaled/",
+  "https://www.facebook.com/AlexFisher.Fishing.Vlogs",
+  "https://www.tiktok.com/@alexfisher_khaled",
+];
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -85,6 +91,7 @@ const structuredData = {
         width: 512,
         height: 512,
       },
+      sameAs: socialProfiles,
     },
     {
       "@type": "WebSite",
