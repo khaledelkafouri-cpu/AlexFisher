@@ -560,6 +560,14 @@ function formatTime12(value?: string) {
   return `${hour % 12 || 12}:${minute} ${hour < 12 ? "AM" : "PM"}`;
 }
 
+const chartPlotStartPercent = 8;
+const chartPlotWidthPercent = 84;
+const dailyAxisHours = [0, 4, 8, 12, 16, 20, 23] as const;
+
+function chartXPercent(index: number, lastIndex: number) {
+  return chartPlotStartPercent + (index / Math.max(1, lastIndex)) * chartPlotWidthPercent;
+}
+
 function ForecastChart({
   title, unit, values, secondary, secondaryLabel, headingDetail, selectedHour, onSelect, accent = "cyan", icon: ChartIcon = Waves, direction, directionFrom = false, currentDirection, currentDirectionFrom = false, currentSpeed, tideDetails, nowHour, nowTime, rtl = false, decimals = 1, xLabels, selectedLabel, rangeLabel, className = "", children,
 }: {
@@ -573,8 +581,8 @@ function ForecastChart({
   const value = values[selectedHour] ?? 0;
   const secondaryValue = secondary?.[selectedHour] ?? 0;
   const lastIndex = Math.max(1, values.length - 1);
-  const marker = 8 + (selectedHour / lastIndex) * 84;
-  const nowMarker = nowHour === undefined ? 0 : 8 + (Math.max(0, Math.min(24, nowHour)) / 24) * 84;
+  const marker = chartXPercent(selectedHour, lastIndex);
+  const nowMarker = nowHour === undefined ? 0 : chartXPercent(Math.max(0, Math.min(lastIndex, nowHour)), lastIndex);
   const selectedTime = selectedLabel ?? formatTime12(`${String(selectedHour).padStart(2, "0")}:00`);
   // The Navigation icon points 45 degrees clockwise from north. Wind/current
   // bearings name the source, so add 180 degrees to show where they travel.
@@ -595,8 +603,8 @@ function ForecastChart({
   const markerYPercent = (markerY / 220) * 100;
   const selectFromClientX = (clientX: number, element: HTMLDivElement) => {
     const bounds = element.getBoundingClientRect();
-    const plotLeft = bounds.left + bounds.width * .08;
-    const plotWidth = bounds.width * .84;
+    const plotLeft = bounds.left + bounds.width * (chartPlotStartPercent / 100);
+    const plotWidth = bounds.width * (chartPlotWidthPercent / 100);
     const ratio = Math.max(0, Math.min(1, (clientX - plotLeft) / Math.max(1, plotWidth)));
     onSelect(Math.round(ratio * lastIndex));
   };
@@ -643,7 +651,7 @@ function ForecastChart({
           <div className={`drag-target ${edgeClass}`} style={{ left: `${marker}%`, top: `${markerYPercent}%` }} aria-hidden="true"><span className="drag-target-label">{selectedTime}</span><i/><i/><i/><i/></div>
         </div>
       </div>
-      {xLabels ? <div className="chart-hours week-labels">{xLabels.map((label, index) => <span key={`${label.primary}-${index}`}><b>{label.primary}</b>{label.secondary && <small>{label.secondary}</small>}</span>)}</div> : <div className="chart-hours"><span>12 AM</span><span>4 AM</span><span>8 AM</span><span>12 PM</span><span>4 PM</span><span>8 PM</span><span>11 PM</span></div>}
+      {xLabels ? <div className="chart-hours week-labels">{xLabels.map((label, index) => <span key={`${label.primary}-${index}`} style={{ left: `${chartXPercent(index, xLabels.length - 1)}%` }}><b>{label.primary}</b>{label.secondary && <small>{label.secondary}</small>}</span>)}</div> : <div className="chart-hours daily-labels">{dailyAxisHours.map((hour) => <span key={hour} style={{ left: `${chartXPercent(hour, 23)}%` }}>{formatTime12(`${String(hour).padStart(2, "0")}:00`).replace(":00", "")}</span>)}</div>}
       {children}
     </article>
   );
