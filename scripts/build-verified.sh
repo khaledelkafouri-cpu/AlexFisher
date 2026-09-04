@@ -3,6 +3,12 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Vercel expects the native Next.js output in `.next`. The default build below
+# remains the Cloudflare/Vinext build used by OpenAI Sites.
+if [[ "${VERCEL:-}" == "1" ]]; then
+  exec "${script_dir}/../node_modules/.bin/next" build
+fi
+
 if [[ "${SITES_ENV_READY:-}" != "1" ]]; then
   exec "${script_dir}/sites-env.sh" -- "$0" "$@"
 fi

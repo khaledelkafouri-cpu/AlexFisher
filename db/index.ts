@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { drizzle } from "drizzle-orm/d1";
+import type { AnyD1Database } from "drizzle-orm/d1/driver";
 import * as schema from "./schema";
 
 export function getDb() {
@@ -9,5 +10,5 @@ export function getDb() {
     );
   }
 
-  return drizzle(env.DB, { schema });
+  return drizzle(env.DB as AnyD1Database, { schema });
 }
