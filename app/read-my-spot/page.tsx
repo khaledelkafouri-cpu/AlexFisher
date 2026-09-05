@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, Camera, Check, ChevronRight, Compass, Fish, Image as ImageIcon, Languages, Layers3, Map, MapPin, RefreshCw, Save, ScanLine, ShieldAlert, Sparkles, Target, UploadCloud, Waves, Wind } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 type Language = "en" | "ar";
 type Zone = { id:string; x:number; y:number; tone:"primary"|"secondary"|"search"|"danger"; title:string; reason:string; cast:string; distance:string; column:string; lure:string; retrieve:string; risk:string };
@@ -101,5 +102,6 @@ export default function ReadMySpotPage(){
 
       <section className="spot-tool-links"><a href={`/tackle-matcher?${query}`}><Target/><div><small>{t("TACKLE MATCHER","مطابقة العدة")}</small><strong>{t("Build a setup for this spot","ابنِ عدة لهذا المكان")}</strong></div><ChevronRight/></a><a href={`/lure-selector?${query}`}><Fish/><div><small>{t("LURE & JIG SELECTOR","اختيار الطُعم والجيج")}</small><strong>{t("Choose what to throw","اختر ماذا سترمي")}</strong></div><ChevronRight/></a><a href={`/hook-matcher?${query}&lure=${analysisProfile.resolvedStyle==="shore-jig"?"jig":"minnow"}`}><Layers3/><div><small>{t("HOOK MATCHER","دليل الخطاف")}</small><strong>{t("Choose the hook setup","اختر تجهيز الخطاف")}</strong></div><ChevronRight/></a></section>
     </>}
+    <BottomNav active="fishing-hub" />
   </main>;
 }

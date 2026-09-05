@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, CircleDot, Fish, Gauge, Languages, Layers3, MapPin, Navigation, Ruler, Search, ShieldCheck, Sparkles, Waves } from "lucide-react";
 import { coastalCountries, seasForLocation } from "@/lib/coastal-locations";
+import BottomNav from "@/components/BottomNav";
 import { fish, type FishProfile, type StyleId } from "@/lib/fish-species";
 
 type Language = "en" | "ar";
@@ -121,5 +122,6 @@ export default function TackleMatcherPage(){
       </div>
       <div className="matcher-actions">{step>0&&<button className="previous" onClick={()=>setStep(step-1)}>{rtl?<ChevronRight size={18}/>:<ChevronLeft size={18}/>} {rtl?"السابق":"Previous"}</button>}<span/>{step<6&&<button className="next" disabled={!canNext} onClick={()=>setStep(step+1)}>{step===5?(rtl?"اعرض النتيجة":"Show my setup"):(rtl?"التالي":"Next")} {rtl?<ChevronLeft size={18}/>:<ChevronRight size={18}/>}</button>}</div>
     </section>
+    <BottomNav active="fishing-hub" />
   </main>;
 }

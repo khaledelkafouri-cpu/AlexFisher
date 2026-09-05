@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, ChevronRight, Fish, HelpCircle, Languages, Link2, Scale, Shield, Sparkles, Waves } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 type Language = "en" | "ar";
 type Copy = { en: string; ar: string };
@@ -143,5 +144,6 @@ export default function HookMatcherPage(){
     <section className="hook-compare"><div className="hook-section-head"><p>{t("SIDE-BY-SIDE","مقارنة مباشرة")}</p><h2>{t("Compare Hooks","قارن الخطافات")}</h2></div><div className="compare-selects"><select value={compareA} onChange={e=>setCompareA(e.target.value)}>{hooks.map(h=><option key={h.id} value={h.id}>{rtl?h.name.ar:h.name.en}</option>)}</select><b>VS</b><select value={compareB} onChange={e=>setCompareB(e.target.value)}>{hooks.map(h=><option key={h.id} value={h.id}>{rtl?h.name.ar:h.name.en}</option>)}</select></div><div className="compare-table"><div/><strong>{rtl?left.name.ar:left.name.en}</strong><strong>{rtl?right.name.ar:right.name.en}</strong>{[["Hook-set","طريقة التثبيت","set"],["Best for","الأنسب","best"],["Strength","القوة","strength"],["Snag risk","خطر التعليق","snag"],["Fish damage","ضرر السمكة","damage"]].map(([en,ar,key])=><div className="compare-row" key={key}><b>{t(en,ar)}</b><span>{rtl?(left as any)[key].ar:(left as any)[key].en}</span><span>{rtl?(right as any)[key].ar:(right as any)[key].en}</span></div>)}</div></section>
 
     <section className="hook-future"><div><small>{t("COMING LATER","قريباً")}</small><h2>{t("What Hook Is This?","ما نوع هذا الخطاف؟")}</h2><p>{t("Upload a photo to estimate the hook family and visible features. Exact brand or model identification will only be shown when reliable.","ارفع صورة لتقدير عائلة الخطاف وخصائصه الظاهرة. لن نحدد الماركة أو الموديل إلا عند موثوقية النتيجة.")}</p></div><div className="future-icon">?</div></section>
+    <BottomNav active="fishing-hub" />
   </main>;
 }
