@@ -25,6 +25,9 @@ environment and is never sent to the browser.
 - **Plans & access** — create or edit prices and durations, activate a plan, define
   included features, and add future website features.
 - **Community** — review and remove posts across fishing, surfing, and kayaking.
+- **Learning** — create courses and curriculum sections; add, publish, archive, or
+  delete lessons; connect video providers; upload private lesson resources; and choose
+  which subscription plans can open each course.
 - **Media** — review and permanently delete uploaded community photographs.
 - **Marketing** — manage consent, lifecycle stages, search contacts, and export CSV.
 - **Audit log** — see which administrator action occurred and when.
@@ -41,6 +44,27 @@ Use `0` months only for access that does not expire.
 
 To give a plan to a member, open **Members** and choose the desired plan. The server
 records a start date and calculates the expiration date from the plan duration.
+
+## Academy workflow
+
+Apply `supabase/migrations/202609052300_learning_management.sql` once in the Supabase
+SQL editor. It creates the course database, learner progress, plan access, and the
+private `course-resources` storage bucket.
+
+Then open **Admin → Learning**:
+
+1. Create or edit a course and choose `Published` only when it is ready.
+2. Select its subscription plans under **Subscription access**. A course with no plan
+   selected is available to every signed-in member.
+3. Add curriculum sections and lessons. Draft lessons remain hidden.
+4. For a video lesson, choose YouTube, Vimeo, Cloudflare Stream, Mux, or an embeddable
+   hosted URL. Paste either the playback ID or URL, then publish the lesson.
+5. Save a lesson before reopening it to upload PDFs, images, ZIP files, or add external
+   links. Stored files remain private; members receive temporary signed download URLs.
+
+Members see published content at `/learning`, and completed lessons are saved to their
+accounts. For large-scale paid video, prefer Cloudflare Stream or Mux over storing raw
+video in Supabase; both are built for adaptive streaming and high bandwidth.
 
 ## Important safeguards
 

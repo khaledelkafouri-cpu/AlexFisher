@@ -2,14 +2,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import {FormEvent,useCallback,useEffect,useMemo,useState} from "react";
-import {Activity,Archive,BarChart3,Bell,CalendarDays,CheckCircle2,ChevronLeft,ChevronRight,CreditCard,Download,Flag,Grid2X2,Image,LayoutDashboard,LifeBuoy,List,LoaderCircle,LogOut,Mail,Menu,MessageSquare,Paperclip,Plus,RotateCcw,Rows3,Search,Settings,Shield,SlidersHorizontal,Trash2,UserPlus,Users,X} from "lucide-react";
+import {Activity,Archive,BarChart3,Bell,CalendarDays,CheckCircle2,ChevronLeft,ChevronRight,CreditCard,Download,Flag,GraduationCap,Grid2X2,Image,LayoutDashboard,LifeBuoy,List,LoaderCircle,LogOut,Mail,Menu,MessageSquare,Paperclip,Plus,RotateCcw,Rows3,Search,Settings,Shield,SlidersHorizontal,Trash2,UserPlus,Users,X} from "lucide-react";
 import {createSupabaseClient} from "@/lib/supabase/client";
+import LearningManager from "./learning-manager";
 
 type Row=Record<string,any>;
-type Data={members:Row[];plans:Row[];subscriptions:Row[];messages:Row[];media:Row[];features:Row[];planFeatures:Row[];audit:Row[]};
-const empty:Data={members:[],plans:[],subscriptions:[],messages:[],media:[],features:[],planFeatures:[],audit:[]};
+type Data={members:Row[];plans:Row[];subscriptions:Row[];messages:Row[];media:Row[];features:Row[];planFeatures:Row[];audit:Row[];learningCourses:Row[];learningSections:Row[];learningLessons:Row[];learningResources:Row[];courseAccess:Row[]};
+const empty:Data={members:[],plans:[],subscriptions:[],messages:[],media:[],features:[],planFeatures:[],audit:[],learningCourses:[],learningSections:[],learningLessons:[],learningResources:[],courseAccess:[]};
 const sections=[
-  ["overview","Overview",LayoutDashboard],["members","Members",Users],["subscriptions","Subscriptions",CreditCard],["plans","Plans & access",SlidersHorizontal],["community","Community",MessageSquare],["media","Media",Image],["marketing","Marketing",Mail],["audit","Audit log",Activity],["settings","Settings",Settings]
+  ["overview","Overview",LayoutDashboard],["members","Members",Users],["subscriptions","Subscriptions",CreditCard],["plans","Plans & access",SlidersHorizontal],["learning","Learning",GraduationCap],["community","Community",MessageSquare],["media","Media",Image],["marketing","Marketing",Mail],["audit","Audit log",Activity],["settings","Settings",Settings]
 ] as const;
 const date=(v?:string)=>v?new Date(v).toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"—";
 const money=(v:number,c:string)=>new Intl.NumberFormat(undefined,{style:"currency",currency:c||"USD"}).format(v||0);
@@ -35,6 +36,7 @@ export default function Admin(){
         {section==="members"&&<Members rows={filtered} plans={data.plans} search={search} setSearch={setSearch} act={act} busy={busy}/>} 
         {section==="subscriptions"&&<Subscriptions rows={data.subscriptions} members={memberById} act={act} busy={busy}/>} 
         {section==="plans"&&<Plans data={data} act={act} busy={busy}/>} 
+        {section==="learning"&&<LearningManager courses={data.learningCourses} sections={data.learningSections} lessons={data.learningLessons} resources={data.learningResources} courseAccess={data.courseAccess} plans={data.plans} act={act} busy={busy}/>}
         {section==="community"&&<Community rows={data.messages} act={act} busy={busy}/>} 
         {section==="media"&&<Media rows={data.media} act={act} busy={busy}/>} 
         {section==="marketing"&&<Marketing rows={filtered} search={search} setSearch={setSearch} csv={csv} act={act}/>} 
