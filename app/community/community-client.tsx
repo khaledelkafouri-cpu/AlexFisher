@@ -10,7 +10,7 @@ import { createSupabaseClient } from "@/lib/supabase/client";
 type Activity = "fishing" | "surfing" | "kayaking";
 type Profile = { display_name: string; role: string; banned?: boolean };
 type Attachment = { id: string; public_url: string; file_name: string; mime_type: string };
-type Reaction = { emoji: string; user_id: string };
+type Reaction = { emoji: string; user_id: string; profiles: { display_name: string } | null };
 type Msg = { id: string; channel: Activity; content: string; author_id: string; parent_id: string | null; created_at: string; profiles: Profile | null; community_attachments: Attachment[]; community_reactions: Reaction[] };
 
 const channels = [
@@ -43,6 +43,8 @@ export default function Community() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  const [openReactions, setOpenReactions] = useState<string | null>(null);
+  const [openThreads, setOpenThreads] = useState<Set<string>>(new Set());
   const pendingScroll = useRef(false);
 
   const isStaff = profile?.role === "admin" || profile?.role === "moderator";
@@ -55,7 +57,7 @@ export default function Community() {
 
   const load = useCallback(async () => {
     if (!db) return;
-    const { data, error } = await db.from("community_messages").select("id,channel,content,author_id,parent_id,created_at,profiles!community_messages_author_id_fkey(display_name,role,banned),community_attachments(id,public_url,file_name,mime_type),community_reactions(emoji,user_id)").eq("channel", activity).order("created_at").limit(200);
+    const { data, error } = await db.from("community_messages").select("id,channel,content,author_id,parent_id,created_at,profiles!community_messages_author_id_fkey(display_name,role,banned),community_attachments(id,public_url,file_name,mime_type),community_reactions(emoji,user_id,profiles!community_reactions_user_id_fkey(display_name))").eq("channel", activity).order("created_at").limit(200);
     setError(error?.message ?? "");
     if (data) setMessages(data as unknown as Msg[]);
     setLoading(false);
@@ -95,8 +97,8 @@ export default function Community() {
         if (a) setError(a.message);
       }
     }
+    if (!reply) pendingScroll.current = true;
     setDraft(""); setFiles([]); setReply(null); setEmojiOpen(false);
-    pendingScroll.current = true;
     await load(); setBusy(false);
   }
 
@@ -105,7 +107,6 @@ export default function Community() {
     const exists = m.community_reactions.some(r => r.emoji === emoji && r.user_id === user.id);
     const q = exists ? db.from("community_reactions").delete().eq("message_id", m.id).eq("user_id", user.id).eq("emoji", emoji) : db.from("community_reactions").insert({ message_id: m.id, user_id: user.id, emoji });
     const { error } = await q;
-    pendingScroll.current = true;
     if (error) setError(error.message); else await load();
     setPicker(null);
   }
@@ -160,8 +161,10 @@ export default function Community() {
             : error && !messages.length ? <div className="state"><MessageCircle /><h2>Connect the community database</h2><p>{error}</p></div>
             : !roots.length ? <div className="state"><RoomIcon /><h2>Welcome to #{activity}</h2><p>Ask a question, share today&apos;s conditions or post a photo.</p></div>
             : roots.map(m => {
-              const reactions = Object.groupBy(m.community_reactions, r => r.emoji);
               const canModerate = isStaff && m.author_id !== user?.id;
+              const topEmojis = [...new Set(m.community_reactions.map(r => r.emoji))].slice(0, 3);
+              const replies = messages.filter(x => x.parent_id === m.id);
+              const threadOpen = openThreads.has(m.id);
               return <article key={m.id}>
                 <i>{initials(m.profiles?.display_name ?? "Member")}</i>
                 <div>
@@ -176,9 +179,12 @@ export default function Community() {
                     <button onClick={() => saveEdit(m.id)}><Check /> Save</button>
                     <button onClick={() => setEditingId(null)}><X /> Cancel</button>
                   </div> : <p>{m.content}</p>}
-                  {m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}
+                  {m.community_attachments.length > 0 && <div className={`attachment-grid${m.community_attachments.length === 1 ? " single" : ""}`}>{m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}</div>}
+                  {m.community_reactions.length > 0 && <div className="reaction-summary">
+                    <button onClick={() => setOpenReactions(openReactions === m.id ? null : m.id)}>{topEmojis.join("")} {m.community_reactions.length}</button>
+                    {openReactions === m.id && <div className="reaction-detail">{m.community_reactions.map((r, i) => <p key={i}>{r.emoji} {r.profiles?.display_name ?? "Member"}</p>)}</div>}
+                  </div>}
                   <nav>
-                    {Object.entries(reactions).map(([emoji, items]) => <button key={emoji} onClick={() => react(m, emoji)}>{emoji} {items?.length}</button>)}
                     <button onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
@@ -186,7 +192,8 @@ export default function Community() {
                     {canModerate && !m.profiles?.banned && <button className="danger" onClick={() => blockAuthor(m.author_id)}><ShieldOff /> Block</button>}
                     {picker === m.id && <span>{emojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>}
                   </nav>
-                  {messages.filter(x => x.parent_id === m.id).map(r => <section className="thread" key={r.id}><i>{initials(r.profiles?.display_name ?? "M")}</i><div><b>{r.profiles?.display_name ?? "Member"}</b><time>{ago(r.created_at)}</time><p>{r.content}</p></div></section>)}
+                  {replies.length > 0 && <button className="thread-toggle" onClick={() => setOpenThreads(s => { const n = new Set(s); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; })}>{threadOpen ? "▾" : "▸"} {replies.length} {replies.length === 1 ? "reply" : "replies"}</button>}
+                  {threadOpen && replies.map(r => <section className="thread" key={r.id}><i>{initials(r.profiles?.display_name ?? "M")}</i><div><b>{r.profiles?.display_name ?? "Member"}</b><time>{ago(r.created_at)}</time><p>{r.content}</p></div></section>)}
                 </div>
               </article>;
             })}
