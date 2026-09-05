@@ -181,6 +181,7 @@ export default function Community() {
             : !roots.length ? <div className="state"><RoomIcon /><h2>Welcome to #{activity}</h2><p>Ask a question, share today&apos;s conditions or post a photo.</p></div>
             : roots.map(m => {
               const canModerate = isStaff && m.author_id !== user?.id;
+              const myReaction = m.community_reactions.find(r => r.user_id === user?.id);
               const topEmojis = [...new Set(m.community_reactions.map(r => r.emoji))].slice(0, 3);
               const replies = messages.filter(x => x.parent_id === m.id);
               const threadOpen = openThreads.has(m.id);
@@ -204,7 +205,7 @@ export default function Community() {
                     {openReactions === m.id && <div className="reaction-detail">{m.community_reactions.map((r, i) => <p key={i}>{r.emoji} {r.profiles?.display_name ?? "Member"}</p>)}</div>}
                   </div>}
                   <nav>
-                    <button data-emoji-trigger onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
+                    <button data-emoji-trigger className={myReaction ? "active" : ""} onClick={() => setPicker(picker === m.id ? null : m.id)}>{myReaction ? <>{myReaction.emoji} Change</> : <><SmilePlus /> React</>}</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
                     {(m.author_id === user?.id || isStaff) && <button className="danger" onClick={() => removeMessage(m.id)}><Trash2 /> Delete</button>}
@@ -212,7 +213,28 @@ export default function Community() {
                     {picker === m.id && <span>{emojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>}
                   </nav>
                   {replies.length > 0 && <button className="thread-toggle" onClick={() => setOpenThreads(s => { const n = new Set(s); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; })}>{threadOpen ? "▾" : "▸"} {replies.length} {replies.length === 1 ? "reply" : "replies"}</button>}
-                  {threadOpen && replies.map(r => <section className="thread" key={r.id}><i>{initials(r.profiles?.display_name ?? "M")}</i><div><b>{r.profiles?.display_name ?? "Member"}</b><time>{ago(r.created_at)}</time><p>{r.content}</p></div></section>)}
+                  {threadOpen && replies.map(r => {
+                    const replyCanModerate = isStaff && r.author_id !== user?.id;
+                    return <section className="thread" key={r.id}>
+                      <i>{initials(r.profiles?.display_name ?? "M")}</i>
+                      <div>
+                        <b>{r.profiles?.display_name ?? "Member"}</b>
+                        {r.profiles?.role === "admin" && <em>CREW</em>}
+                        <time>{ago(r.created_at)}</time>
+                        {editingId === r.id ? <div className="edit-box">
+                          <textarea value={editDraft} onChange={e => setEditDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(r.id); } }} autoFocus />
+                          <button onClick={() => saveEdit(r.id)}><Check /> Save</button>
+                          <button onClick={() => setEditingId(null)}><X /> Cancel</button>
+                        </div> : <p>{r.content}</p>}
+                        {r.community_attachments.length > 0 && <div className={`attachment-grid${r.community_attachments.length === 1 ? " single" : ""}`}>{r.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}</div>}
+                        <nav>
+                          {r.author_id === user?.id && <button onClick={() => { setEditingId(r.id); setEditDraft(r.content); }}><Pencil /> Edit</button>}
+                          {(r.author_id === user?.id || isStaff) && <button className="danger" onClick={() => removeMessage(r.id)}><Trash2 /> Delete</button>}
+                          {replyCanModerate && !r.profiles?.banned && <button className="danger" onClick={() => blockAuthor(r.author_id)}><ShieldOff /> Block</button>}
+                        </nav>
+                      </div>
+                    </section>;
+                  })}
                 </div>
               </article>;
             })}
