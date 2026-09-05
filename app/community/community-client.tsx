@@ -55,6 +55,16 @@ export default function Community() {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    function onOutsideClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-emoji-trigger]") || target.closest(".emoji-popup") || target.closest(".reaction-detail")) return;
+      setPicker(null); setEmojiOpen(false); setOpenReactions(null);
+    }
+    document.addEventListener("mousedown", onOutsideClick);
+    return () => document.removeEventListener("mousedown", onOutsideClick);
+  }, []);
+
   const load = useCallback(async () => {
     if (!db) return;
     const { data, error } = await db.from("community_messages").select("id,channel,content,author_id,parent_id,created_at,profiles!community_messages_author_id_fkey(display_name,role,banned),community_attachments(id,public_url,file_name,mime_type),community_reactions(emoji,user_id,profiles!community_reactions_user_id_fkey(display_name))").eq("channel", activity).order("created_at").limit(200);
@@ -77,7 +87,15 @@ export default function Community() {
     setLoading(true);
     load();
     if (!db) return;
-    const c = db.channel(`room:${activity}`).on("postgres_changes", { event: "*", schema: "public", table: "community_messages", filter: `channel=eq.${activity}` }, load).on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, load).subscribe();
+    const c = db.channel(`room:${activity}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "community_messages", filter: `channel=eq.${activity}` }, (payload) => {
+        if (!(payload.new as { parent_id: string | null }).parent_id) pendingScroll.current = true;
+        load();
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "community_messages", filter: `channel=eq.${activity}` }, load)
+      .on("postgres_changes", { event: "DELETE", schema: "public", table: "community_messages", filter: `channel=eq.${activity}` }, load)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, load)
+      .subscribe();
     return () => { db.removeChannel(c); };
   }, [activity, db, load]);
 
@@ -104,10 +122,11 @@ export default function Community() {
 
   async function react(m: Msg, emoji: string) {
     if (!db || !user) return;
-    const exists = m.community_reactions.some(r => r.emoji === emoji && r.user_id === user.id);
-    const q = exists ? db.from("community_reactions").delete().eq("message_id", m.id).eq("user_id", user.id).eq("emoji", emoji) : db.from("community_reactions").insert({ message_id: m.id, user_id: user.id, emoji });
-    const { error } = await q;
-    if (error) setError(error.message); else await load();
+    const mine = m.community_reactions.find(r => r.user_id === user.id);
+    if (mine) await db.from("community_reactions").delete().eq("message_id", m.id).eq("user_id", user.id).eq("emoji", mine.emoji);
+    let error = null;
+    if (mine?.emoji !== emoji) ({ error } = await db.from("community_reactions").insert({ message_id: m.id, user_id: user.id, emoji }));
+    if (error) setError((error as { message: string }).message); else await load();
     setPicker(null);
   }
 
@@ -165,7 +184,7 @@ export default function Community() {
               const topEmojis = [...new Set(m.community_reactions.map(r => r.emoji))].slice(0, 3);
               const replies = messages.filter(x => x.parent_id === m.id);
               const threadOpen = openThreads.has(m.id);
-              return <article key={m.id}>
+              return <article key={m.id} className={reply?.id === m.id ? "replying-to" : ""}>
                 <i>{initials(m.profiles?.display_name ?? "Member")}</i>
                 <div>
                   <header>
@@ -181,11 +200,11 @@ export default function Community() {
                   </div> : <p>{m.content}</p>}
                   {m.community_attachments.length > 0 && <div className={`attachment-grid${m.community_attachments.length === 1 ? " single" : ""}`}>{m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}</div>}
                   {m.community_reactions.length > 0 && <div className="reaction-summary">
-                    <button onClick={() => setOpenReactions(openReactions === m.id ? null : m.id)}>{topEmojis.join("")} {m.community_reactions.length}</button>
+                    <button data-emoji-trigger onClick={() => setOpenReactions(openReactions === m.id ? null : m.id)}>{topEmojis.join("")} {m.community_reactions.length}</button>
                     {openReactions === m.id && <div className="reaction-detail">{m.community_reactions.map((r, i) => <p key={i}>{r.emoji} {r.profiles?.display_name ?? "Member"}</p>)}</div>}
                   </div>}
                   <nav>
-                    <button onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
+                    <button data-emoji-trigger onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
                     {(m.author_id === user?.id || isStaff) && <button className="danger" onClick={() => removeMessage(m.id)}><Trash2 /> Delete</button>}
@@ -205,7 +224,7 @@ export default function Community() {
             {files.map((f, i) => <p key={i}><ImagePlus />{f.name}<button onClick={() => setFiles(fs => fs.filter((_, idx) => idx !== i))}><X /></button></p>)}
             <section>
               <button onClick={() => fileInput.current?.click()}><ImagePlus /></button>
-              <button onClick={() => setEmojiOpen(o => !o)}><SmilePlus /></button>
+              <button data-emoji-trigger onClick={() => setEmojiOpen(o => !o)}><SmilePlus /></button>
               {emojiOpen && <span className="emoji-popup">{emojis.map(e => <button key={e} onClick={() => { setDraft(d => d + e); setEmojiOpen(false); }}>{e}</button>)}</span>}
               <textarea value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder={`Message #${activity}`} />
               <button onClick={() => fileInput.current?.click()}><Camera /></button>
