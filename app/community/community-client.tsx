@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Camera, ChevronDown, Fish, ImagePlus, LoaderCircle, LogOut, Menu, MessageCircle, Search, Send, ShieldOff, ShipWheel, SmilePlus, Sparkles, Trash2, Users, Waves, X } from "lucide-react";
+import { Bell, Camera, Check, ChevronDown, Fish, ImagePlus, LoaderCircle, LogOut, Menu, MessageCircle, Pencil, Search, Send, ShieldOff, ShipWheel, SmilePlus, Sparkles, Trash2, Users, Waves, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import BottomNav from "@/components/BottomNav";
 import { createSupabaseClient } from "@/lib/supabase/client";
@@ -25,6 +25,7 @@ const ago = (s: string) => { const n = Math.max(1, (Date.now() - new Date(s).get
 export default function Community() {
   const db = useMemo(createSupabaseClient, []);
   const fileInput = useRef<HTMLInputElement>(null);
+  const feedRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [activity, setActivity] = useState<Activity>("fishing");
@@ -38,6 +39,10 @@ export default function Community() {
   const [menu, setMenu] = useState(false);
   const [picker, setPicker] = useState<string | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  const scrollToBottom = () => requestAnimationFrame(() => feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" }));
 
   const isStaff = profile?.role === "admin" || profile?.role === "moderator";
 
@@ -84,7 +89,7 @@ export default function Community() {
       }
     }
     setDraft(""); setFile(null); setReply(null); setEmojiOpen(false);
-    await load(); setBusy(false);
+    await load(); setBusy(false); scrollToBottom();
   }
 
   async function react(m: Msg, emoji: string) {
@@ -93,7 +98,13 @@ export default function Community() {
     const q = exists ? db.from("community_reactions").delete().eq("message_id", m.id).eq("user_id", user.id).eq("emoji", emoji) : db.from("community_reactions").insert({ message_id: m.id, user_id: user.id, emoji });
     const { error } = await q;
     if (error) setError(error.message); else await load();
-    setPicker(null);
+    setPicker(null); scrollToBottom();
+  }
+
+  async function saveEdit(id: string) {
+    if (!db || !editDraft.trim()) return;
+    const { error } = await db.from("community_messages").update({ content: editDraft.trim() }).eq("id", id);
+    if (error) setError(error.message); else { setEditingId(null); await load(); }
   }
 
   async function removeMessage(id: string) {
@@ -135,7 +146,7 @@ export default function Community() {
       {menu && <button className="scrim" onClick={() => setMenu(false)} />}
       <section className="chat">
         <header><i><RoomIcon /></i><span><h1>{room.label}</h1><p>{room.detail}</p></span><b><Users /> AlexFisher members</b></header>
-        <div className="feed">
+        <div className="feed" ref={feedRef}>
           {loading ? <div className="state"><LoaderCircle className="spin" />Loading conversation…</div>
             : error && !messages.length ? <div className="state"><MessageCircle /><h2>Connect the community database</h2><p>{error}</p></div>
             : !roots.length ? <div className="state"><RoomIcon /><h2>Welcome to #{activity}</h2><p>Ask a question, share today&apos;s conditions or post a photo.</p></div>
@@ -151,12 +162,17 @@ export default function Community() {
                     {m.profiles?.banned && <em className="banned-tag">BLOCKED</em>}
                     <time>{ago(m.created_at)}</time>
                   </header>
-                  <p>{m.content}</p>
+                  {editingId === m.id ? <div className="edit-box">
+                    <textarea value={editDraft} onChange={e => setEditDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(m.id); } }} autoFocus />
+                    <button onClick={() => saveEdit(m.id)}><Check /> Save</button>
+                    <button onClick={() => setEditingId(null)}><X /> Cancel</button>
+                  </div> : <p>{m.content}</p>}
                   {m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}
                   <nav>
                     {Object.entries(reactions).map(([emoji, items]) => <button key={emoji} onClick={() => react(m, emoji)}>{emoji} {items?.length}</button>)}
                     <button onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
+                    {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
                     {(m.author_id === user?.id || isStaff) && <button className="danger" onClick={() => removeMessage(m.id)}><Trash2 /> Delete</button>}
                     {canModerate && !m.profiles?.banned && <button className="danger" onClick={() => blockAuthor(m.author_id)}><ShieldOff /> Block</button>}
                     {picker === m.id && <span>{emojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>}
