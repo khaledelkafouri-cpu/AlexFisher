@@ -49,6 +49,9 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .location-select-wrap { height:54px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); border-radius:14px; padding:0 15px; }
 .location-select-wrap select { min-width:0; width:100%; appearance:none; border:0; outline:0; background:transparent; color:white; font-size:16px; font-weight:700; cursor:pointer; }
 .location-select-wrap select option { color:var(--ink); }
+.matcher-stage .location-select-wrap { border:1px solid var(--line); background:#f6f9f8; }
+.matcher-stage .location-select-wrap select { color:var(--ink); }
+.matcher-stage .location-select-wrap svg { color:#6d8388; }
 .live-status-row { margin:12px 3px 0; display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .live-status-row p { margin:0; color:#9eb8ba; font-size:10px; display:flex; align-items:center; gap:7px; }
 .refresh-button { padding:5px 8px; display:inline-flex; align-items:center; gap:5px; border:1px solid rgba(255,255,255,.13); border-radius:8px; color:#bcd4d5; background:rgba(255,255,255,.06); font-size:9px; font-weight:700; cursor:pointer; }
