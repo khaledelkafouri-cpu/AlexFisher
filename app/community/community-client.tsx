@@ -17,7 +17,9 @@ const channels = [
   { id: "surfing" as const, label: "Surfing", detail: "Swell, breaks & sessions", icon: Waves },
   { id: "kayaking" as const, label: "Kayaking", detail: "Routes, launches & safety", icon: ShipWheel },
 ];
-const emojis = ["👍", "🎣", "🌊", "🔥", "❤️", "😂", "🙌", "😮"];
+const emojis = ["👍", "❤️", "😂", "😮", "😢", "🙏", "🔥", "🎉", "🎣", "🌊", "👏", "😎"];
+const quickEmojis = ["👍", "❤️", "😂", "🎣"];
+const maxImages = 5;
 
 const initials = (s: string) => s.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
 const ago = (s: string) => { const n = Math.max(1, (Date.now() - new Date(s).getTime()) / 1000); return n < 60 ? "now" : n < 3600 ? `${Math.floor(n / 60)}m` : n < 86400 ? `${Math.floor(n / 3600)}h` : `${Math.floor(n / 86400)}d`; };
@@ -32,7 +34,7 @@ export default function Community() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState("");
   const [reply, setReply] = useState<Msg | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,7 +55,6 @@ export default function Community() {
 
   const load = useCallback(async () => {
     if (!db) return;
-    setLoading(true);
     const { data, error } = await db.from("community_messages").select("id,channel,content,author_id,parent_id,created_at,profiles!community_messages_author_id_fkey(display_name,role,banned),community_attachments(id,public_url,file_name,mime_type),community_reactions(emoji,user_id)").eq("channel", activity).order("created_at").limit(200);
     setError(error?.message ?? "");
     if (data) setMessages(data as unknown as Msg[]);
@@ -71,6 +72,7 @@ export default function Community() {
   }, [db]);
 
   useEffect(() => {
+    setLoading(true);
     load();
     if (!db) return;
     const c = db.channel(`room:${activity}`).on("postgres_changes", { event: "*", schema: "public", table: "community_messages", filter: `channel=eq.${activity}` }, load).on("postgres_changes", { event: "*", schema: "public", table: "community_reactions" }, load).subscribe();
@@ -78,22 +80,22 @@ export default function Community() {
   }, [activity, db, load]);
 
   async function send() {
-    if (!db || !user || (!draft.trim() && !file)) return;
+    if (!db || !user || (!draft.trim() && !files.length)) return;
     setBusy(true);
     const { data: m, error: e } = await db.from("community_messages").insert({ channel: activity, content: draft.trim(), author_id: user.id, parent_id: reply?.id ?? null }).select("id").single();
     if (e) { setError(e.message); setBusy(false); return; }
-    if (file && m) {
-      const clean = file.name.replace(/[^\w.-]/g, "-");
-      const path = `${user.id}/${m.id}/${crypto.randomUUID()}-${clean}`;
-      const { error: u } = await db.storage.from("community-media").upload(path, file);
-      if (u) setError(u.message);
-      else {
+    if (files.length && m) {
+      for (const f of files) {
+        const clean = f.name.replace(/[^\w.-]/g, "-");
+        const path = `${user.id}/${m.id}/${crypto.randomUUID()}-${clean}`;
+        const { error: u } = await db.storage.from("community-media").upload(path, f);
+        if (u) { setError(u.message); continue; }
         const { data } = db.storage.from("community-media").getPublicUrl(path);
-        const { error: a } = await db.from("community_attachments").insert({ message_id: m.id, owner_id: user.id, storage_path: path, public_url: data.publicUrl, file_name: file.name, mime_type: file.type, size_bytes: file.size });
+        const { error: a } = await db.from("community_attachments").insert({ message_id: m.id, owner_id: user.id, storage_path: path, public_url: data.publicUrl, file_name: f.name, mime_type: f.type, size_bytes: f.size });
         if (a) setError(a.message);
       }
     }
-    setDraft(""); setFile(null); setReply(null); setEmojiOpen(false);
+    setDraft(""); setFiles([]); setReply(null); setEmojiOpen(false);
     pendingScroll.current = true;
     await load(); setBusy(false);
   }
@@ -177,6 +179,7 @@ export default function Community() {
                   {m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}
                   <nav>
                     {Object.entries(reactions).map(([emoji, items]) => <button key={emoji} onClick={() => react(m, emoji)}>{emoji} {items?.length}</button>)}
+                    <span className="quick-react">{quickEmojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>
                     <button onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
@@ -193,17 +196,25 @@ export default function Community() {
         <div className="chatbox">
           {profile?.banned ? <p className="blocked-notice">You&apos;ve been blocked from posting in the community.</p> : <>
             {reply && <p>Replying to <b>{reply.profiles?.display_name}</b><button onClick={() => setReply(null)}><X /></button></p>}
-            {file && <p><ImagePlus />{file.name}<button onClick={() => setFile(null)}><X /></button></p>}
+            {files.map((f, i) => <p key={i}><ImagePlus />{f.name}<button onClick={() => setFiles(fs => fs.filter((_, idx) => idx !== i))}><X /></button></p>)}
             <section>
               <button onClick={() => fileInput.current?.click()}><ImagePlus /></button>
               <button onClick={() => setEmojiOpen(o => !o)}><SmilePlus /></button>
               {emojiOpen && <span className="emoji-popup">{emojis.map(e => <button key={e} onClick={() => { setDraft(d => d + e); setEmojiOpen(false); }}>{e}</button>)}</span>}
               <textarea value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder={`Message #${activity}`} />
               <button onClick={() => fileInput.current?.click()}><Camera /></button>
-              <button className="send" disabled={busy || (!draft.trim() && !file)} onClick={send}>{busy ? <LoaderCircle className="spin" /> : <Send />}</button>
-              <input ref={fileInput} hidden type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e => { const f = e.target.files?.[0]; if (f && f.size <= 8388608) setFile(f); else if (f) setError("Images must be 8 MB or smaller."); }} />
+              <button className="send" disabled={busy || (!draft.trim() && !files.length)} onClick={send}>{busy ? <LoaderCircle className="spin" /> : <Send />}</button>
+              <input ref={fileInput} hidden multiple type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e => {
+                const picked = Array.from(e.target.files ?? []);
+                const room = Math.max(0, maxImages - files.length);
+                const oversized = picked.some(f => f.size > 8388608);
+                if (picked.length > room) setError(`You can attach up to ${maxImages} images per message.`);
+                else if (oversized) setError("Each image must be 8 MB or smaller.");
+                setFiles(fs => [...fs, ...picked.filter(f => f.size <= 8388608)].slice(0, maxImages));
+                e.target.value = "";
+              }} />
             </section>
-            <small>Enter to send · Shift + Enter for a new line · Images up to 8 MB</small>
+            <small>Enter to send · Shift + Enter for a new line · Up to {maxImages} images, 8 MB each</small>
           </>}
         </div>
       </section>
