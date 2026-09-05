@@ -205,12 +205,12 @@ export default function Community() {
                     {openReactions === m.id && <div className="reaction-detail">{m.community_reactions.map((r, i) => <p key={i}>{r.emoji} {r.profiles?.display_name ?? "Member"}</p>)}</div>}
                   </div>}
                   <nav>
-                    <button data-emoji-trigger className={myReaction ? "active" : ""} onClick={() => setPicker(picker === m.id ? null : m.id)}>{myReaction ? <>{myReaction.emoji} Change</> : <><SmilePlus /> React</>}</button>
+                    <button data-emoji-trigger className={myReaction ? "active" : ""} onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
                     {(m.author_id === user?.id || isStaff) && <button className="danger" onClick={() => removeMessage(m.id)}><Trash2 /> Delete</button>}
                     {canModerate && !m.profiles?.banned && <button className="danger" onClick={() => blockAuthor(m.author_id)}><ShieldOff /> Block</button>}
-                    {picker === m.id && <span>{emojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>}
+                    {picker === m.id && <span className="emoji-popup">{emojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>}
                   </nav>
                   {replies.length > 0 && <button className="thread-toggle" onClick={() => setOpenThreads(s => { const n = new Set(s); n.has(m.id) ? n.delete(m.id) : n.add(m.id); return n; })}>{threadOpen ? "▾" : "▸"} {replies.length} {replies.length === 1 ? "reply" : "replies"}</button>}
                   {threadOpen && replies.map(r => {
