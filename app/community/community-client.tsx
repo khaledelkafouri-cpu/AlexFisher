@@ -41,10 +41,15 @@ export default function Community() {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState("");
-
-  const scrollToBottom = () => requestAnimationFrame(() => feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" }));
+  const pendingScroll = useRef(false);
 
   const isStaff = profile?.role === "admin" || profile?.role === "moderator";
+
+  useEffect(() => {
+    if (!pendingScroll.current) return;
+    pendingScroll.current = false;
+    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
 
   const load = useCallback(async () => {
     if (!db) return;
@@ -89,7 +94,8 @@ export default function Community() {
       }
     }
     setDraft(""); setFile(null); setReply(null); setEmojiOpen(false);
-    await load(); setBusy(false); scrollToBottom();
+    pendingScroll.current = true;
+    await load(); setBusy(false);
   }
 
   async function react(m: Msg, emoji: string) {
@@ -97,8 +103,9 @@ export default function Community() {
     const exists = m.community_reactions.some(r => r.emoji === emoji && r.user_id === user.id);
     const q = exists ? db.from("community_reactions").delete().eq("message_id", m.id).eq("user_id", user.id).eq("emoji", emoji) : db.from("community_reactions").insert({ message_id: m.id, user_id: user.id, emoji });
     const { error } = await q;
+    pendingScroll.current = true;
     if (error) setError(error.message); else await load();
-    setPicker(null); scrollToBottom();
+    setPicker(null);
   }
 
   async function saveEdit(id: string) {
