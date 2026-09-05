@@ -18,7 +18,7 @@ const channels = [
   { id: "surfing" as const, label: "Surfing", detail: "Swell, breaks & sessions", icon: Surfboard },
   { id: "kayaking" as const, label: "Kayaking", detail: "Routes, launches & safety", icon: Kayak },
 ];
-const emojis = ["👍", "❤️", "😂", "😮", "😢", "🙏", "🔥", "🎉", "👏", "😎", "🎣", "🐟", "🐠", "🦈", "🌊", "⚓", "🏄", "🚣", "🍳", "🦐"];
+const emojis = ["👍", "❤️", "😂", "😮", "😢", "🙏", "🔥", "🎉", "👏", "😎", "🎣", "🐟", "🐠", "🦈", "🌊", "⚓", "🏄", "🚣", "🍳", "🦐", "🦀", "🦞", "🐙", "🐡", "🐬", "🐳", "⛵", "🛶", "🏖️", "🏆"];
 const maxImages = 5;
 
 const initials = (s: string) => s.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
