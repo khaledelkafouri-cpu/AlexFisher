@@ -1,9 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Camera, Check, ChevronDown, Fish, ImagePlus, LoaderCircle, LogOut, Menu, MessageCircle, Pencil, Search, Send, ShieldOff, ShipWheel, SmilePlus, Sparkles, Trash2, Users, Waves, X } from "lucide-react";
+import { Bell, Camera, Check, ChevronDown, Fish, ImagePlus, Kayak, LoaderCircle, LogOut, Menu, MessageCircle, Pencil, Search, Send, ShieldOff, SmilePlus, Sparkles, Trash2, Users, Waves, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import BottomNav from "@/components/BottomNav";
+import { Surfboard } from "@/components/icons";
 import { createSupabaseClient } from "@/lib/supabase/client";
 
 type Activity = "fishing" | "surfing" | "kayaking";
@@ -14,11 +15,10 @@ type Msg = { id: string; channel: Activity; content: string; author_id: string; 
 
 const channels = [
   { id: "fishing" as const, label: "Fishing", detail: "Catches, tackle & local reports", icon: Fish },
-  { id: "surfing" as const, label: "Surfing", detail: "Swell, breaks & sessions", icon: Waves },
-  { id: "kayaking" as const, label: "Kayaking", detail: "Routes, launches & safety", icon: ShipWheel },
+  { id: "surfing" as const, label: "Surfing", detail: "Swell, breaks & sessions", icon: Surfboard },
+  { id: "kayaking" as const, label: "Kayaking", detail: "Routes, launches & safety", icon: Kayak },
 ];
 const emojis = ["👍", "❤️", "😂", "😮", "😢", "🙏", "🔥", "🎉", "🎣", "🌊", "👏", "😎"];
-const quickEmojis = ["👍", "❤️", "😂", "🎣"];
 const maxImages = 5;
 
 const initials = (s: string) => s.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
@@ -179,7 +179,6 @@ export default function Community() {
                   {m.community_attachments.map(a => <a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name} /></a>)}
                   <nav>
                     {Object.entries(reactions).map(([emoji, items]) => <button key={emoji} onClick={() => react(m, emoji)}>{emoji} {items?.length}</button>)}
-                    <span className="quick-react">{quickEmojis.map(e => <button key={e} onClick={() => react(m, e)}>{e}</button>)}</span>
                     <button onClick={() => setPicker(picker === m.id ? null : m.id)}><SmilePlus /> React</button>
                     <button onClick={() => setReply(m)}><MessageCircle /> Reply</button>
                     {m.author_id === user?.id && <button onClick={() => { setEditingId(m.id); setEditDraft(m.content); }}><Pencil /> Edit</button>}
