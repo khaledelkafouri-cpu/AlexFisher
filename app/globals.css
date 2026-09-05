@@ -352,10 +352,11 @@ footer>span { color:#7e9297; font-size:9px; }
 .footer-social a { display:grid; place-items:center; color:#7e9297; transition:color .18s ease,transform .18s ease; }
 .footer-social a:hover { color:var(--ocean); transform:translateY(-1px); }
 .bottom-nav { position:fixed; inset-inline:0; bottom:0; z-index:60; display:flex; align-items:stretch; justify-content:center; gap:6px; padding:8px 16px calc(8px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); background:rgba(248,251,249,.96); backdrop-filter:blur(14px); box-shadow:0 -6px 18px rgba(7,29,37,.06); }
-.bottom-nav a { flex:0 1 140px; min-width:0; padding:6px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border-radius:10px; color:#8399a0; text-decoration:none; font-size:10.5px; font-weight:650; transition:color .18s ease,background .18s ease; }
-.bottom-nav a:hover { color:var(--ocean); background:rgba(13,89,101,.06); }
-.bottom-nav a.active { color:var(--ocean); }
-.bottom-nav a svg { flex:0 0 auto; }
+.bottom-nav a { flex:0 1 140px; min-width:0; padding:6px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border-radius:10px; color:#98a7ac; text-decoration:none; font-size:10.5px; font-weight:600; transition:color .18s ease,background .18s ease; }
+.bottom-nav a:hover { background:rgba(13,89,101,.06); }
+.bottom-nav a svg { flex:0 0 auto; color:#98a7ac; transition:color .18s ease; }
+.bottom-nav a.active svg { color:var(--ocean); }
+.bottom-nav a.active span { color:var(--ink); font-weight:800; }
 .bottom-nav a span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .site-shell,.fishing-hub-page,.shop-page,.learning-page,.community-page { padding-bottom:calc(64px + env(safe-area-inset-bottom)); }
 .community-page { min-height:100vh; background:#eef6f4; }
