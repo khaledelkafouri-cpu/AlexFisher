@@ -2,7 +2,7 @@ import { pageMetadata } from "@/app/seo";
 
 export const metadata = pageMetadata(
   "Learn Fishing",
-  "Build your fishing knowledge with clear AlexFisher guides covering tackle, techniques, species and safer days on the water.",
+  "Learn fishing step by step with structured AlexFisher courses on rods, reels, hooks, lures and braided line.",
   "/learning",
 );
 

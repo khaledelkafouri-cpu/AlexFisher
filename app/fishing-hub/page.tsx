@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import { Anchor, ArrowLeft, ChevronRight, Fish, Languages, ScanLine, Sparkles, Target, Waves } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
@@ -9,11 +10,6 @@ type Language = "en" | "ar";
 export default function FishingHubPage() {
   const [language, setLanguage] = useState<Language>("en");
   const rtl = language === "ar";
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("alexfisher-language");
-    if (saved === "ar" || saved === "en") setLanguage(saved);
-  }, []);
 
   const toggleLanguage = () => {
     const next = rtl ? "en" : "ar";
@@ -67,9 +63,9 @@ export default function FishingHubPage() {
   return (
     <main dir={rtl ? "rtl" : "ltr"} className={`fishing-hub-page ${rtl ? "font-arabic" : ""}`}>
       <header className="matcher-topbar">
-        <a href="/" className="back-link"><ArrowLeft size={17}/>{rtl ? "العودة لحالة البحر" : "Back to conditions"}</a>
-        <a className="brand" href="/"><span className="brand-mark"><Waves size={22}/></span><span>ALEX<strong>FISHER</strong><small>FISHING HUB</small></span></a>
-        <nav><a href="/learning">{rtl ? "تعلم" : "Learning"}</a><a href="/community">{rtl ? "المجتمع" : "Community"}</a><a href="/shop">{rtl ? "المتجر" : "Shop"}</a></nav>
+        <Link href="/" className="back-link"><ArrowLeft size={17}/>{rtl ? "العودة لحالة البحر" : "Back to conditions"}</Link>
+        <Link className="brand" href="/"><span className="brand-mark"><Waves size={22}/></span><span>ALEX<strong>FISHER</strong><small>FISHING HUB</small></span></Link>
+        <nav><Link href="/learning">{rtl ? "تعلم" : "Learning"}</Link><Link href="/community">{rtl ? "المجتمع" : "Community"}</Link><Link href="/shop">{rtl ? "المتجر" : "Shop"}</Link></nav>
         <button className="language-button" onClick={toggleLanguage}><Languages size={16}/>{rtl ? "EN" : "العربية"}</button>
       </header>
 
@@ -83,13 +79,13 @@ export default function FishingHubPage() {
         {tools.map((tool) => {
           const Icon = tool.icon;
           return (
-            <a href={tool.href} key={tool.href} className="fishing-tool-card">
+            <Link href={tool.href} key={tool.href} className="fishing-tool-card">
               <div className="fishing-tool-icon"><Icon size={29}/></div>
               <span className="fishing-tool-number">{tool.number}</span>
               <h2>{tool.title}</h2>
               <p>{tool.description}</p>
               <strong>{tool.action}<ChevronRight size={18} className={rtl ? "flip" : ""}/></strong>
-            </a>
+            </Link>
           );
         })}
       </section>

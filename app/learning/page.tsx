@@ -1,108 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Check, ChevronRight, CircleDot, Fish, Languages, Layers3, Ruler, Sparkles, Waves } from "lucide-react";
+import Link from "next/link";
+import {useMemo,useState} from "react";
+import {ArrowLeft,BookOpen,Check,CheckCircle2,ChevronDown,ChevronRight,CircleDot,Clock3,Fish,Languages,Layers3,Lock,NotebookPen,Play,PlayCircle,Ruler,Sparkles,Waves} from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
-type CategoryId = "reels" | "rods" | "hooks" | "lures" | "braid" | "species";
-type Language = "en" | "ar";
-
-const fishSpecies = [
-  { en: "Striped seabream (Mormora)", ar: "المرمار", enSeason: "Spring to autumn", arSeason: "من الربيع إلى الخريف", enMethod: "Light bottom fishing from shore", arMethod: "صيد قاع خفيف من الشاطئ", enBait: "Worms, shrimp or small shellfish", arBait: "دود أو جمبري أو محار صغير", enWater: "Sandy and mixed bottoms", arWater: "القاع الرملي والمختلط" },
-  { en: "European seabass", ar: "القاروص", enSeason: "Autumn and winter", arSeason: "الخريف والشتاء", enMethod: "Spinning near surf, rocks and harbour mouths", arMethod: "سبيننج قرب الأمواج والصخور ومداخل الموانئ", enBait: "Minnow lures, soft plastics or live bait", arBait: "مينو أو سيليكون أو طُعم حي", enWater: "White water and current lines", arWater: "المياه المتكسرة وخطوط التيار" },
-  { en: "Bluefish", ar: "الأنش", enSeason: "Late summer to autumn", arSeason: "أواخر الصيف والخريف", enMethod: "Fast spinning or trolling", arMethod: "سبيننج سريع أو جر", enBait: "Metal lures, minnows or oily fish", arBait: "معدن أو مينو أو سمك زيتي", enWater: "Open water around baitfish", arWater: "المياه المفتوحة حول أسراب السمك الصغير" },
-  { en: "Garfish", ar: "الإبرة", enSeason: "Autumn to early spring", arSeason: "من الخريف إلى بداية الربيع", enMethod: "Float fishing close to the surface", arMethod: "صيد بالعوامة قرب سطح المياه", enBait: "Small fish strips or shrimp", arBait: "شرائح سمك صغيرة أو جمبري", enWater: "Calm surface water and harbour edges", arWater: "سطح هادئ وحواف الموانئ" },
-  { en: "Grey mullet", ar: "البوري", enSeason: "Available most of the year", arSeason: "متوفر أغلب شهور السنة", enMethod: "Fine float rig with patient feeding", arMethod: "عدة عوامة خفيفة مع التزفير والصبر", enBait: "Bread mix, dough or algae", arBait: "عجينة خبز أو طحالب", enWater: "Harbours, rocks and sheltered coast", arWater: "الموانئ والصخور والسواحل الهادئة" },
-  { en: "Dusky grouper", ar: "الوقار", enSeason: "Spring to autumn", arSeason: "من الربيع إلى الخريف", enMethod: "Strong bottom tackle near structure", arMethod: "عدة قاع قوية قرب الصخور والحواجز", enBait: "Live bait, squid or large soft lure", arBait: "طُعم حي أو سبيط أو سيليكون كبير", enWater: "Rocky reefs and deep structure", arWater: "الشعاب الصخرية والأماكن العميقة" },
+type Language="en"|"ar";
+type CourseId="rods"|"reels"|"hooks"|"lures"|"braid";
+type Lesson={id:string;en:string;ar:string;minutes:number;preview?:boolean};
+type Section={en:string;ar:string;lessons:Lesson[]};
+type Course={id:CourseId;icon:typeof Ruler;tone:string;en:string;ar:string;enDesc:string;arDesc:string;level:string;sections:Section[]};
+const lesson=(id:string,en:string,ar:string,minutes:number,preview=false):Lesson=>({id,en,ar,minutes,preview});
+const courses:Course[]=[
+  {id:"rods",icon:Ruler,tone:"coral",en:"Fishing Rods",ar:"قصبات الصيد",enDesc:"Choose the right length, power, action and casting weight.",arDesc:"اختار الطول والقوة والأكشن ووزن الرمي المناسب.",level:"Beginner",sections:[
+    {en:"Start with the rod",ar:"ابدأ مع القصبة",lessons:[lesson("rod-1","Rod parts and terminology","أجزاء القصبة والمصطلحات",8,true),lesson("rod-2","Length and casting distance","الطول ومسافة الرمي",11),lesson("rod-3","Read casting-weight ratings","قراءة وزن الرمي المكتوب",9)]},
+    {en:"Power and action",ar:"القوة والأكشن",lessons:[lesson("rod-4","Power versus action","الفرق بين القوة والأكشن",12),lesson("rod-5","Fast, moderate and slow action","الأكشن السريع والمتوسط والبطيء",10),lesson("rod-6","Match a rod to your style","طابق القصبة مع طريقة الصيد",14)]},
+    {en:"Setup and care",ar:"التجهيز والعناية",lessons:[lesson("rod-7","Balance rod, reel and line","وازن القصبة والماكينة والخيط",13),lesson("rod-8","Saltwater cleaning and storage","التنظيف والتخزين بعد البحر",7)]}]},
+  {id:"reels",icon:CircleDot,tone:"cyan",en:"Fishing Reels",ar:"ماكينات الصيد",enDesc:"Select, set up and maintain the right reel for the job.",arDesc:"اختار ماكينة الصيد المناسبة، جهزها وحافظ عليها.",level:"Beginner",sections:[
+    {en:"Reel foundations",ar:"أساسيات الماكينة",lessons:[lesson("reel-1","Reel types explained","شرح أنواع ماكينات الصيد",9,true),lesson("reel-2","Reel size and line capacity","حجم الماكينة وسعة الخيط",12),lesson("reel-3","Gear ratio made simple","شرح نسبة التروس ببساطة",8)]},
+    {en:"Set up correctly",ar:"التجهيز الصحيح",lessons:[lesson("reel-4","Spool line without twist","ملء الخيط بدون التفاف",13),lesson("reel-5","Set the drag correctly","ضبط الفرامل بشكل صحيح",11),lesson("reel-6","Balance reel and rod","وازن الماكينة مع القصبة",9)]},
+    {en:"Care and troubleshooting",ar:"العناية وحل المشاكل",lessons:[lesson("reel-7","Clean after saltwater use","التنظيف بعد استخدام البحر",8),lesson("reel-8","Fix common reel problems","حل مشاكل الماكينة الشائعة",14)]}]},
+  {id:"hooks",icon:Fish,tone:"mint",en:"Hooks",ar:"السنار",enDesc:"Match hook shape, size and strength to bait and target fish.",arDesc:"طابق شكل وحجم وقوة السن مع الطُعم والسمكة.",level:"Beginner",sections:[
+    {en:"Know your hook",ar:"اعرف السنار",lessons:[lesson("hook-1","Hook anatomy and sizes","أجزاء السن ومقاساته",8,true),lesson("hook-2","J-hooks and circle hooks","السن العادي والسن الدائري",10),lesson("hook-3","Wire gauge and strength","سمك السلك والقوة",7)]},
+    {en:"Match hook to bait",ar:"طابق السن مع الطُعم",lessons:[lesson("hook-4","Natural bait presentation","تقديم الطُعم الطبيعي",13),lesson("hook-5","Assist hooks for jigs","السنار المساعد للجيج",11),lesson("hook-6","Treble hooks and lures","السن الثلاثي والطعوم",9)]},
+    {en:"Hook and land fish",ar:"تثبيت وإخراج السمكة",lessons:[lesson("hook-7","Sharpness and hook-set timing","حدة السن وتوقيت الشد",12),lesson("hook-8","Safe unhooking and release","فك السن وإعادة السمكة بأمان",8)]}]},
+  {id:"lures",icon:Sparkles,tone:"gold",en:"Lures & Jigs",ar:"الطعوم والجيج",enDesc:"Choose lure type, colour, depth and retrieve for the conditions.",arDesc:"اختار النوع واللون والعمق وطريقة السحب حسب الظروف.",level:"Intermediate",sections:[
+    {en:"Build your lure box",ar:"جهز علبة الطعوم",lessons:[lesson("lure-1","Hard lures, plastics and jigs","الطعوم الصلبة والسيليكون والجيج",12,true),lesson("lure-2","Profile, size and target fish","الشكل والحجم والسمكة",10),lesson("lure-3","Choose lure colour","اختيار لون الطُعم",9)]},
+    {en:"Fish the water column",ar:"اصطاد طبقات المياه",lessons:[lesson("lure-4","Surface, midwater and bottom","السطح ومنتصف المياه والقاع",14),lesson("lure-5","Weight, depth and current","الوزن والعمق والتيار",12),lesson("lure-6","Read lure action","فهم حركة الطُعم",8)]},
+    {en:"Retrieve with purpose",ar:"اسحب الطُعم بذكاء",lessons:[lesson("lure-7","Speed, pauses and cadence","السرعة والتوقف والإيقاع",13),lesson("lure-8","Change tactics when fish do not bite","غير خطتك عندما لا يعض السمك",11)]}]},
+  {id:"braid",icon:Layers3,tone:"blue",en:"Braided Line",ar:"الخيط المجدول",enDesc:"Understand PE rating, strength, leaders, knots and spool setup.",arDesc:"افهم تصنيف PE والقوة والليدر والعُقد وتجهيز البكرة.",level:"Intermediate",sections:[
+    {en:"Choose your braid",ar:"اختار الخيط المجدول",lessons:[lesson("braid-1","Diameter, PE and strand count","القطر وتصنيف PE وعدد الخيوط",11,true),lesson("braid-2","Strength and target species","القوة والسمك المستهدف",9),lesson("braid-3","Colour and line marking","اللون وعلامات الخيط",7)]},
+    {en:"Spool and connect",ar:"املأ البكرة واربط",lessons:[lesson("braid-4","Backing and spool filling","الباكينج وملء البكرة",13),lesson("braid-5","Connect braid to leader","ربط الخيط بالليدر",15),lesson("braid-6","Reliable terminal knots","عُقد نهائية موثوقة",12)]},
+    {en:"Cast and maintain",ar:"الرمي والصيانة",lessons:[lesson("braid-7","Prevent wind knots and tangles","منع عُقد الهواء والتشابك",10),lesson("braid-8","Inspect, reverse and replace","فحص وعكس وتغيير الخيط",8)]}]},
 ];
 
-const categories = [
-  {
-    id: "reels" as const, icon: CircleDot, color: "cyan", en: "Reels", ar: "ماكينات الصيد",
-    enDesc: "Choose, set up and maintain the right reel.", arDesc: "اختار ماكينة الصيد المناسبة، جهزها وحافظ عليها.",
-    enLessons: ["Reel types explained", "Reel size and line capacity", "Setting the drag correctly", "Cleaning and maintenance"],
-    arLessons: ["شرح أنواع ماكينات الصيد", "حجم الماكينة وسعة الخيط", "ضبط الفرامل بشكل صحيح", "التنظيف والصيانة"],
-    enGuide: ["Match reel size to rod and target fish", "Set drag to protect line and hooks", "Rinse gently after saltwater use"],
-    arGuide: ["طابق حجم الماكينة مع القصبة والسمك المستهدف", "اضبط الفرامل لحماية الخيط والسنار", "اغسل الماكينة برفق بعد البحر"],
-  },
-  {
-    id: "rods" as const, icon: Ruler, color: "coral", en: "Rods", ar: "قصبات الصيد",
-    enDesc: "Understand length, power, action and casting weight.", arDesc: "افهم الطول والقوة والأكشن ووزن الرمي.",
-    enLessons: ["Rod parts and terminology", "Length and casting distance", "Power versus action", "Reading the casting-weight rating"],
-    arLessons: ["أجزاء القصبة والمصطلحات", "الطول ومسافة الرمي", "الفرق بين القوة والأكشن", "قراءة وزن الرمي المكتوب"],
-    enGuide: ["Longer rods usually help shore casting", "Action describes where the rod bends", "Stay inside the printed casting range"],
-    arGuide: ["القصبات الأطول تساعد غالباً في الرمي من الشاطئ", "الأكشن يوضح مكان انحناء القصبة", "التزم بوزن الرمي المكتوب"],
-  },
-  {
-    id: "hooks" as const, icon: Fish, color: "mint", en: "Hooks", ar: "السنار",
-    enDesc: "Select hook shape and size for bait and species.", arDesc: "اختار شكل وحجم السن المناسب للطُعم ونوع السمك.",
-    enLessons: ["Hook anatomy and sizes", "J-hooks and circle hooks", "Matching hook to bait", "Checking sharpness and strength"],
-    arLessons: ["أجزاء السن ومقاساته", "السن العادي والسن الدائري", "مطابقة السن مع الطُعم", "اختبار الحدة والقوة"],
-    enGuide: ["Hook size must suit the bait, not only the fish", "Keep the hook point exposed when needed", "Replace rusty or damaged hooks"],
-    arGuide: ["حجم السن يناسب الطُعم وليس السمكة فقط", "اترك طرف السن مكشوفاً عند الحاجة", "غير السن الصدئ أو التالف"],
-  },
-  {
-    id: "lures" as const, icon: Sparkles, color: "gold", en: "Lures", ar: "الطعوم الصناعية",
-    enDesc: "Pick lure type, colour, depth and retrieval style.", arDesc: "اختار نوع ولون وعمق الطُعم الصناعي وطريقة السحب.",
-    enLessons: ["Hard lures and soft plastics", "Choosing lure colour", "Depth and water layers", "Retrieval speed and action"],
-    arLessons: ["الطعوم الصلبة والسيليكون", "اختيار لون الطُعم", "العمق وطبقات المياه", "سرعة وطريقة السحب"],
-    enGuide: ["Choose depth before choosing colour", "Natural colours suit clear water", "Change retrieval before changing lure"],
-    arGuide: ["اختار العمق قبل اللون", "الألوان الطبيعية تناسب المياه الصافية", "غير طريقة السحب قبل تغيير الطُعم"],
-  },
-  {
-    id: "braid" as const, icon: Layers3, color: "blue", en: "Braided Line", ar: "الخيط المجدول",
-    enDesc: "Choose diameter, strength, leader and spool setup.", arDesc: "اختار القطر والقوة والليدر وطريقة تجهيز البكرة.",
-    enLessons: ["Braid diameter and PE ratings", "Strength and target species", "Backing and filling the spool", "Connecting braid to leader"],
-    arLessons: ["قطر الخيط وتصنيف PE", "القوة والسمك المستهدف", "الباكينج وملء البكرة", "ربط الخيط المجدول بالليدر"],
-    enGuide: ["Thin braid casts farther but needs care", "Use backing to stop spool slip", "Inspect the first metres for abrasion"],
-    arGuide: ["الخيط الرفيع يرمي أبعد لكنه يحتاج عناية", "استخدم باكينج لمنع دوران الخيط", "افحص أول أمتار بحثاً عن التآكل"],
-  },
-  {
-    id: "species" as const, icon: Fish, color: "species", en: "Fish Species", ar: "أنواع الأسماك",
-    enDesc: "Identify local fish, their seasons and the best way to catch them.", arDesc: "تعرف على الأسماك المحلية ومواسمها وأفضل طرق صيدها.",
-    enLessons: ["Identify common Mediterranean species", "Understand seasonal movement", "Match method and tackle to each fish", "Choose bait and productive habitat"],
-    arLessons: ["التعرف على أشهر أسماك البحر المتوسط", "فهم حركة الأسماك حسب الموسم", "اختيار الطريقة والعدة لكل نوع", "اختيار الطُعم والمكان المناسب"],
-    enGuide: ["Seasons are a local guide, not a guarantee", "Minimum sizes and closed seasons can change", "Release undersized fish carefully"],
-    arGuide: ["المواسم دليل محلي وليست ضماناً", "المقاسات القانونية ومواسم المنع قد تتغير", "أعد الأسماك الصغيرة للمياه بحرص"],
-  },
-];
-
-export default function LearningPage() {
-  const [language, setLanguage] = useState<Language>("en");
-  const [selected, setSelected] = useState<CategoryId>("reels");
-  const rtl = language === "ar";
-  const category = categories.find((item) => item.id === selected) ?? categories[0];
-  const lessons = rtl ? category.arLessons : category.enLessons;
-  const guide = rtl ? category.arGuide : category.enGuide;
-  const Icon = category.icon;
-
-  return <main dir={rtl ? "rtl" : "ltr"} className={`learning-page ${rtl ? "font-arabic" : ""}`}>
-    <header className="learning-topbar">
-      <a href="/" className="back-link"><ArrowLeft size={17}/>{rtl ? "العودة لحالة البحر" : "Back to conditions"}</a>
-      <a className="brand" href="/"><span className="brand-mark"><Waves size={22}/></span><span>ALEX<strong>FISHER</strong><small>LEARNING HUB</small></span></a>
-      <button className="language-button" onClick={() => setLanguage(language === "en" ? "ar" : "en")}><Languages size={16}/>{language === "en" ? "العربية" : "EN"}</button>
-    </header>
-
-    <section className="learning-hero">
-      <div><p>{rtl ? "تعلم الصيد خطوة بخطوة" : "LEARN FISHING, STEP BY STEP"}</p><h1>{rtl ? "افهم أدواتك. اصطاد بثقة." : "Know your gear. Fish with confidence."}</h1><span>{rtl ? "دروس واضحة تساعدك على اختيار وتجهيز واستخدام معدات الصيد بشكل صحيح." : "Clear learning paths to help you choose, set up and use fishing equipment correctly."}</span></div>
-      <div className="learning-stat"><strong>6</strong><span>{rtl ? "مسارات تعليمية" : "learning paths"}</span></div>
-    </section>
-
-    <section className="learning-categories">
-      {categories.map((item) => { const ItemIcon = item.icon; return <button key={item.id} className={`${item.color} ${selected === item.id ? "active" : ""}`} onClick={() => setSelected(item.id)}><span><ItemIcon size={23}/></span><strong>{rtl ? item.ar : item.en}</strong><small>{rtl ? item.arDesc : item.enDesc}</small><ChevronRight size={18} className={rtl ? "flip" : ""}/></button>; })}
-    </section>
-
-    <section className="learning-detail">
-      <div className={`course-summary ${category.color}`}><div className="course-icon"><Icon size={32}/></div><p>{rtl ? "مسار تعليمي" : "LEARNING PATH"}</p><h2>{rtl ? category.ar : category.en}</h2><span>{rtl ? category.arDesc : category.enDesc}</span><div className="course-progress"><div><i style={{ width: "0%" }}/></div><small>{rtl ? "جاهز لإضافة فيديوهات AlexFisher" : "Ready for AlexFisher videos"}</small></div></div>
-      <div className={`lessons-panel ${selected === "species" ? "species-panel" : ""}`}>
-        <div className="lessons-heading"><div><p>{selected === "species" ? (rtl ? "دليل الأسماك" : "FISH GUIDE") : (rtl ? "محتوى المسار" : "COURSE CONTENT")}</p><h2>{selected === "species" ? (rtl ? "اعرف السمكة قبل ما تصطادها" : "Know your target fish") : (rtl ? "ابدأ من الأساسيات" : "Start with the essentials")}</h2></div><span>{selected === "species" ? fishSpecies.length : lessons.length} {selected === "species" ? (rtl ? "أنواع" : "species") : (rtl ? "دروس" : "lessons")}</span></div>
-        {selected === "species" ? <div className="species-grid">{fishSpecies.map((fish) => <article key={fish.en}>
-          <div className="species-card-head"><span><Fish size={17}/></span><div><small>{rtl ? "سمك البحر المتوسط" : "MEDITERRANEAN FISH"}</small><h3>{rtl ? fish.ar : fish.en}</h3></div></div>
-          <dl><div><dt>{rtl ? "الموسم" : "Season"}</dt><dd>{rtl ? fish.arSeason : fish.enSeason}</dd></div><div><dt>{rtl ? "طريقة الصيد" : "Method"}</dt><dd>{rtl ? fish.arMethod : fish.enMethod}</dd></div><div><dt>{rtl ? "الطُعم" : "Bait"}</dt><dd>{rtl ? fish.arBait : fish.enBait}</dd></div><div><dt>{rtl ? "المكان" : "Habitat"}</dt><dd>{rtl ? fish.arWater : fish.enWater}</dd></div></dl>
-        </article>)}</div> : <div className="lesson-list">{lessons.map((lesson, index) => <article key={lesson}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{lesson}</strong><small>{rtl ? "درس أساسي" : "Essential lesson"}</small></div><em>{rtl ? "قريباً" : "COMING SOON"}</em></article>)}</div>}
-        <div className="quick-guide"><p>{rtl ? "دليل سريع" : "QUICK GUIDE"}</p>{guide.map((tip) => <div key={tip}><Check size={15}/><span>{tip}</span></div>)}</div>
-      </div>
-    </section>
-    <BottomNav active="learning" />
-  </main>;
+export default function LearningPage(){
+  const[language,setLanguage]=useState<Language>("en"),[selected,setSelected]=useState<CourseId>("rods"),[activeLesson,setActiveLesson]=useState("rod-1"),[openSections,setOpenSections]=useState<number[]>([0]),[completed,setCompleted]=useState<string[]>([]),[tab,setTab]=useState("overview");
+  const rtl=language==="ar",course=courses.find(item=>item.id===selected)??courses[0],lessons=useMemo(()=>course.sections.flatMap(section=>section.lessons),[course]),current=lessons.find(item=>item.id===activeLesson)??lessons[0],done=lessons.filter(item=>completed.includes(item.id)).length,totalMinutes=lessons.reduce((sum,item)=>sum+item.minutes,0),progress=Math.round(done/lessons.length*100),Icon=course.icon;
+  function chooseCourse(id:CourseId){const next=courses.find(item=>item.id===id)??courses[0];setSelected(id);setActiveLesson(next.sections[0].lessons[0].id);setOpenSections([0]);setTab("overview")}
+  function toggleSection(index:number){setOpenSections(items=>items.includes(index)?items.filter(item=>item!==index):[...items,index])}
+  function toggleComplete(id:string){setCompleted(items=>items.includes(id)?items.filter(item=>item!==id):[...items,id])}
+  return <main dir={rtl?"rtl":"ltr"} className={`learning-page academy-page ${rtl?"font-arabic":""}`}>
+    <header className="learning-topbar"><Link href="/" className="back-link"><ArrowLeft/>{rtl?"العودة لحالة البحر":"Back to conditions"}</Link><Link className="brand" href="/"><span className="brand-mark"><Waves/></span><span>ALEX<strong>FISHER</strong><small>ACADEMY</small></span></Link><button className="language-button" onClick={()=>setLanguage(rtl?"en":"ar")}><Languages/>{rtl?"EN":"العربية"}</button></header>
+    <section className="academy-hero"><div><p>{rtl?"أكاديمية أليكس فيشر":"ALEXFISHER ACADEMY"}</p><h1>{rtl?"تعلم الصيد، درساً بعد درس.":"Learn fishing, one lesson at a time."}</h1><span>{rtl?"كورسات عملية منظمة في أقسام قصيرة تساعدك على استخدام معداتك بثقة.":"Practical courses organized into short sections so you can use your gear with confidence."}</span></div><div className="academy-progress"><BookOpen/><strong>{courses.length}</strong><span>{rtl?"كورسات تعليمية":"structured courses"}</span><small>{rtl?`${done} دروس مكتملة`:`${done} lessons completed`}</small></div></section>
+    <section className="academy-library"><header><div><p>{rtl?"اختر الكورس":"CHOOSE A COURSE"}</p><h2>{rtl?"مسارات تعلم المعدات":"Gear learning paths"}</h2></div><span>{rtl?"ابدأ من أي موضوع وارجع حيث توقفت.":"Start anywhere and continue at your own pace."}</span></header><div>{courses.map(item=>{const CourseIcon=item.icon,count=item.sections.flatMap(section=>section.lessons).length;return <button key={item.id} className={`${item.tone} ${selected===item.id?"active":""}`} onClick={()=>chooseCourse(item.id)}><i><CourseIcon/></i><span><b>{rtl?item.ar:item.en}</b><small>{item.sections.length} {rtl?"أقسام":"sections"} · {count} {rtl?"دروس":"lessons"}</small></span><ChevronRight className={rtl?"flip":""}/></button>})}</div></section>
+    <section className="academy-course"><header className="academy-coursebar"><div><Icon/><span><small>{rtl?"الكورس الحالي":"CURRENT COURSE"}</small><b>{rtl?course.ar:course.en}</b></span></div><div><span>{progress}% {rtl?"مكتمل":"complete"}</span><i><b style={{width:`${progress}%`}}/></i></div></header><div className="academy-player">
+      <div className="lesson-stage"><div className="lesson-video"><span><Play/></span><small>{rtl?"فيديو الدرس":"LESSON VIDEO"}</small><h2>{rtl?current.ar:current.en}</h2><p>{rtl?"سيظهر فيديو AlexFisher هنا بمجرد نشر محتوى هذا الدرس.":"Your AlexFisher video will appear here when this lesson is published."}</p><button><PlayCircle/>{rtl?"معاينة الدرس":"Preview lesson"}</button></div><nav>{[["overview",rtl?"نظرة عامة":"Overview"],["notes",rtl?"ملاحظاتي":"My notes"],["resources",rtl?"المصادر":"Resources"]].map(([id,label])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id)}>{label}</button>)}</nav><div className="lesson-information">{tab==="overview"&&<><p>{rtl?"عن هذا الدرس":"ABOUT THIS LESSON"}</p><h3>{rtl?current.ar:current.en}</h3><span>{rtl?course.arDesc:course.enDesc}</span><div><Clock3/>{current.minutes} {rtl?"دقيقة":"minutes"}<Sparkles/>{course.level}</div></>}{tab==="notes"&&<><p>{rtl?"ملاحظاتي":"MY NOTES"}</p><h3>{rtl?"احتفظ بأهم النقاط":"Keep the important ideas close"}</h3><span>{rtl?"ستتمكن من حفظ ملاحظات مرتبطة بكل درس.":"You will be able to save notes connected to each lesson."}</span><button><NotebookPen/>{rtl?"الملاحظات قريباً":"Notes coming soon"}</button></>}{tab==="resources"&&<><p>{rtl?"مصادر الدرس":"LESSON RESOURCES"}</p><h3>{rtl?"ملفات وروابط مفيدة":"Useful files and links"}</h3><span>{rtl?"ستجد هنا الأدلة والملفات المرفقة بهذا الدرس.":"Guides and downloads attached to this lesson will live here."}</span><button><Lock/>{rtl?"لا توجد مصادر بعد":"No resources yet"}</button></>}</div></div>
+      <aside className="course-curriculum"><header><div><p>{rtl?"محتوى الكورس":"COURSE CONTENT"}</p><h2>{rtl?course.ar:course.en}</h2><span>{course.sections.length} {rtl?"أقسام":"sections"} · {lessons.length} {rtl?"دروس":"lessons"} · {totalMinutes} {rtl?"دقيقة":"min"}</span></div><button onClick={()=>setOpenSections(openSections.length===course.sections.length?[]:course.sections.map((_,index)=>index))}>{openSections.length===course.sections.length?(rtl?"إغلاق الكل":"Collapse all"):(rtl?"فتح الكل":"Expand all")}</button></header>{course.sections.map((section,index)=>{const open=openSections.includes(index),sectionDone=section.lessons.filter(item=>completed.includes(item.id)).length;return <section key={section.en} className="curriculum-section"><button className="curriculum-heading" onClick={()=>toggleSection(index)}><ChevronDown className={open?"open":""}/><span><b>{rtl?section.ar:section.en}</b><small>{sectionDone}/{section.lessons.length} · {section.lessons.reduce((sum,item)=>sum+item.minutes,0)} {rtl?"دقيقة":"min"}</small></span></button>{open&&<div>{section.lessons.map(item=><button key={item.id} className={`curriculum-lesson ${activeLesson===item.id?"active":""}`} onClick={()=>setActiveLesson(item.id)}><span role="checkbox" aria-checked={completed.includes(item.id)} onClick={event=>{event.stopPropagation();toggleComplete(item.id)}}>{completed.includes(item.id)?<Check/>:null}</span><div><b>{rtl?item.ar:item.en}</b><small><PlayCircle/>{item.minutes} {rtl?"دقيقة":"min"}{item.preview&&<em>{rtl?"معاينة":"PREVIEW"}</em>}</small></div></button>)}</div>}</section>})}</aside>
+    </div></section>
+    <section className="academy-next"><CheckCircle2/><div><p>{rtl?"خطة التطوير":"COURSE ROADMAP"}</p><h2>{rtl?"البنية جاهزة للمحتوى الحقيقي":"The academy is ready for real lessons"}</h2><span>{rtl?"الخطوة القادمة هي رفع الفيديوهات والملفات وربط تقدم المتعلم بقاعدة البيانات.":"Next, publish videos and resources and connect learner progress to the database."}</span></div></section><BottomNav active="learning"/>
+  </main>
 }
