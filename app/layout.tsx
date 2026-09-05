@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import MembershipGate from "@/components/MembershipGate";
 import "./globals.css";
 
 const siteUrl = "https://www.alexfisherofficial.com";
@@ -114,7 +115,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        {children}
+        <MembershipGate>{children}</MembershipGate>
       </body>
     </html>
   );

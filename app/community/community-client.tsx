@@ -1,97 +1,15 @@
 "use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Fish, LoaderCircle, MessageCircle, Send, ShipWheel, Users, Waves } from "lucide-react";
-import type { CommunityActivity, CommunityPost } from "@/db/community";
-import BottomNav from "@/components/BottomNav";
-
-const groups = [
-  { id: "fishing" as const, label: "Fishing", detail: "Catches, locations and conditions", icon: Fish },
-  { id: "surfing" as const, label: "Surfing", detail: "Swell reports and surf questions", icon: Waves },
-  { id: "kayaking" as const, label: "Kayaking", detail: "Trips, safety and launch points", icon: ShipWheel },
-];
-
-export default function CommunityClient({ user, signInPath, signOutPath }: { user: { displayName: string; email: string } | null; signInPath: string; signOutPath: string }) {
-  const [activity, setActivity] = useState<CommunityActivity>("fishing");
-  const [posts, setPosts] = useState<CommunityPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [commentDrafts, setCommentDrafts] = useState<Record<number, string>>({});
-  const [message, setMessage] = useState("");
-
-  const loadPosts = useCallback(async () => {
-    setLoading(true); setMessage("");
-    try {
-      const response = await fetch(`/api/community/posts?activity=${activity}`, { cache: "no-store" });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to load posts");
-      setPosts(data.posts ?? []);
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to load posts"); }
-    finally { setLoading(false); }
-  }, [activity]);
-
-  useEffect(() => { loadPosts(); }, [loadPosts]);
-
-  async function submitPost(event: React.FormEvent) {
-    event.preventDefault(); setSubmitting(true); setMessage("");
-    try {
-      const response = await fetch("/api/community/posts", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ activity, title, content }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to post");
-      setTitle(""); setContent(""); await loadPosts();
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to post"); }
-    finally { setSubmitting(false); }
-  }
-
-  async function submitComment(postId: number) {
-    const draft = commentDrafts[postId]?.trim();
-    if (!draft) return;
-    setSubmitting(true); setMessage("");
-    try {
-      const response = await fetch(`/api/community/posts/${postId}/comments`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ content: draft }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to comment");
-      setCommentDrafts((current) => ({ ...current, [postId]: "" })); await loadPosts();
-    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to comment"); }
-    finally { setSubmitting(false); }
-  }
-
-  return <main className="community-page">
-    <header className="community-topbar">
-      <a href="/" className="back-link"><ArrowLeft size={17}/> Back to conditions</a>
-      <a className="brand" href="/"><span className="brand-mark"><Waves size={22}/></span><span>ALEX<strong>FISHER</strong><small>SEA COMMUNITY</small></span></a>
-      {user ? <div className="community-account"><span>{user.displayName}</span><a href={signOutPath} target="_top">Sign out</a></div> : <a className="community-signin" href={signInPath} target="_top">Sign in to participate</a>}
-    </header>
-
-    <section className="community-hero">
-      <p>LOCAL KNOWLEDGE · REAL CONDITIONS</p><h1>Ask. Share. Get on the water.</h1>
-      <span>Choose your activity, ask the people who do it, and add what you are seeing at the coast.</span>
-    </section>
-
-    <div className="community-app">
-      <aside className="community-channels">
-        <p><Users size={15}/> COMMUNITY GROUPS</p>
-        {groups.map((group) => { const Icon = group.icon; return <button key={group.id} className={activity === group.id ? "active" : ""} onClick={() => setActivity(group.id)}><Icon size={21}/><span><strong>{group.label}</strong><small>{group.detail}</small></span></button>; })}
-      </aside>
-
-      <section className="community-feed">
-        <div className="feed-heading"><div><small>{groups.find((group) => group.id === activity)?.label} community</small><h2>Questions & local reports</h2></div><span>{posts.length} posts</span></div>
-        {user ? <form className="community-composer" onSubmit={submitPost}>
-          <div className="composer-avatar">{user.displayName.slice(0, 2).toUpperCase()}</div>
-          <div><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="What do you want to ask?" maxLength={120} required/><textarea value={content} onChange={(event) => setContent(event.target.value)} placeholder="Add the location, time and useful details..." maxLength={1500} required/><button disabled={submitting}>{submitting ? <LoaderCircle className="spin" size={16}/> : <Send size={16}/>} Publish question</button></div>
-        </form> : <div className="signin-prompt"><MessageCircle size={25}/><div><strong>Join the conversation</strong><p>Sign in to ask questions, share a report and comment.</p></div><a href={signInPath} target="_top">Sign in with ChatGPT</a></div>}
-        {message && <p className="community-message">{message}</p>}
-        {loading ? <div className="community-loading"><LoaderCircle className="spin"/> Loading community…</div> : posts.length === 0 ? <div className="community-empty"><MessageCircle size={30}/><h3>Start the first conversation</h3><p>Ask about today’s conditions, a location, equipment or safety.</p></div> : <div className="posts-list">{posts.map((post) => <article className="community-post" key={post.id}>
-          <div className="post-meta"><div className="composer-avatar small">{post.authorName.slice(0, 2).toUpperCase()}</div><div><strong>{post.authorName}</strong><span>{new Date(post.createdAt).toLocaleString()}</span></div></div>
-          <h3>{post.title}</h3><p>{post.content}</p>
-          <div className="comments-label"><MessageCircle size={15}/> {post.comments.length} comments</div>
-          {post.comments.map((comment) => <div className="community-comment" key={comment.id}><strong>{comment.authorName}</strong><span>{comment.content}</span><small>{new Date(comment.createdAt).toLocaleString()}</small></div>)}
-          {user && <div className="comment-box"><input value={commentDrafts[post.id] ?? ""} onChange={(event) => setCommentDrafts((current) => ({ ...current, [post.id]: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); submitComment(post.id); } }} placeholder="Add a helpful comment…" maxLength={800}/><button disabled={submitting || !commentDrafts[post.id]?.trim()} onClick={() => submitComment(post.id)}><Send size={15}/></button></div>}
-        </article>)}</div>}
-      </section>
-    </div>
-    <BottomNav active="community" />
-  </main>;
-}
+import Link from "next/link";
+import {useCallback,useEffect,useMemo,useRef,useState}from"react";
+import{Bell,Camera,ChevronDown,Fish,ImagePlus,LoaderCircle,LogOut,Menu,MessageCircle,Search,Send,ShipWheel,SmilePlus,Sparkles,Users,Waves,X}from"lucide-react";
+import type{User}from"@supabase/supabase-js";import BottomNav from"@/components/BottomNav";import{createSupabaseClient}from"@/lib/supabase/client";
+type Activity="fishing"|"surfing"|"kayaking";type Profile={display_name:string;role:string};type Attachment={id:string;public_url:string;file_name:string;mime_type:string};type Reaction={emoji:string;user_id:string};type Msg={id:string;channel:Activity;content:string;author_id:string;parent_id:string|null;created_at:string;profiles:Profile|null;community_attachments:Attachment[];community_reactions:Reaction[]};
+const channels=[{id:"fishing"as const,label:"Fishing",detail:"Catches, tackle & local reports",icon:Fish},{id:"surfing"as const,label:"Surfing",detail:"Swell, breaks & sessions",icon:Waves},{id:"kayaking"as const,label:"Kayaking",detail:"Routes, launches & safety",icon:ShipWheel}],emojis=["👍","🎣","🌊","🔥","❤️"];
+const initials=(s:string)=>s.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase();const ago=(s:string)=>{const n=Math.max(1,(Date.now()-new Date(s).getTime())/1000);return n<60?"now":n<3600?`${Math.floor(n/60)}m`:n<86400?`${Math.floor(n/3600)}h`:`${Math.floor(n/86400)}d`};
+export default function Community(){const db=useMemo(createSupabaseClient,[]),fileInput=useRef<HTMLInputElement>(null);const[user,setUser]=useState<User|null>(null),[profile,setProfile]=useState<Profile|null>(null),[activity,setActivity]=useState<Activity>("fishing"),[messages,setMessages]=useState<Msg[]>([]),[draft,setDraft]=useState(""),[reply,setReply]=useState<Msg|null>(null),[file,setFile]=useState<File|null>(null),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[error,setError]=useState(""),[menu,setMenu]=useState(false),[picker,setPicker]=useState<string|null>(null);
+const load=useCallback(async()=>{if(!db)return;setLoading(true);const{data,error}=await db.from("community_messages").select("id,channel,content,author_id,parent_id,created_at,profiles(display_name,role),community_attachments(id,public_url,file_name,mime_type),community_reactions(emoji,user_id)").eq("channel",activity).order("created_at").limit(200);setError(error?.message??"");if(data)setMessages(data as unknown as Msg[]);setLoading(false)},[activity,db]);
+useEffect(()=>{db?.auth.getUser().then(async({data})=>{setUser(data.user);if(data.user){const{data:p}=await db.from("profiles").select("display_name,role").eq("id",data.user.id).single();setProfile(p)}})},[db]);useEffect(()=>{load();if(!db)return;const c=db.channel(`room:${activity}`).on("postgres_changes",{event:"*",schema:"public",table:"community_messages",filter:`channel=eq.${activity}`},load).on("postgres_changes",{event:"*",schema:"public",table:"community_reactions"},load).subscribe();return()=>{db.removeChannel(c)}},[activity,db,load]);
+async function send(){if(!db||!user||(!draft.trim()&&!file))return;setBusy(true);const{data:m,error:e}=await db.from("community_messages").insert({channel:activity,content:draft.trim(),author_id:user.id,parent_id:reply?.id??null}).select("id").single();if(e){setError(e.message);setBusy(false);return}if(file&&m){const clean=file.name.replace(/[^\w.-]/g,"-"),path=`${user.id}/${m.id}/${crypto.randomUUID()}-${clean}`,{error:u}=await db.storage.from("community-media").upload(path,file);if(u)setError(u.message);else{const{data}=db.storage.from("community-media").getPublicUrl(path);const{error:a}=await db.from("community_attachments").insert({message_id:m.id,owner_id:user.id,storage_path:path,public_url:data.publicUrl,file_name:file.name,mime_type:file.type,size_bytes:file.size});if(a)setError(a.message)}}setDraft("");setFile(null);setReply(null);await load();setBusy(false)}
+async function react(m:Msg,emoji:string){if(!db||!user)return;const exists=m.community_reactions.some(r=>r.emoji===emoji&&r.user_id===user.id),q=exists?db.from("community_reactions").delete().eq("message_id",m.id).eq("user_id",user.id).eq("emoji",emoji):db.from("community_reactions").insert({message_id:m.id,user_id:user.id,emoji});const{error}=await q;if(error)setError(error.message);else await load();setPicker(null)}
+const room=channels.find(x=>x.id===activity)!,RoomIcon=room.icon,name=profile?.display_name||user?.email||"Member",roots=messages.filter(m=>!m.parent_id);
+return <main className="discord"><header className="discord-head"><button onClick={()=>setMenu(true)}><Menu/></button><Link href="/"><i><Waves/></i>ALEX<strong>FISHER</strong><small>COMMUNITY</small></Link><div><Search/><input placeholder="Search community"/><kbd>⌘ K</kbd></div><button><Bell/></button></header><div className="discord-grid"><aside className={menu?"open":""}><button className="close" onClick={()=>setMenu(false)}><X/></button><hgroup><small>ALEXFISHER COMMUNITY</small><h2>Choose your water</h2></hgroup><p><ChevronDown/> CHANNELS</p>{channels.map(c=>{const Icon=c.icon;return <button className={activity===c.id?"active":""} key={c.id} onClick={()=>{setActivity(c.id);setMenu(false)}}><Icon/><span><b>{c.label}</b><small>{c.detail}</small></span></button>})}<section><Sparkles/><span><b>Keep it useful</b><small>Share real conditions, protect sensitive spots, and look out for each other.</small></span></section><footer><i>{initials(name)}</i><span><b>{name}</b><small>● Online · Free member</small></span><button onClick={()=>db?.auth.signOut()}><LogOut/></button></footer></aside>{menu&&<button className="scrim" onClick={()=>setMenu(false)}/>}<section className="chat"><header><i><RoomIcon/></i><span><h1>{room.label}</h1><p>{room.detail}</p></span><b><Users/> AlexFisher members</b></header><div className="feed">{loading?<div className="state"><LoaderCircle className="spin"/>Loading conversation…</div>:error&&!messages.length?<div className="state"><MessageCircle/><h2>Connect the community database</h2><p>{error}</p></div>:!roots.length?<div className="state"><RoomIcon/><h2>Welcome to #{activity}</h2><p>Ask a question, share today&apos;s conditions or post a photo.</p></div>:roots.map(m=>{const reactions=Object.groupBy(m.community_reactions,r=>r.emoji);return <article key={m.id}><i>{initials(m.profiles?.display_name??"Member")}</i><div><header><b>{m.profiles?.display_name??"Member"}</b>{m.profiles?.role==="admin"&&<em>CREW</em>}<time>{ago(m.created_at)}</time></header><p>{m.content}</p>{m.community_attachments.map(a=><a key={a.id} href={a.public_url} target="_blank"><img src={a.public_url} alt={a.file_name}/></a>)}<nav>{Object.entries(reactions).map(([emoji,items])=><button key={emoji} onClick={()=>react(m,emoji)}>{emoji} {items?.length}</button>)}<button onClick={()=>setPicker(picker===m.id?null:m.id)}><SmilePlus/> React</button><button onClick={()=>setReply(m)}><MessageCircle/> Reply</button>{picker===m.id&&<span>{emojis.map(e=><button key={e} onClick={()=>react(m,e)}>{e}</button>)}</span>}</nav>{messages.filter(x=>x.parent_id===m.id).map(r=><section className="thread" key={r.id}><i>{initials(r.profiles?.display_name??"M")}</i><div><b>{r.profiles?.display_name??"Member"}</b><time>{ago(r.created_at)}</time><p>{r.content}</p></div></section>)}</div></article>})}</div>{error&&messages.length>0&&<output>{error}</output>}<div className="chatbox">{reply&&<p>Replying to <b>{reply.profiles?.display_name}</b><button onClick={()=>setReply(null)}><X/></button></p>}{file&&<p><ImagePlus/>{file.name}<button onClick={()=>setFile(null)}><X/></button></p>}<section><button onClick={()=>fileInput.current?.click()}><ImagePlus/></button><textarea value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}}} placeholder={`Message #${activity}`}/><button onClick={()=>fileInput.current?.click()}><Camera/></button><button className="send" disabled={busy||(!draft.trim()&&!file)} onClick={send}>{busy?<LoaderCircle className="spin"/>:<Send/>}</button><input ref={fileInput} hidden type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={e=>{const f=e.target.files?.[0];if(f&&f.size<=8388608)setFile(f);else if(f)setError("Images must be 8 MB or smaller.")}}/></section><small>Enter to send · Shift + Enter for a new line · Images up to 8 MB</small></div></section></div><BottomNav active="community"/></main>}
