@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ArrowLeft, Check, ChevronRight, CircleDot, Fish, Languages, Layers3, Ruler, Sparkles, Waves } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 type CategoryId = "reels" | "rods" | "hooks" | "lures" | "braid" | "species";
 type Language = "en" | "ar";
@@ -102,5 +103,6 @@ export default function LearningPage() {
         <div className="quick-guide"><p>{rtl ? "دليل سريع" : "QUICK GUIDE"}</p>{guide.map((tip) => <div key={tip}><Check size={15}/><span>{tip}</span></div>)}</div>
       </div>
     </section>
+    <BottomNav active="learning" />
   </main>;
 }

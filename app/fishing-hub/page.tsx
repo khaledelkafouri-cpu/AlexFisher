@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Anchor, ArrowLeft, ChevronRight, Fish, Languages, ScanLine, Sparkles, Target, Waves } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 type Language = "en" | "ar";
 
@@ -92,6 +93,7 @@ export default function FishingHubPage() {
           );
         })}
       </section>
+      <BottomNav active="fishing-hub" />
     </main>
   );
 }

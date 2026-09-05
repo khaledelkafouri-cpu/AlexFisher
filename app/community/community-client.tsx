@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Fish, LoaderCircle, MessageCircle, Send, ShipWheel, Users, Waves } from "lucide-react";
 import type { CommunityActivity, CommunityPost } from "@/db/community";
+import BottomNav from "@/components/BottomNav";
 
 const groups = [
   { id: "fishing" as const, label: "Fishing", detail: "Catches, locations and conditions", icon: Fish },
@@ -91,5 +92,6 @@ export default function CommunityClient({ user, signInPath, signOutPath }: { use
         </article>)}</div>}
       </section>
     </div>
+    <BottomNav active="community" />
   </main>;
 }

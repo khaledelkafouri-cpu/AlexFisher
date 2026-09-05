@@ -7,6 +7,7 @@ import {
   Sparkles, Sunrise, Thermometer, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BottomNav from "@/components/BottomNav";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 type Activity = "fishing" | "surfing" | "kayaking";
@@ -1083,6 +1084,7 @@ export default function Home() {
         </div>
         <span>© 2026 AlexFisher</span>
       </footer>
+      <BottomNav active="conditions" />
     </main>
   );
 }

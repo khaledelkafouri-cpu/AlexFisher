@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ArrowLeft, Backpack, ChevronRight, Fish, Languages, ShieldCheck, Shirt, ShoppingBag, Sun, Waves } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 type Language = "en" | "ar";
 
@@ -44,5 +45,6 @@ export default function ShopPage() {
       <div className="planned-products">{plannedProducts.map((product) => { const Icon = product.icon; return <article key={product.en}><span><Icon size={21}/></span><div><small>{rtl ? product.typeAr : product.typeEn}</small><strong>{rtl ? product.ar : product.en}</strong></div><em>{rtl ? "قريباً" : "COMING SOON"}</em></article>; })}</div>
       <div className="shop-community-note"><div><ShoppingBag size={23}/><span><strong>{rtl ? "عايز تقترح منتج؟" : "Want to suggest a product?"}</strong><small>{rtl ? "شارك الأدوات التي تحتاجها مع مجتمع AlexFisher." : "Tell the AlexFisher community what gear would genuinely help you."}</small></span></div><a href="/community">{rtl ? "اذهب للمجتمع" : "Open community"}<ChevronRight size={17} className={rtl ? "flip" : ""}/></a></div>
     </section>
+    <BottomNav active="shop" />
   </main>;
 }
