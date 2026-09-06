@@ -87,6 +87,32 @@ lessons changes the total on the next page load.
 
 ## Important safeguards
 
+### Member profile settings
+
+Members open **Account** in the bottom navigation or visit `/account`. Profile details
+(display name, optional country/city and activities) and marketing consent save in
+separate forms using the existing own-row Supabase policies. The fields already exist.
+Before releasing these settings, apply
+`supabase/migrations/202609061700_profile_settings_permissions.sql` in Supabase SQL
+Editor after the existing admin and community migrations. It removes the older grant
+that allowed authenticated users to change their own role, and protects moderation
+status while preserving server-side admin updates and authorised community moderation.
+This hardening migration has to be applied separately from a GitHub deployment.
+Review existing administrator/moderator roles after applying it; the migration does
+not change previously stored roles or detect historical misuse.
+Optional profile fields are readable by signed-in members under the existing profile
+policy; the settings page explains this before users enter location information.
+
+The page includes password confirmation, optional Supabase reauthentication codes,
+sign-out for this browser or other sessions, read-only membership status and a JSON
+download of saved profile settings (not a full community/course-history export).
+Language is a browser preference, not a synced account setting. Sign-in email is
+read-only; self-service email changes, avatar uploads, deletion and billing controls
+are not part of this settings release. Keep Supabase password security and email
+delivery configured; other sessions can retain access until their access tokens expire.
+
+### Administration
+
 - Deleting a member permanently removes the authentication account and related data.
 - Deleting a community post also removes associated replies, reactions, and media.
 - Keep at least one administrator account and never share the private service key.
