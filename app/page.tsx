@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowDown, ArrowUp, ArrowUpRight, Bell, ChevronRight, CloudRain, Compass, Fish, Gauge, Kayak,
   Languages, MapPin, Navigation, RefreshCw, Search, ShipWheel,
-  Sparkles, Sunrise, Thermometer, Waves, Wind,
+  Sparkles, Sunrise, Thermometer, UserRound, Waves, Wind,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BottomNav from "@/components/BottomNav";
@@ -959,6 +959,7 @@ export default function Home() {
           </Sheet>
           <button className="icon-button" aria-label="Notifications"><Bell size={18} /></button>
           <button className="language-button" onClick={toggleLanguage}><Languages size={17} /> {language === "en" ? "العربية" : "EN"}</button>
+          <a href="/account" className="icon-button account-header-button" aria-label={rtl ? "إعدادات حسابي" : "Account settings"} title={rtl ? "حسابي" : "My account"}><UserRound size={18} /></a>
         </div>
       </header>
 

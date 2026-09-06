@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Droplet, Fish, Store, Users, UserRound } from "lucide-react";
+import { BookOpen, Droplet, Fish, Store, Users } from "lucide-react";
 
 export type BottomNavTab = "conditions" | "fishing-hub" | "learning" | "community" | "shop" | "account";
 
@@ -11,7 +11,6 @@ const tabs: { id: BottomNavTab; href: string; icon: typeof Droplet; en: string; 
   { id: "learning", href: "/learning", icon: BookOpen, en: "Learning", ar: "تعلم" },
   { id: "community", href: "/community", icon: Users, en: "Community", ar: "المجتمع" },
   { id: "shop", href: "/shop", icon: Store, en: "Shop", ar: "المتجر" },
-  { id: "account", href: "/account", icon: UserRound, en: "Account", ar: "حسابي" },
 ];
 
 export default function BottomNav({ active }: { active: BottomNavTab }) {

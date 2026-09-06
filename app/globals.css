@@ -22,6 +22,7 @@ button,a,select { -webkit-tap-highlight-color:transparent; }
 .header-actions { display:flex; align-items:center; gap:8px; }
 .icon-button,.language-button,.mobile-menu-button { height:38px; border:1px solid var(--line); background:rgba(255,255,255,.7); border-radius:12px; color:var(--ink); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .icon-button { width:38px; }
+.header-actions .account-header-button { display:inline-flex; flex-shrink:0; text-decoration:none; }
 .language-button { padding:0 13px; gap:7px; font-size:12px; font-weight:700; }
 .mobile-menu-button { display:none; padding:0 12px; gap:7px; font-size:12px; font-weight:750; }
 .explore-wave-mark { width:27px; height:27px; flex:0 0 27px; display:grid; place-items:center; border:1px solid rgba(61,215,208,.3); border-radius:50%; color:var(--cyan); background:#071f29; }
