@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-labelledby="title">
+<title id="title">Fine-wire spade-end natural bait hook without a ring</title>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07333e"/><stop offset="1" stop-color="#0a4149"/></linearGradient><linearGradient id="metal" x1="0" y1="0" x2="1" y2=".4"><stop stop-color="#6f8990"/><stop offset=".32" stop-color="#edf7f5"/><stop offset=".55" stop-color="#879da2"/><stop offset=".85" stop-color="#d8e8e8"/><stop offset="1" stop-color="#73888d"/></linearGradient></defs>
+<rect width="360" height="360" fill="url(#bg)"/>
+<circle cx="183" cy="190" r="140" fill="none" stroke="#3dd7d0" stroke-opacity=".06"/>
+<path d="M233 71 L233 264 C233 300 215 319 185 319 C151 319 136 299 136 270 L136 229" fill="none" stroke="#03222c" stroke-width="10" stroke-linecap="round" transform="translate(3 4)"/>
+<path d="M233 71 L233 264 C233 300 215 319 185 319 C151 319 136 299 136 270 L136 229" fill="none" stroke="url(#metal)" stroke-width="6" stroke-linecap="round"/>
+<path d="M136 242 L147 256 L139 237" fill="#c3d7d9"/><polygon points="136,218 131,246 141,239" fill="#dfedec"/>
+<path d="M224 52 L240 52 L237 73 L229 73 Z" fill="url(#metal)" stroke="#cfe0e2" stroke-width="1"/>
+</svg>

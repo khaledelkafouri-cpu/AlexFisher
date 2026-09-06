@@ -44,8 +44,8 @@ export default function FishingHubPage() {
       number: "03",
       title: rtl ? "دليل اختيار الخطاف" : "Hook Matcher",
       description: rtl
-        ? "اختر نوع الخطاف وحجمه وقوته وموضعه، وافهم لماذا يناسب طريقتك والسمكة المستهدفة."
-        : "Choose the hook type, size, strength and position—and understand why it fits your target and technique.",
+        ? "اختر خطاف الطُعم الطبيعي حسب الطُعم وحجمه والسمكة. قارن صور الخطافات بعين أو برأس مفلطح."
+        : "Match a natural-bait hook to your bait, bait size and target. Compare eyed and spade-end hook images.",
       action: rtl ? "اختر الخطاف" : "Match your hook",
     },
     {
