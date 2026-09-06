@@ -66,6 +66,25 @@ Members see published content at `/learning`, and completed lessons are saved to
 accounts. For large-scale paid video, prefer Cloudflare Stream or Mux over storing raw
 video in Supabase; both are built for adaptive streaming and high bandwidth.
 
+## Learning Q&A and progress
+
+Apply `supabase/migrations/202609060600_learning_questions.sql` in the same Supabase
+project after the Academy migration. This adds persistent lesson questions and replies.
+Until it is applied, Q&A displays an unavailable message; it does not pretend posts are saved.
+
+Members open a lesson, select **Q&A** beside **Resources**, and post a question/comment.
+**Comments & replies** opens the discussion under each question. Questions and replies
+are paginated, preserve drafts after posting failures, and require an active membership
+with access to the published lesson. Only display names are shown, not email addresses.
+The tables are protected with RLS and accessed exclusively through the authenticated
+server API. Administrators can inspect/moderate the tables in Supabase Table Editor.
+
+The top **Your progress** circle now counts all unique published lessons across the
+member's available courses: completed lessons / total lessons. The pop-up separately
+shows each course's counts. Draft, archived and inaccessible lessons are excluded.
+100% is displayed only when every available lesson has been completed. Publishing new
+lessons changes the total on the next page load.
+
 ## Important safeguards
 
 - Deleting a member permanently removes the authentication account and related data.
