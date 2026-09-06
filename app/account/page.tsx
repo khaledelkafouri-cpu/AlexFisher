@@ -7,6 +7,7 @@ import {createSupabaseClient} from '@/lib/supabase/client';
 import {activityIds,cleanProfile,passwordIssue,type ProfileSettings} from '@/lib/account-settings';
 import BottomNav from '@/components/BottomNav';
 import './account.css';
+import ProfilePhoto from '@/components/ProfilePhoto';
 
 type Section='profile'|'emails'|'password'|'sessions'|'language'|'export';
 type Notice={ok:boolean;text:string};
@@ -16,6 +17,7 @@ const empty:ProfileSettings={display_name:'',country:'',city:'',interests:[]};
 export default function Account(){
   const db=useMemo(()=>createSupabaseClient(),[]);
   const [member,setMember]=useState<Member|null>(null),[profile,setProfile]=useState<ProfileSettings>(empty),[savedProfile,setSavedProfile]=useState<ProfileSettings>(empty);
+  const [avatar,setAvatar]=useState<string|null>(null);
   const [marketing,setMarketing]=useState(false),[savedMarketing,setSavedMarketing]=useState(false);
   const [loading,setLoading]=useState(true),[loadError,setLoadError]=useState(''),[retry,setRetry]=useState(0);
   const [pending,setPending]=useState<Section|null>(null),[notices,setNotices]=useState<Partial<Record<Section,Notice>>>({});
@@ -39,13 +41,13 @@ export default function Account(){
         const {data,error}=await db.auth.getUser();if(error||!data.user)throw new Error('Please sign in again to open your settings.');
         const user=data.user;
         const [p,c]=await Promise.all([
-          db.from('profiles').select('display_name,country,city,interests,role').eq('id',user.id).single(),
+          db.from('profiles').select('display_name,country,city,interests,role,avatar_url').eq('id',user.id).single(),
           db.from('audience_contacts').select('plan,subscription_status,marketing_consent').eq('user_id',user.id).single(),
         ]);
         if(p.error||c.error||!p.data||!c.data)throw new Error('Your settings could not be loaded. Nothing has been changed.');
         if(!active)return;
         const value={display_name:p.data.display_name??'',country:p.data.country??'',city:p.data.city??'',interests:p.data.interests??[]};
-        setProfile(value);setSavedProfile(value);setMarketing(c.data.marketing_consent);setSavedMarketing(c.data.marketing_consent);
+        setAvatar(p.data.avatar_url);setProfile(value);setSavedProfile(value);setMarketing(c.data.marketing_consent);setSavedMarketing(c.data.marketing_consent);
         setMember({id:user.id,email:user.email??'',verified:!!user.email_confirmed_at,role:p.data.role,joined:user.created_at,plan:c.data.plan,status:c.data.subscription_status});
         setLoadError('');
       }catch(error){if(active)setLoadError(error instanceof Error?error.message:'Unable to load settings.')}
@@ -74,7 +76,7 @@ export default function Account(){
     <div className="settings-wrap"><header className="settings-heading"><span className="settings-kicker">{t('YOUR ALEXFISHER ACCOUNT','حسابك في أليكس فيشر')}</span><h1>{t('Profile & settings','الملف الشخصي والإعدادات')}</h1><p>{t('Your details, your preferences, your control.','بياناتك وتفضيلاتك تحت تحكمك.')}</p></header>
       {loading?<p role="status"><LoaderCircle className="spin"/>{t('Loading your settings…','جارٍ تحميل إعداداتك…')}</p>:loadError?<section className="settings-card"><h2>{t('Unable to open settings','تعذر فتح الإعدادات')}</h2><p role="alert">{rtl?'تعذر تحميل بيانات الحساب. تأكد من تسجيل الدخول وحاول مرة أخرى. لم يتم تغيير أي بيانات.':loadError}</p><button onClick={()=>{setLoading(true);setRetry(value=>value+1)}}>{t('Try again','حاول مرة أخرى')}</button><Link href="/login?next=/account">{t('Sign in','تسجيل الدخول')}</Link></section>:member&&<>
         <nav className="settings-sections" aria-label={t('Account sections','أقسام الحساب')}>{[['profile',t('Profile','الملف الشخصي')],['preferences',t('Preferences','التفضيلات')],['security',t('Security','الأمان')],['membership',t('Membership','العضوية')]].map(([id,label])=><a key={id} href={`#settings-${id}`}>{label}</a>)}</nav>
-        <div className="settings-layout"><aside className="settings-summary"><i aria-hidden="true">{savedProfile.display_name.trim().slice(0,2).toUpperCase()||'AF'}</i><h2>{savedProfile.display_name}</h2><p>{member.email}</p><span>{member.verified?t('Email verified','البريد مؤكد'):t('Email not verified','البريد غير مؤكد')}</span><small>{t('Member since','عضو منذ')} {new Date(member.joined).toLocaleDateString(rtl?'ar-EG':'en-GB',{month:'long',year:'numeric'})}</small>{dirty&&<p className="settings-dirty" role="status">{t('You have unsaved changes.','لديك تغييرات لم تُحفظ.')}</p>}{member.role==='admin'&&<Link href="/admin">{t('Administrator dashboard','لوحة تحكم المدير')} →</Link>}</aside>
+        <div className="settings-layout"><aside className="settings-summary"><i aria-hidden="true">{avatar?<img src={avatar} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:'50%'}}/>:savedProfile.display_name.trim().slice(0,2).toUpperCase()||'AF'}</i><ProfilePhoto userId={member.id} initialUrl={avatar} rtl={rtl} onSaved={setAvatar}/><h2>{savedProfile.display_name}</h2><p>{member.email}</p><span>{member.verified?t('Email verified','البريد مؤكد'):t('Email not verified','البريد غير مؤكد')}</span><small>{t('Member since','عضو منذ')} {new Date(member.joined).toLocaleDateString(rtl?'ar-EG':'en-GB',{month:'long',year:'numeric'})}</small>{dirty&&<p className="settings-dirty" role="status">{t('You have unsaved changes.','لديك تغييرات لم تُحفظ.')}</p>}{member.role==='admin'&&<Link href="/admin">{t('Administrator dashboard','لوحة تحكم المدير')} →</Link>}</aside>
           <div className="settings-panels">
             <section id="settings-profile" className="settings-card"><h2><UserRound/>{t('Your profile','ملفك الشخصي')}</h2><p>{t('Your display name appears beside your posts and questions. Optional location and interests may be visible to signed-in members. Do not add a home address.','اسمك يظهر بجانب منشوراتك وأسئلتك. قد تظهر المنطقة والاهتمامات الاختيارية للأعضاء المسجلين. لا تضف عنوان منزلك.')}</p>
               <form onSubmit={event=>{event.preventDefault();void run('profile',async()=>{

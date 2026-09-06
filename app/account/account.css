@@ -1,5 +1,8 @@
 .settings-page{min-height:100dvh;padding-bottom:calc(100px + env(safe-area-inset-bottom));background:#f1f6f5;color:#082833;font-size:16px;line-height:1.6}
 .settings-page *{box-sizing:border-box}
+.settings-photo{width:100%;margin:16px 0;overflow-wrap:anywhere}
+.settings-photo input{display:block;width:100%;max-width:100%;font-size:12px;margin:8px 0}
+.settings-photo p{font-size:13px}
 .settings-page :is(input,select,button){font:inherit}
 .settings-page :is(button,a,input,select,summary):focus-visible{outline:3px solid #16a5a2;outline-offset:3px}
 .settings-page button{cursor:pointer;min-height:44px;border:1px solid #c9ddda;border-radius:10px;background:#fff;color:#0d5965;padding:10px 16px;font-size:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}

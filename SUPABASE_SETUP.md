@@ -129,3 +129,11 @@ usage. Upgrade plans and add rate limits, moderation workflows, backups, observa
 and support processes before traffic reaches free-tier limits. A million-member service
 requires deliberate database indexing, pagination, background jobs, abuse controls,
 delivery providers, and a paid infrastructure plan.
+# Profile photos and password recovery (September 6)
+
+- Apply `supabase/migrations/202609061800_profile_avatars.sql` in Supabase SQL Editor after the existing profile permissions migration. Deploying code alone does not create this bucket or its policies.
+- Profile photos are public; only the owner can upload/delete within their folder. JPG/PNG/WebP up to 2 MB are accepted and resized/re-encoded in the browser before upload. The profile record changes only after upload succeeds. Removing/replacing a photo attempts to delete the previous owned file; cached public copies can remain temporarily.
+- Authentication → URL Configuration: set Site URL to `https://www.alexfisherofficial.com` and allow `https://www.alexfisherofficial.com/auth/callback?next=/auth/reset-password`. Preserve existing signup redirect URLs. If testing another host, allow its exact callback too.
+- Keep the Reset Password email template linked to `{{ .ConfirmationURL }}` for the existing PKCE callback flow. Open the newest reset link in the same browser/device that requested it. The callback now opens a dedicated new-password form, without depending on profile/contact records loading.
+- If no email arrives: inspect Supabase Authentication logs and your SMTP provider's delivery logs; check spam, sender verification, SMTP configuration and rate limits. A successful reset request does not prove mailbox delivery or that an account exists. Supabase's default email service is restricted and is not a production delivery solution; configure custom SMTP for customers.
+- Test with a dedicated test member: request reset → open email → set matching 12–128 character password → sign out → sign in using the new password. Also test expired links, another browser, invalid files, upload failure, photo replacement and removal. Live email delivery and storage policies must be verified after configuration; no real member passwords were changed during implementation.
